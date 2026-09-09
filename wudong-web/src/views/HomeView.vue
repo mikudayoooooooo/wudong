@@ -4,9 +4,12 @@ import { ref } from 'vue'
 import HeroCarousel from '../components/HeroCarousel.vue'
 import FootprintMap from '../components/FootprintMap.vue'
 import SectionHeader from '../components/SectionHeader.vue'
+import Waterfall from '../components/Waterfall.vue'
+import CountUp from '../components/CountUp.vue'
 import { weeklyLeaderboard } from '../lib/stats'
-import { getRoutes, getAllSpots } from '../data/mock'
-import { routeStopsView } from '../lib/footprint'
+import { sortPosts } from '../lib/feed'
+import { getRoutes, getAllSpots, getPosts, getTopics, getUsers, getGuides, getPostFootprints } from '../data/mock'
+import { routeStopsView, userLitSpotIds } from '../lib/footprint'
 
 const router = useRouter()
 const bookDate = ref('2026-09-13')
@@ -30,6 +33,26 @@ const overviewStops = (() => {
 
 const board = weeklyLeaderboard()
 const barWidth = (i: number): string => `${Math.max((board[i].count / (board[0].count || 1)) * 100, 6)}%`
+
+// 区块5：足迹精选（有足迹快照的游记按点赞取3）
+const highlightPosts = sortPosts(getPosts(), 'recommend').filter((p) => p.linkedRouteId).slice(0, 3)
+const gradOf = (i: number): string => ['linear-gradient(120deg,#7fae8e,#33523e)', 'linear-gradient(120deg,#c9a06b,#8a5f2e)', 'linear-gradient(120deg,#8e7fae,#4a3a6a)'][i % 3]
+function getPostFootprintsOf(postId: number): string {
+  const n = getPostFootprints(postId).filter((s) => s.status === 'normal').length
+  return n > 0 ? `${n} 站点亮` : '待生成'
+}
+
+// 区块6：瀑布流 + 侧栏
+const feedPosts = sortPosts(getPosts(), 'recommend')
+const topicRank = [...getTopics()].sort((a, b) => b.viewCount - a.viewCount)
+// 活跃旅人 = 按点亮站数排序的用户
+const activeUsers = getUsers()
+  .map((u) => ({ ...u, litCount: userLitSpotIds(u.id).size }))
+  .sort((a, b) => b.litCount - a.litCount)
+  .slice(0, 3)
+
+// 区块7：攻略 + 平台数据
+const guides = getGuides()
 </script>
 
 <template>
@@ -90,6 +113,68 @@ const barWidth = (i: number): string => `${Math.max((board[i].count / (board[0].
         <div class="notice">· 中秋两日游余票紧张<br />· 新增广州→凯里高铁攻略</div>
       </aside>
     </section>
+
+    <!-- 区块5：真实足迹精选 -->
+    <SectionHeader icon="🧭" title="真实足迹" sub="本周点亮最完整的游记" more="进入社区" @more="router.push('/community')" />
+    <section class="hl-row">
+      <div v-for="(p, i) in highlightPosts" :key="p.id" class="card hl" @click="router.push(`/post/${p.id}`)">
+        <div class="ph hl-img" :style="{ background: gradOf(i) }">{{ p.title }}</div>
+        <div class="hl-body">
+          <b>@{{ getUsers().find((u) => u.id === p.userId)?.nickname }}</b>
+          <span class="sub">· {{ getRoutes().find((r) => r.id === p.linkedRouteId)?.title }}</span>
+          <div class="chain-line">🧭 足迹快照 {{ getPostFootprintsOf(p.id) }} · 赞 {{ p.likeCount }}</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 区块6：社区瀑布流 + 侧栏 -->
+    <section class="feed-row">
+      <div class="feed-main">
+        <div class="tabs">
+          <span class="pill tab on">推荐</span><span class="pill tab">最新</span><span class="pill tab">关注</span>
+          <span v-for="t in topicRank.slice(0, 3)" :key="t.id" class="pill tab">{{ t.name }}</span>
+        </div>
+        <Waterfall :posts="feedPosts.slice(0, 6)" @open="(id) => router.push(`/post/${id}`)" @tag="(rid) => router.push(`/route/${rid}`)" />
+      </div>
+      <aside class="side">
+        <div class="card side-card">
+          <b>🔥 话题榜</b>
+          <div class="side-list">
+            <span v-for="t in topicRank" :key="t.id">{{ t.name }} {{ t.viewCount.toLocaleString() }}浏览</span>
+          </div>
+        </div>
+        <div class="card side-card">
+          <b>🌟 活跃旅人</b>
+          <div class="side-list">
+            <span v-for="u in activeUsers" :key="u.id" @click="router.push(`/user/${u.id}`)">
+              {{ u.avatar }} {{ u.nickname }} · 足迹 {{ u.litCount }}/6 站
+            </span>
+          </div>
+        </div>
+        <div class="card side-card">
+          <b>🎫 顺手买一票</b>
+          <div class="side-list"><span>苗寨深度两日游 ¥899 ›</span></div>
+        </div>
+      </aside>
+    </section>
+
+    <!-- 区块7：交通攻略 + 平台数据 -->
+    <section class="serv-row">
+      <div class="card guides">
+        <b>🚄 怎么来乌东？</b>
+        <div class="guide-cards">
+          <div v-for="g in guides" :key="g.id" class="g-card">
+            <b>{{ g.departure }}出发</b><br />{{ g.transportType }} {{ g.duration }}<br />
+            <b class="cost">约 ¥{{ g.cost }}</b>
+          </div>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stat"><CountUp :value="52318" /><span>张电子票已核销</span></div>
+        <div class="stat"><CountUp :value="186542" /><span>次足迹点亮</span></div>
+        <div class="stat"><CountUp :value="98" suffix="%" /><span>行程完成率</span></div>
+      </div>
+    </section>
   </div>
 </template>
 
@@ -123,4 +208,25 @@ const barWidth = (i: number): string => `${Math.max((board[i].count / (board[0].
 .days { font-size: 22px; font-weight: 800; color: var(--orange-700); }
 .link { color: var(--amber-text); cursor: pointer; font-size: 11px; }
 .notice { color: var(--text-3); margin-top: 4px; }
+.hl-row { display: flex; gap: 12px; }
+.hl { flex: 1; cursor: pointer; }
+.hl-img { height: 86px; border-radius: 0; font-size: 13px; font-weight: 600; }
+.hl-body { padding: 8px 10px; font-size: 12px; }
+.chain-line { color: var(--amber-text); font-size: 11px; margin-top: 4px; }
+.feed-row { display: flex; gap: 12px; margin-top: 6px; }
+.feed-main { flex: 1; }
+.tabs { display: flex; gap: 8px; margin-bottom: 10px; font-size: 12px; }
+.tab { background: #f2f2f2; cursor: pointer; }
+.tab.on { background: var(--green-600); color: #fff; }
+.side { width: 240px; display: flex; flex-direction: column; gap: 12px; }
+.side-card { padding: 10px 12px; font-size: 12px; background: var(--paper); }
+.side-list { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; color: var(--text-2); }
+.side-list span { cursor: pointer; }
+.serv-row { display: flex; gap: 12px; margin: 18px 0 30px; }
+.guides { flex: 1.3; padding: 12px 14px; }
+.guide-cards { display: flex; gap: 8px; margin-top: 8px; }
+.g-card { flex: 1; background: #f7f9f6; border-radius: 8px; padding: 8px; font-size: 11px; }
+.cost { color: var(--orange-700); }
+.stats { flex: 1; display: flex; gap: 10px; }
+.stat { flex: 1; background: var(--green-900); color: #fff; border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; padding: 12px 0; }
 </style>
