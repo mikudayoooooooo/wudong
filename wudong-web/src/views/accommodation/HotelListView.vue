@@ -21,21 +21,27 @@ const query = ref<HotelQuery>(parseHotelQuery(route.fullPath.split('?')[1] ?? ''
 const list = ref<Hotel[]>([]);
 const loading = ref(true);
 const failed = ref(false);
+/** 请求序号：每次 doSearch 自增，响应回来仅当仍是最新请求才写回 list/URL（防慢响应乱序覆盖） */
+let reqSeq = 0;
 
 async function doSearch(): Promise<void> {
+  const seq = ++reqSeq;
   loading.value = true;
   failed.value = false;
   try {
-    list.value = await searchHotels(query.value);
+    const hotels = await searchHotels(query.value);
+    if (seq !== reqSeq) return; // 已发新请求，本响应过期，丢弃（不改 list/URL）
+    list.value = hotels;
     const qs = toQueryString(query.value);
     // URL 同步：全量字符串 raw-location（vue-router object-location 的 query 只接受对象，
     // 而 toQueryString 产物需经 parseURL 才得到结构化 query）
     await router.replace(qs ? `${route.path}?${qs}` : route.path);
   } catch {
+    if (seq !== reqSeq) return; // 过期请求的错误同样丢弃
     list.value = [];
     failed.value = true;
   } finally {
-    loading.value = false;
+    if (seq === reqSeq) loading.value = false; // 仅最新请求控制 loading
   }
 }
 
