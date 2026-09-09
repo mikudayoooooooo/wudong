@@ -2,11 +2,13 @@
 // mock api/accommodation（vi.mock key 用 @/ 别名，Task 4/5 教训）；
 // 用真 router（memory history）推到 /hotels/9 注入 params.id，再挂载视图——最贴近真实。
 // 覆盖：详情名/两房型渲染、预订禁用+即将上线、返回列表、点「查看房态」拉 30 天日历并渲染表格、
-//       ?range=7 起按 7 天拉取、7/30 头按钮切换重拉、日历空态、详情/房态失败态可重试。
+//       ?range=7 起按 7 天拉取、7/30 头按钮切换写回 ?range 并重拉、外部改 URL(前进后退) 重拉、
+//       日历空态、详情/房态失败态可重试。
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { mount, flushPromises } from '@vue/test-utils';
 import { createMemoryHistory, createRouter } from 'vue-router';
 import HotelDetailView from './HotelDetailView.vue';
+import { addDaysISO, todayISO } from '@/utils/date';
 import { hotelDetail, roomCalendar } from '@/api/accommodation';
 import type { Hotel, RoomType, CalendarRow } from '@/api/types';
 
@@ -38,15 +40,6 @@ const rows: CalendarRow[] = [
   { date: '2026-09-10', price: 380, availableStock: 2, status: 1 },
   { date: '2026-09-11', price: 520, availableStock: 0, status: 1 },
 ];
-
-// 与视图一致的本地日期工具（YYYY-MM-DD，避免时区偏移）
-const pad2 = (n: number): string => String(n).padStart(2, '0');
-const isoDate = (d: Date): string => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
-const addDaysISO = (iso: string, n: number): string => {
-  const d = new Date(`${iso}T12:00:00`);
-  d.setDate(d.getDate() + n);
-  return isoDate(d);
-};
 
 beforeEach(() => {
   vi.mocked(hotelDetail).mockReset();
@@ -107,7 +100,7 @@ describe('HotelDetailView', () => {
     expect(roomCalendar).not.toHaveBeenCalled(); // 未选房型前不请求
     await viewCalendarBtn(wrapper, 0).trigger('click');
     await flushPromises();
-    const today = isoDate(new Date());
+    const today = todayISO();
     expect(roomCalendar).toHaveBeenCalledTimes(1);
     expect(roomCalendar).toHaveBeenCalledWith(1, today, addDaysISO(today, 29));
     const table = wrapper.get('.calendar-table');
@@ -119,18 +112,32 @@ describe('HotelDetailView', () => {
     expect(table.text()).toContain('已满');
   });
 
-  it('?range=7 起按 7 天拉取；头按钮切 30 天重拉 end=today+29', async () => {
-    const { wrapper } = await mountView({ range: '7' });
+  it('?range=7 起按 7 天拉取；头按钮切 30 天写回 ?range=30 并重拉 end=today+29', async () => {
+    const { wrapper, router } = await mountView({ range: '7' });
     await viewCalendarBtn(wrapper, 0).trigger('click');
     await flushPromises();
-    const today = isoDate(new Date());
+    const today = todayISO();
     expect(roomCalendar).toHaveBeenLastCalledWith(1, today, addDaysISO(today, 6));
-    // 切换 30 天 → 重新 fetch，end=today+29，且 30 天 chip 高亮
+    // 切换 30 天 → router.replace 写回 ?range=30 → 重新 fetch，end=today+29，且 30 天 chip 高亮
     const chip30 = wrapper.findAll('.chip').find((c) => c.text().includes('30 天'))!;
     await chip30.trigger('click');
     await flushPromises();
+    expect(router.currentRoute.value.query.range).toBe('30'); // URL 可分享：档位进入地址栏
     expect(roomCalendar).toHaveBeenLastCalledWith(1, today, addDaysISO(today, 29));
     expect(chip30.classes()).toContain('on');
+  });
+
+  it('外部改 URL（历史前进后退）→ watch 归一 range 并按新档重拉', async () => {
+    const { wrapper, router } = await mountView(); // 默认 30
+    await viewCalendarBtn(wrapper, 0).trigger('click');
+    await flushPromises();
+    const today = todayISO();
+    expect(roomCalendar).toHaveBeenLastCalledWith(1, today, addDaysISO(today, 29));
+    // 前进/后退等外部导航把 ?range 改为 7 → watch 触发，档位 7 并重拉 7 天
+    await router.replace({ path: '/hotels/9', query: { range: '7' } });
+    await flushPromises();
+    expect(roomCalendar).toHaveBeenLastCalledWith(1, today, addDaysISO(today, 6));
+    expect(wrapper.findAll('.chip').find((c) => c.text().includes('7 天'))!.classes()).toContain('on');
   });
 
   it('日历接口返回空 → 日历表空态文案', async () => {

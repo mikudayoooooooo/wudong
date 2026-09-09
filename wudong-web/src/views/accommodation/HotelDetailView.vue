@@ -1,8 +1,9 @@
 <script setup lang="ts">
 // 民宿详情页 + 房态日历面板（7/30 天切换）。
 // 数据只读 api/accommodation（USE_MOCK 切换在 api 层）：路由 params.id → hotelDetail(id) → info + roomTypes；
-// 每张房型卡 RoomCard（预订禁用占位 ComingSoonTag）；点「查看房态日历」选中房型 → roomCalendar(roomTypeId, today, today+range-1)，
-// range 取 ?range=7|30（默认 30，头按钮切换 7/30 重新 fetch）。
+// 每张房型卡 RoomCard（预订禁用占位 ComingSoonTag）；点「查看房态日历」选中房型 → roomCalendar(roomTypeId, today, today+range-1)。
+// range 档位以 ?range=7|30 驱动（缺席/非法默认 30，URL 可分享/刷新恢复）：头按钮点击 router.replace 写回 ?range，
+// watch(() => route.query.range) 归一档位并重拉所选房型日历 —— 外部导航/历史前进后退同样生效。
 // 注意：真实 /detail 的 info.minPrice 恒为 null（携带无关），详情页按房型卡价格展示，绝不读 info.minPrice。
 // 加载/失败/空态齐全；日历请求带序号守卫（防慢响应乱序覆盖，Task 5 教训）。
 import { computed, onMounted, ref, watch } from 'vue';
@@ -10,12 +11,16 @@ import { useRoute, useRouter } from 'vue-router';
 import RoomCard from '@/components/RoomCard.vue';
 import CalendarTable from '@/components/CalendarTable.vue';
 import { hotelDetail, roomCalendar } from '@/api/accommodation';
+import { addDaysISO, todayISO } from '@/utils/date';
 import type { CalendarRow, Hotel, RoomType } from '@/api/types';
 
 const route = useRoute();
 const router = useRouter();
 
 const RANGE_OPTIONS: Array<7 | 30> = [7, 30];
+
+/** ?range 归一：仅字符串 '7' → 7，缺席/其它一律 30（默认档） */
+const normalizeRange = (raw: unknown): 7 | 30 => (raw === '7' ? 7 : 30);
 
 /** 房型 id 随路由参数（详情间切换复用组件时保持最新） */
 const hotelId = computed<number>(() => Number(route.params.id));
@@ -27,7 +32,7 @@ const info = ref<Hotel | null>(null);
 const roomTypes = ref<RoomType[]>([]);
 
 // 日历
-const range = ref<7 | 30>(Number(route.query.range) === 7 ? 7 : 30);
+const range = ref<7 | 30>(normalizeRange(route.query.range));
 const selectedRoomTypeId = ref<number | null>(null);
 const calendarRows = ref<CalendarRow[]>([]);
 const calLoading = ref(false);
@@ -41,17 +46,6 @@ const heroImage = computed<string>(() => {
   if (!h) return '';
   return h.mainImage || (h.images && h.images[0]) || '';
 });
-
-// ---------- 纯日期工具（本地时区 YYYY-MM-DD，避免 toISOString 的 UTC 偏移） ----------
-const pad2 = (n: number): string => String(n).padStart(2, '0');
-const isoDate = (d: Date): string =>
-  `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
-const todayISO = (): string => isoDate(new Date());
-const addDaysISO = (iso: string, n: number): string => {
-  const d = new Date(`${iso}T12:00:00`);
-  d.setDate(d.getDate() + n);
-  return isoDate(d);
-};
 
 // ---------- 数据加载 ----------
 let detailSeq = 0;
@@ -111,17 +105,29 @@ function selectRoomType(id: number): void {
   void loadCalendar();
 }
 
-/** 7/30 天切换：更新 range 重新 fetch */
+/** 7/30 天切换：写回 ?range（URL 可分享，刷新/转发保持档位）；实际重拉由下方 query watch 统一驱动 */
 function changeRange(n: 7 | 30): void {
-  if (range.value === n) return;
-  range.value = n;
-  calendarRows.value = [];
-  void loadCalendar();
+  if (range.value === n) return; // 已在该档：无需导航/重拉
+  void router.replace({ query: { ...route.query, range: String(n) } });
 }
 
 onMounted(loadDetail);
 // 同组件复用时路由 id 变化（列表/详情间）重新加载
 watch(() => route.params.id, loadDetail);
+// ?range 变化（本页 chip 点击 → router.replace，或外部导航/历史前进后退）→ 归一档位并重拉所选房型日历。
+// calSeq 序号守卫防慢响应乱序（过期响应丢弃）；缺席/非法值归一 30（默认档）。
+watch(
+  () => route.query.range,
+  (raw) => {
+    const n = normalizeRange(raw);
+    if (n === range.value) return; // 档位未变（如 URL 由缺失归一为 30）：无需重拉
+    range.value = n;
+    if (selectedRoomType.value) {
+      calendarRows.value = [];
+      void loadCalendar();
+    }
+  }
+);
 </script>
 
 <template>

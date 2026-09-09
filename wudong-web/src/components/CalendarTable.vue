@@ -1,16 +1,15 @@
 <script setup lang="ts">
 import type { CalendarRow } from '@/api/types';
+import { weekCN as WEEK } from '@/utils/date';
 
 defineProps<{ rows: CalendarRow[]; loading: boolean }>();
-
-const WEEK = ['日', '一', '二', '三', '四', '五', '六'];
 
 /** 2026-09-10 → 9月10日 */
 function dayCN(iso: string): string {
   const d = new Date(`${iso}T12:00:00`);
   return `${d.getMonth() + 1}月${d.getDate()}日`;
 }
-/** 2026-09-10 → 周四 */
+/** 2026-09-10 → 周四（星期名数组与 utils/date 共享，0=日…6=六） */
 function weekCN(iso: string): string {
   const d = new Date(`${iso}T12:00:00`);
   return `周${WEEK[d.getDay()]}`;
