@@ -22,7 +22,7 @@
 - **JWT**：**复用 `module.user.jwt` 配置**（secret/expire/refreshExpire）。原因：脚手架全局 `UserMiddleware`（`src/modules/user/middleware/app.ts`）以该秘钥校验所有 `/app/*` 请求，member 签发的 token 用同一秘钥即可被无缝校验；token payload 为 `{ id: <member_user.id>, isRefresh }`，请求头 `Authorization: <token>`（无 Bearer 前缀，随脚手架）。**不得修改 user 模块**。
 - **模拟短信**（spec §5.1"模拟短信：验证码固定/日志输出"）：随机 6 位数字验证码存 `member_sms_code` 表，有效期 300 秒，`logger.warn` 输出；`local`/`unittest` 环境下接口响应回显验证码（`data.code`），其余环境返回空对象。
 - **收藏类型**（spec §5.5 verbatim）：`scenic` / `route` / `guide` / `post`；唯一约束 `(userId, targetType, targetId)`。
-- **响应断言常量**（已核实 `@cool-midway/core`）：成功 `body.code === 1000`；业务异常（`CoolCommException`）`body.code === 1001`（HTTP 仍 200）；未登录访问受保护 `/app/*` 接口 → HTTP 401。
+- **响应断言常量**（已核实 `@cool-midway/core`，并经 docker 生产容器实测）：成功 `body.code === 1000`；业务异常（`CoolCommException`）`body.code === 1001`（HTTP 仍 200）；未登录访问受保护 `/app/*` 接口 → HTTP 200 且 `body.code === 1001`、`message === '登录失效~'`（全局 UserMiddleware 拦截后异常被过滤器归一化，**不是** HTTP 401）；管理端 `/admin/*` 未登录 → HTTP 401。
 - **参数校验**：Service 内手动校验并 `throw new CoolCommException('<中文提示>')`（与脚手架 user 模块一致），不引入 `@midwayjs/validate` DTO。
 - **Git**：提交信息格式 `<type>(<scope>): <subject>`（开发文档规范）。每个任务只 `git add` 本任务列出的文件；**不提交**仓库中已存在的未提交本地环境改动（`cool-admin-midway/src/config/config.local.ts`、`config.prod.ts`、`cool-admin-vue/Dockerfile`、`docker-compose.yml`）。
 - **测试执行**：`npm run test`（脚本已设 `NODE_ENV=unittest`）；jest 配置 `maxWorkers: 1` 防止多 worker 并发建表竞态。所有测试数据手机号以 `13x` 开头且各测试文件使用互不相同的前缀号段。
@@ -1121,9 +1121,11 @@ describe('member 个人资料', () => {
     await close(app);
   });
 
-  it('未登录访问受保护接口返回401', async () => {
+  it('未登录访问受保护接口被拦截（生产真值：200 + 1001 登录失效，非 HTTP 401）', async () => {
     const res = await createHttpRequest(app).get('/app/member/info/person');
-    expect(res.status).toBe(401);
+    expect(res.status).toBe(200);
+    expect(res.body.code).toBe(1001);
+    expect(res.body.message).toBe('登录失效~');
   });
 
   it('person 返回资料且不含密码字段', async () => {
@@ -1189,7 +1191,7 @@ cd /c/Users/cja/wudong/code/cool-admin-midway
 npm run test -- member-info
 ```
 
-预期：`FAIL`——路由尚未注册，全部用例因 404 而断言失败（含"未登录返回401"用例，此时返回的是 404）。
+预期：`FAIL`——路由尚未注册，全部用例因 404 而断言失败（含"未登录访问被拦截"用例，此时返回的是 404）。
 
 - [ ] **Step 3: 实现资料服务**
 
@@ -1378,11 +1380,13 @@ describe('member 收藏', () => {
     await close(app);
   });
 
-  it('未登录返回401', async () => {
+  it('未登录访问被拦截（生产真值：200 + 1001 登录失效，非 HTTP 401）', async () => {
     const res = await createHttpRequest(app).get(
       '/app/member/favorite/page?page=1&size=10'
     );
-    expect(res.status).toBe(401);
+    expect(res.status).toBe(200);
+    expect(res.body.code).toBe(1001);
+    expect(res.body.message).toBe('登录失效~');
   });
 
   it('toggle 收藏与取消（幂等切换）', async () => {
@@ -1481,7 +1485,7 @@ cd /c/Users/cja/wudong/code/cool-admin-midway
 npm run test -- member-favorite
 ```
 
-预期：`FAIL`——路由尚未注册，全部用例因 404 而断言失败（含"未登录返回401"用例，此时返回的是 404）。
+预期：`FAIL`——路由尚未注册，全部用例因 404 而断言失败（含"未登录访问被拦截"用例，此时返回的是 404）。
 
 - [ ] **Step 3: 实现收藏服务**
 
@@ -1782,7 +1786,7 @@ npm run test
 ## 约定
 
 - 成功响应 `body.code === 1000`；业务异常 `body.code === 1001`
-- 未登录访问受保护 `/app/*` 接口 → HTTP 401
+- 未登录访问受保护 `/app/*` 接口 → HTTP 200 + `{code:1001, message:'登录失效~'}`（异常过滤器归一化；`/admin/*` 为 HTTP 401）
 - C 端 token 放在 `Authorization` 请求头（无 Bearer 前缀）
 ```
 
@@ -1805,7 +1809,7 @@ curl -X POST http://127.0.0.1:8001/app/member/login/register -H "Content-Type: a
 # 3. 密码登录
 curl -X POST http://127.0.0.1:8001/app/member/login/password -H "Content-Type: application/json" -d '{"phone":"13811112222","password":"abc123456"}'
 
-# 4. 未带 token 访问受保护接口 → HTTP 401
+# 4. 未带 token 访问受保护接口 → 200 + {"code":1001,"message":"登录失效~"}（拦截生效，生产真值非 401）
 curl -i http://127.0.0.1:8001/app/member/info/person
 
 # 5. 带 token 访问（<token> 换成第 3 步返回值）→ 返回资料且无 password 字段
@@ -1847,6 +1851,6 @@ git commit -m "test(member): 全量回归通过并更新测试说明文档"
 | §5.1 注册：手机号+验证码 | Task 4 `POST /app/member/login/register` |
 | §5.1 密码规则 8-20 位含字母数字 | Task 4 `checkPasswordRule` + 测试 4 组反例 |
 | §5.1 登录：密码或验证码，签发 JWT | Task 4 `/password`、`/sms`、`/refreshToken` |
-| §4 C 端 JWT 鉴权（/app/*） | 复用全局 UserMiddleware；Task 5/6 未登录 401 测试 |
+| §4 C 端 JWT 鉴权（/app/*） | 复用全局 UserMiddleware；Task 5/6 未登录拦截测试 + Task 1 金丝雀 |
 | §5.5 user_favorite（跨两模块复用，唯一约束） | Task 2 实体（uk_user_target）+ Task 6 服务/测试 |
 | §6 admin 侧用户管理接口 | Task 7 `/admin/member/user/*` |
