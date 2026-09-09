@@ -46,7 +46,8 @@ describe('member 模拟短信服务', () => {
   });
 
   it('过期验证码不通过', async () => {
-    await svc.sendCode(phone);
+    // 使用真实回显码：SQL 过期后码本身匹配，确保命中且仅命中过期判断分支
+    const { code } = await svc.sendCode(phone);
     // 直接把该手机号未使用的验证码改为已过期
     const conn = await mysql.createConnection({
       host: '127.0.0.1',
@@ -55,12 +56,15 @@ describe('member 模拟短信服务', () => {
       password: '123456',
       database: 'wudong_platform_test',
     });
-    await conn.query(
-      "UPDATE member_sms_code SET expireTime = '2000-01-01 00:00:00' WHERE phone = ? AND used = 0",
-      [phone]
-    );
-    await conn.end();
-    await expect(svc.verify(phone, '123456')).rejects.toThrow(
+    try {
+      await conn.query(
+        "UPDATE member_sms_code SET expireTime = '2000-01-01 00:00:00' WHERE phone = ? AND used = 0",
+        [phone]
+      );
+    } finally {
+      await conn.end();
+    }
+    await expect(svc.verify(phone, code)).rejects.toThrow(
       '验证码错误或已过期'
     );
   });
