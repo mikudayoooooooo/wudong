@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import { useSession } from '../stores/session'
 
+const router = useRouter()
 const session = useSession()
 const items = [
   { path: '/', label: '首页' },
@@ -20,6 +22,7 @@ const items = [
       </RouterLink>
       <span class="spacer" />
       <input class="search" placeholder="🔍 搜索路线 / 景区 / 游记 / 话题" />
+      <button class="publish" @click="router.push('/publish')">＋ 发布</button>
       <span class="user" data-testid="nav-user" @click="session.login()">{{ session.isLogged ? '🧑‍🌾 山野小鱼' : '登录' }}</span>
     </div>
   </nav>
@@ -34,4 +37,5 @@ const items = [
 .spacer { flex: 1; }
 .search { background: #f2f2f2; border: none; border-radius: 14px; padding: 5px 14px; width: 240px; outline: none; }
 .user { font-size: 13px; cursor: pointer; }
+.publish { background: var(--green-600); color: #fff; border-radius: 14px; padding: 4px 12px; font-size: 13px; cursor: pointer; border: none; }
 </style>

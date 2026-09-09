@@ -26,6 +26,10 @@ export function userLitSpotIds(userId: number, opts?: { withinDays?: number }): 
   return lit
 }
 
+export function userRecentLitSpots(userId: number, withinDays: number): number[] {
+  return [...userLitSpotIds(userId, { withinDays })]
+}
+
 export function spotLightCounts(spotId: number): number {
   const seenUsers = new Set<number>()
   for (const t of validTickets()) if (ticketSpotIds(t).includes(spotId)) seenUsers.add(t.userId)
