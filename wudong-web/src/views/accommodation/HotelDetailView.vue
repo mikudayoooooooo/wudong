@@ -152,13 +152,18 @@ watch(
       </div>
       <p class="addr-line">📍 {{ info.address }} · 入住 {{ info.checkInTime }} / 离店 {{ info.checkOutTime }}</p>
 
-      <!-- 简介 / 风格 / 设施 -->
+      <!-- 简介 / 风格 / 设施 + 入住信息（§5.4；入住/离店时刻已在上方 subtitle，此处补早餐/宠物政策） -->
       <section class="intro-box">
         <p class="intro">{{ info.intro }}</p>
         <div class="tags">
           <span v-for="t in info.styleTags || []" :key="`s-${t}`" class="tag">{{ t }}</span>
           <span v-for="t in info.facilityTags || []" :key="`f-${t}`" class="tag tag-facility">{{ t }}</span>
         </div>
+        <p class="stay-info">
+          <b>入住信息</b>
+          <span>{{ info.hasBreakfast === 1 ? '含早餐' : '不含早餐' }}</span>
+          <span>宠物：{{ info.petPolicy || '未提供' }}</span>
+        </p>
       </section>
 
       <!-- 房型列表：预订统一禁用占位；点查看房态 → 日历 -->
@@ -261,6 +266,20 @@ watch(
   margin: 0 0 10px;
   line-height: 1.7;
   color: var(--ink);
+  font-size: 14px;
+}
+.stay-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 12px 0 0;
+  padding-top: 10px;
+  border-top: 1px dashed var(--line);
+  color: var(--muted);
+  font-size: 13px;
+}
+.stay-info b {
+  color: var(--green-700);
   font-size: 14px;
 }
 .tags {

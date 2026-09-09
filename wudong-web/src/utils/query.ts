@@ -22,7 +22,8 @@ export function parseHotelQuery(search: string): HotelQuery {
   const params = parseValues(search);
   const q: HotelQuery = {};
 
-  const keyword = firstOf(params, ['keyword']);
+  // keyword trim：纯空格/首尾空格归一后丢弃（与 mock/real 后端一致，避免 %20 泄漏与字面空格空结果）
+  const keyword = firstOf(params, ['keyword']).trim();
   if (keyword) q.keyword = keyword;
 
   const styleTags = firstOf(params, ['styleTags', 'style']);
@@ -47,7 +48,9 @@ export function toQueryString(q: HotelQuery): string {
     parts.push(`${key}=${encodeURIComponent(value)}`);
   };
 
-  if (q.keyword) push('keyword', q.keyword);
+  // keyword trim：纯空格绝不入 URL；首尾空格在写侧归一（与 parseHotelQuery 互逆，URL 保持干净可分享）
+  const keyword = q.keyword?.trim();
+  if (keyword) push('keyword', keyword);
   if (q.styleTags) push('styleTags', q.styleTags);
   if (q.rating != null) push('rating', String(q.rating));
   if (q.sort) push('sort', q.sort);

@@ -28,7 +28,9 @@ const local = reactive({
 
 function buildQuery(): HotelQuery {
   const q: HotelQuery = { ...props.modelValue };
-  q.keyword = local.keyword || undefined;
+  // keyword trim：纯空格 → ''（省略）；首尾空格归一，保证 emit 到父级/请求/URL 的都是干净关键字
+  const kw = local.keyword.trim();
+  q.keyword = kw || undefined;
   q.styleTags = local.style || undefined;
   q.rating = local.rating !== '' ? Number(local.rating) : undefined;
   q.sort = local.sort || undefined;

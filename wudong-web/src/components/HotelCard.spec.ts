@@ -26,7 +26,7 @@ describe('HotelCard', () => {
     expect(w.text()).toContain('乌东苗寨木楼');
     expect(w.text()).toContain('雷山县西江镇');
     expect(w.text()).toContain('4.8');
-    expect(w.text()).toContain('¥380/晚起');
+    expect(w.text()).toContain('¥380.00/晚起');
   });
   it('点击整卡 emit click', async () => {
     const w = mount(HotelCard, { props: { hotel } });

@@ -88,6 +88,22 @@ describe('HotelDetailView', () => {
     expect(wrapper.text()).toContain('即将上线');
   });
 
+  it('渲染入住信息行：含早餐 + 宠物政策（fixture hasBreakfast=1/petPolicy 有值）', async () => {
+    const { wrapper } = await mountView();
+    expect(wrapper.text()).toContain('入住信息');
+    expect(wrapper.text()).toContain('含早餐');
+    expect(wrapper.text()).not.toContain('不含早餐');
+    expect(wrapper.text()).toContain('宠物：可携带小型宠物');
+  });
+
+  it('hasBreakfast=0 / petPolicy 缺失 → 不含早餐 + 「未提供」兜底', async () => {
+    const altInfo: Hotel = { ...info, hasBreakfast: 0, petPolicy: '' };
+    vi.mocked(hotelDetail).mockResolvedValue({ info: altInfo, roomTypes: [roomA] });
+    const { wrapper } = await mountView();
+    expect(wrapper.text()).toContain('不含早餐');
+    expect(wrapper.text()).toContain('宠物：未提供');
+  });
+
   it('返回列表按钮点击 router 跳回 /hotels', async () => {
     const { wrapper, router } = await mountView();
     await wrapper.get('.back-btn').trigger('click');

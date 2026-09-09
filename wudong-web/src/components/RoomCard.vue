@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ComingSoonTag from './ComingSoonTag.vue';
+import { fmtPrice } from '@/utils/format';
 import type { RoomType } from '@/api/types';
 
 defineProps<{ room: RoomType; disabled?: boolean }>();
@@ -19,7 +20,7 @@ const emit = defineEmits<{
       <span>床型：{{ room.bedType || '-' }}</span>
       <span>可住 {{ room.maxGuests }} 人</span>
       <span>共 {{ room.stock }} 间</span>
-      <span class="price">¥{{ room.price }}</span>
+      <span class="price">¥{{ fmtPrice(room.price) }}</span>
     </div>
     <div class="room-actions">
       <button type="button" class="btn-primary" :disabled="disabled" @click="emit('book')">预订</button>

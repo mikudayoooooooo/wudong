@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import { fmtPrice } from '@/utils/format';
 import type { Hotel } from '@/api/types';
 
 const props = defineProps<{ hotel: Hotel }>();
@@ -25,7 +26,7 @@ function onImgError(e: Event): void {
       </div>
       <div class="meta">
         <span class="rate">★ {{ hotel.rating.toFixed(1) }}</span>
-        <span class="price">¥<em>{{ hotel.minPrice ?? '--' }}</em>/晚起</span>
+        <span class="price">¥<em>{{ hotel.minPrice == null ? '--' : fmtPrice(hotel.minPrice) }}</em>/晚起</span>
       </div>
     </div>
   </article>

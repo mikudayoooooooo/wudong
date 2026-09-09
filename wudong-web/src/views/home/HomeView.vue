@@ -41,11 +41,13 @@ async function loadHome(): Promise<void> {
   loading.value = false;
 }
 
-// 精选卡片点击：Task 4 时详情页未接（Task 6 才落地 /hotels/:id），先导至民宿列表页 /hotels 保持可浏览。
-// router 仅在手势时注入（单测 mount 不挂 router，渲染期不依赖路由注入）。
+const router = useRouter();
+// 「查看全部」→ 民宿列表页；精选卡片 → 详情深链（/hotels/:id，Task 6 已落地真实详情页）
 function goHotels(): void {
-  const router = useRouter();
   router.push('/hotels');
+}
+function goDetail(id: number): void {
+  router.push(`/hotels/${id}`);
 }
 
 onMounted(loadHome);
@@ -79,7 +81,7 @@ onMounted(loadHome);
         精选民宿加载失败，<button type="button" class="retry" @click="loadHome">重试</button>
       </div>
       <div v-else-if="store.featured.length" class="hotel-grid">
-        <HotelCard v-for="h in store.featured" :key="h.id" :hotel="h" @click="goHotels" />
+        <HotelCard v-for="h in store.featured" :key="h.id" :hotel="h" @click="goDetail(h.id)" />
       </div>
       <p v-else class="empty-state">暂无精选民宿，敬请期待。</p>
     </section>

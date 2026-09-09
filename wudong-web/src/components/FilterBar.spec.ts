@@ -22,4 +22,17 @@ describe('FilterBar rating 往返', () => {
     expect((sel.element as HTMLSelectElement).value).toBe('4.0');
     w.unmount();
   });
+  it('keyword emit 前 trim 首尾空格；纯空格 → keyword 省略', async () => {
+    const w = mount(FilterBar, { props: { modelValue: {}, styles } });
+    const input = w.get('input.kw');
+    await input.setValue('  乌东  ');
+    const emitted = w.emitted('update:modelValue')!;
+    const trimmed = emitted[emitted.length - 1][0] as Record<string, unknown>;
+    expect(trimmed.keyword).toBe('乌东');
+    await input.setValue('   ');
+    const emitted2 = w.emitted('update:modelValue')!;
+    const blank = emitted2[emitted2.length - 1][0] as Record<string, unknown>;
+    expect(blank.keyword).toBeUndefined(); // 不把纯空格传给父级/请求/URL
+    w.unmount();
+  });
 });

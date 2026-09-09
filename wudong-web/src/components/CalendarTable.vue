@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { CalendarRow } from '@/api/types';
 import { weekCN as WEEK } from '@/utils/date';
+import { fmtPrice } from '@/utils/format';
 
 defineProps<{ rows: CalendarRow[]; loading: boolean }>();
 
@@ -34,7 +35,7 @@ function weekCN(iso: string): string {
           <tr v-for="c in rows" :key="c.date">
             <td>{{ dayCN(c.date) }}</td>
             <td>{{ weekCN(c.date) }}</td>
-            <td class="money">¥{{ c.price.toFixed(2) }}</td>
+            <td class="money">¥{{ fmtPrice(c.price) }}</td>
             <td>
               <template v-if="c.status === 1">
                 <span v-if="c.availableStock > 0">剩 {{ c.availableStock }} 间</span>
