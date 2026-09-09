@@ -1,9 +1,6 @@
 import { Inject, Provide } from '@midwayjs/core';
 import { BaseService, CoolCommException } from '@cool-midway/core';
-import {
-  InjectDataSource,
-  InjectEntityModel,
-} from '@midwayjs/typeorm';
+import { InjectDataSource, InjectEntityModel } from '@midwayjs/typeorm';
 import { DataSource, Equal, In, Repository } from 'typeorm';
 import * as _ from 'lodash';
 import * as moment from 'moment';
@@ -31,7 +28,14 @@ const TYPE_DETAIL = {
 
 /** 各明细类型可写入的快照字段白名单 */
 const DETAIL_FIELDS = {
-  1: ['productId', 'skuId', 'productName', 'skuName', 'productImage', 'addressId'],
+  1: [
+    'productId',
+    'skuId',
+    'productName',
+    'skuName',
+    'productImage',
+    'addressId',
+  ],
   2: [
     'targetId',
     'targetName',

@@ -9,7 +9,11 @@ export class OrderReservationEntity extends BaseEntity {
   @Column({ comment: '订单ID' })
   orderId: number;
 
-  @Column({ comment: '预订类型 1餐位 2住宿', dict: ['餐位', '住宿'], default: 1 })
+  @Column({
+    comment: '预订类型 1餐位 2住宿',
+    dict: ['餐位', '住宿'],
+    default: 1,
+  })
   reservationType: number;
 
   @Column({ comment: '目标ID（餐厅ID/民宿ID）' })
