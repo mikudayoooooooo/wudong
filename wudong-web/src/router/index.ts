@@ -8,6 +8,8 @@ export function createAppRouter(): Router {
       { path: '/route', component: () => import('../views/RouteListView.vue') },
       { path: '/scenic', component: () => import('../views/ScenicListView.vue') },
       { path: '/route/:id', component: () => import('../views/RouteDetailView.vue') },
+      { path: '/scenic/:id', component: () => import('../views/ScenicDetailView.vue') },
+      { path: '/guide', component: () => import('../views/GuideView.vue') },
       { path: '/:pathMatch(.*)*', component: { template: '<div style="padding:60px">404</div>' } },
     ],
   })
