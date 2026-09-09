@@ -1,5 +1,6 @@
 import * as mysql from 'mysql2/promise';
 import { boot, close, createHttpRequest } from './helper';
+import { BannerService } from '../src/modules/operate/service/banner';
 
 async function seed() {
   const conn = await mysql.createConnection({
@@ -61,5 +62,25 @@ describe('operate C 端匿名下发', () => {
     const res = await createHttpRequest(app).get('/app/operate/announcement?type=2');
     expect(res.body.data.length).toBe(1);
     expect(res.body.data[0].title).toBe('活动招募');
+  });
+
+  it('经实体层写入不传 startTime/endTime 的条幅恒长期有效（可空窗口不被 transformer 盖章为 now）', async () => {
+    const svc = await app.getApplicationContext().getAsync(BannerService);
+    // createTime/updateTime 由框架自动填充；startTime/endTime 有意不传——
+    // 若残留 transformerTime，save 会把空值盖章为“现在”，C 端时间窗过滤将立刻排除该条。
+    await svc.bannerEntity.save({
+      title: '长期有效条幅',
+      image: 'x.jpg',
+      linkType: 'none',
+      position: 'home',
+      sort: 0,
+    } as any);
+    // 越过整秒边界，使“盖章为 now”的 startTime/endTime 必然早于下发时刻而失配
+    await new Promise(r => setTimeout(r, 1200));
+    const res = await createHttpRequest(app).get('/app/operate/banner?position=home');
+    expect(res.status).toBe(200);
+    expect(res.body.code).toBe(1000);
+    const titles = res.body.data.map(r => r.title);
+    expect(titles).toContain('长期有效条幅');
   });
 });

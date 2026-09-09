@@ -67,6 +67,9 @@ export class RoomCalendarService extends BaseService {
         row.date = day;
         if (param.closed) {
           row.status = 0;
+          // 新建/历史 closed 行补默认价与库存，保证结构完整可复开
+          if (row.price == null) row.price = roomType.price;
+          if (row.availableStock == null) row.availableStock = roomType.stock;
         } else {
           row.status = 1;
           if (param.price != null) row.price = param.price;

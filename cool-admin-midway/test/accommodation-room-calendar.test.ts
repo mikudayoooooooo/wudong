@@ -66,4 +66,19 @@ describe('accommodation 房态日历服务 batch/range', () => {
       svc.batch({ roomTypeId: 999999, startDate: '2026-10-01', endDate: '2026-10-02' })
     ).rejects.toThrow(/房型不存在/);
   });
+
+  it('batch(closed) 落新房态行必须补齐默认价与库存（可复开）', async () => {
+    // 2026-11-15 此前从未记录；closed=true 时若无 price/availableStock 兜底，
+    // 新房态行 price 为 NULL → strict-mode 1364 报错（或静默 0）
+    await expect(
+      svc.batch({
+        roomTypeId, startDate: '2026-11-15', endDate: '2026-11-15', closed: true,
+      })
+    ).resolves.toEqual({ count: 1 });
+    const rows = await svc.range(roomTypeId, '2026-11-15', '2026-11-15');
+    expect(rows).toHaveLength(1);
+    expect(rows[0].status).toBe(0); // 已关房
+    expect(String(rows[0].price)).toBe('380.00'); // 兜底为房型基础价，可复开
+    expect(rows[0].availableStock).toBe(3); // 兜底为房型满库
+  });
 });

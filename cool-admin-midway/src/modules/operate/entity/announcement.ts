@@ -1,5 +1,5 @@
-import { Column, Entity, Index } from 'typeorm';
-import { BaseEntity, transformerTime } from '../../base/entity/base';
+import { Column, Entity } from 'typeorm';
+import { BaseEntity } from '../../base/entity/base';
 
 /** 平台公告 */
 @Entity('announcement')
@@ -21,17 +21,15 @@ export class AnnouncementEntity extends BaseEntity {
     comment: '生效开始时间',
     type: 'varchar',
     nullable: true,
-    transformer: transformerTime,
   })
-  startTime: Date;
+  startTime: string;
 
   @Column({
     comment: '生效结束时间',
     type: 'varchar',
     nullable: true,
-    transformer: transformerTime,
   })
-  endTime: Date;
+  endTime: string;
 
   @Column({ comment: '是否置顶', dict: ['否', '是'], default: 0 })
   isTop: number;

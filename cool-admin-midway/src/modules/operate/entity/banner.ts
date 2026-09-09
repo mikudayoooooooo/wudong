@@ -1,5 +1,5 @@
 import { Column, Entity, Index } from 'typeorm';
-import { BaseEntity, transformerTime } from '../../base/entity/base';
+import { BaseEntity } from '../../base/entity/base';
 
 /** 首页轮播/横幅 */
 @Entity('banner')
@@ -27,17 +27,15 @@ export class BannerEntity extends BaseEntity {
     comment: '生效开始时间',
     type: 'varchar',
     nullable: true,
-    transformer: transformerTime,
   })
-  startTime: Date;
+  startTime: string;
 
   @Column({
     comment: '生效结束时间',
     type: 'varchar',
     nullable: true,
-    transformer: transformerTime,
   })
-  endTime: Date;
+  endTime: string;
 
   @Column({ comment: '状态：1启用 0禁用', dict: ['禁用', '启用'], default: 1 })
   status: number;

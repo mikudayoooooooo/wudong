@@ -1,5 +1,5 @@
 import { Column, Entity, Index } from 'typeorm';
-import { BaseEntity, transformerTime } from '../../base/entity/base';
+import { BaseEntity } from '../../base/entity/base';
 
 /** 财务记录（本期仅建表+只读，结算逻辑 Phase4） */
 @Entity('finance_record')
@@ -35,9 +35,8 @@ export class FinanceRecordEntity extends BaseEntity {
     comment: '结算时间',
     type: 'varchar',
     nullable: true,
-    transformer: transformerTime,
   })
-  settlementTime: Date;
+  settlementTime: string;
 
   @Column({ comment: '结算批次号', length: 50, nullable: true })
   settlementBatch: string;

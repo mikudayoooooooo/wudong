@@ -101,4 +101,22 @@ describe('accommodation C 端浏览（匿名 IGNORE_TOKEN）', () => {
     expect(String(days[2].price)).toBe('380.00'); // 回退房型基础价
     expect(days[1].availableStock).toBe(0); // 已满
   });
+
+  it('room-type calendar 拒绝超 32 天窗口与倒置区间（规范 C 端窗口上限）', async () => {
+    // 2026-10-01 ~ 2026-12-31 共 92 天 > 32
+    const tooLong = await createHttpRequest(app).get(
+      `/app/accommodation/room-type/calendar?roomTypeId=${ids.rtA}&startDate=2026-10-01&endDate=2026-12-31`
+    );
+    expect(tooLong.status).toBe(200);
+    expect(tooLong.body.code).toBe(1001);
+    expect(tooLong.body.message).toBe('日期区间最多32天');
+
+    // startDate > endDate
+    const inverted = await createHttpRequest(app).get(
+      `/app/accommodation/room-type/calendar?roomTypeId=${ids.rtA}&startDate=2026-10-10&endDate=2026-10-01`
+    );
+    expect(inverted.status).toBe(200);
+    expect(inverted.body.code).toBe(1001);
+    expect(inverted.body.message).toBe('日期区间无效');
+  });
 });
