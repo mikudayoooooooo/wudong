@@ -22,7 +22,12 @@ export class AppCartController extends BaseController {
     @Body('quantity') quantity: number
   ) {
     return this.ok(
-      await this.cartService.addItem(this.ctx.user.id, productId, skuId, quantity)
+      await this.cartService.addItem(
+        this.ctx.user.id,
+        productId,
+        skuId,
+        quantity
+      )
     );
   }
 
@@ -39,10 +44,7 @@ export class AppCartController extends BaseController {
   }
 
   @Get('/page', { summary: '我的购物车' })
-  async pageList(
-    @Query('page') page: number,
-    @Query('size') size: number
-  ) {
+  async pageList(@Query('page') page: number, @Query('size') size: number) {
     return this.ok(
       await this.cartService.pageList(this.ctx.user.id, page, size)
     );

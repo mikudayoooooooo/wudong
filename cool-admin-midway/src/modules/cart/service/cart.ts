@@ -15,7 +15,12 @@ export class CartService extends BaseService {
   /**
    * 加入购物车：同用户同 SKU 数量累加
    */
-  async addItem(userId: number, productId: number, skuId: number, quantity = 1) {
+  async addItem(
+    userId: number,
+    productId: number,
+    skuId: number,
+    quantity = 1
+  ) {
     const qty = Number(quantity);
     if (!(qty >= 1)) {
       throw new CoolCommException('数量不正确');
@@ -77,7 +82,10 @@ export class CartService extends BaseService {
     if (!Array.isArray(ids) || ids.length === 0) {
       throw new CoolCommException('请选择要删除的购物车项');
     }
-    const ret = await this.cartEntity.delete({ id: In(ids), userId: Equal(userId) });
+    const ret = await this.cartEntity.delete({
+      id: In(ids),
+      userId: Equal(userId),
+    });
     if (!ret.affected) {
       throw new CoolCommException('购物车项不存在');
     }

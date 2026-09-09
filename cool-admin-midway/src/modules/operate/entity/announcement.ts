@@ -12,7 +12,11 @@ export class AnnouncementEntity extends BaseEntity {
   @Column({ comment: '内容', type: 'text' })
   content: string;
 
-  @Column({ comment: '类型 1系统公告 2活动公告', dict: ['系统', '活动'], default: 1 })
+  @Column({
+    comment: '类型 1系统公告 2活动公告',
+    dict: ['系统', '活动'],
+    default: 1,
+  })
   type: number;
 
   @Column({
