@@ -14,7 +14,7 @@
 
 - **工作目录**：git 命令在 `code/`（内层 git 仓库，当前分支 `lv`）执行；npm/jest 命令在 `code/cool-admin-midway/` 执行。
 - **分支**：从 `lv` 新建 `feature/member` 分支（Task 1 完成）。
-- **本地环境前提**：MySQL 8 运行于 `127.0.0.1:3306`，账号 `root/123456`（与 `src/config/config.local.ts` 一致）；Node >= 18。
+- **本地环境前提**：MySQL 8 运行于 `127.0.0.1:3307`（docker 容器 `wudong-mysql`，账号 `root/123456`；本机 3306 是另一个不同密码的原生 MySQL80，**不可用**；测试基建支持 `DB_PORT` 环境变量覆盖）；Node >= 18。
 - **URL 与命名**：C 端 `/app/member/*`、管理端 `/admin/member/user/*`（spec §4 偏差备案：文档示例 `/api/*` → cool-admin 惯例）；实体字段 camelCase（随框架）。
 - **表名**（spec §5.1/§5.5，verbatim）：`member_user`、`member_sms_code`、`user_favorite`。列名 = 属性名（脚手架无 snake_case 命名策略），如 `createTime`、`expireTime`、`lastLoginTime`。
 - **密码**：bcrypt 哈希（`bcryptjs@2.4.3`，cost 10）；规则 = 8-20 位且同时包含字母和数字（spec §5.1"密码规则 8-20 位含字母数字"）。
@@ -73,7 +73,7 @@ export default {
       default: {
         type: 'mysql',
         host: '127.0.0.1',
-        port: 3306,
+        port: 3307,
         username: 'root',
         password: '123456',
         database: 'wudong_platform_test',
@@ -119,7 +119,7 @@ const mysql = require('mysql2/promise');
 module.exports = async () => {
   const conn = await mysql.createConnection({
     host: process.env.DB_HOST || '127.0.0.1',
-    port: Number(process.env.DB_PORT) || 3306,
+    port: Number(process.env.DB_PORT) || 3307,
     user: process.env.DB_USERNAME || 'root',
     password: process.env.DB_PASSWORD || '123456',
   });
@@ -258,7 +258,7 @@ describe('member 实体自动建表', () => {
     // 应用启动（synchronize: true）应自动创建三张表，用原生连接直接查 information_schema
     const conn = await mysql.createConnection({
       host: '127.0.0.1',
-      port: 3306,
+      port: 3307,
       user: 'root',
       password: '123456',
       database: 'wudong_platform_test',
@@ -509,7 +509,7 @@ describe('member 模拟短信服务', () => {
     // 直接把该手机号未使用的验证码改为已过期
     const conn = await mysql.createConnection({
       host: '127.0.0.1',
-      port: 3306,
+      port: 3307,
       user: 'root',
       password: '123456',
       database: 'wudong_platform_test',
@@ -1774,7 +1774,7 @@ npm run lint
 ## 运行
 
 ```bash
-# 前提：本地 MySQL 8 运行于 127.0.0.1:3306（root/123456，与 config.local.ts 一致）
+# 前提：本地 MySQL 8 运行于 127.0.0.1:3307（docker wudong-mysql，root/123456）
 npm run test
 ```
 
