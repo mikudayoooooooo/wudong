@@ -1,4 +1,4 @@
-import { boot, close, createHttpRequest } from './helper';
+import { auth, boot, close, createHttpRequest } from './helper';
 
 const phone = '13900139001';
 const password = 'abc123456';
@@ -118,5 +118,16 @@ describe('member 注册/登录', () => {
       .send({ refreshToken: login.body.data.refreshToken });
     expect(res.body.code).toBe(1000);
     expect(res.body.data.token).toBeTruthy();
+  });
+
+  it('refreshToken 不能直接当 accessToken 使用（中间件必须拦截）', async () => {
+    const login = await createHttpRequest(app)
+      .post('/app/member/login/password')
+      .send({ phone, password });
+    const res = await createHttpRequest(app)
+      .get('/app/user/info/person')
+      .set(auth(login.body.data.refreshToken));
+    expect(res.body.code).toBe(1001);
+    expect(res.body.message).toBe('登录失效~');
   });
 });

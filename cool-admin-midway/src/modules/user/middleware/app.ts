@@ -39,12 +39,13 @@ export class UserMiddleware implements IMiddleware<Context, NextFunction> {
       url = url.replace(this.prefix, '').split('?')[0];
       if (_.startsWith(url, '/app/')) {
         const token = ctx.get('Authorization');
+        // 修复：先校验 isRefresh 再赋值 ctx.user，防止 refreshToken 重放为 accessToken（member 模块引入）
         try {
-          ctx.user = jwt.verify(token, this.jwtConfig.secret);
-
-          if (ctx.user.isRefresh) {
+          const payload = jwt.verify(token, this.jwtConfig.secret);
+          if (payload.isRefresh) {
             throw new CoolCommException('登录失效~');
           }
+          ctx.user = payload;
         } catch (error) {}
         // 使用matchUrl方法来检查URL是否应该被忽略
         const isIgnored = this.ignoreUrls.some(pattern =>
