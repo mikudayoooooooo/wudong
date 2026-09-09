@@ -11,6 +11,7 @@ export function createAppRouter(): Router {
       { path: '/scenic/:id', component: () => import('../views/ScenicDetailView.vue') },
       { path: '/guide', component: () => import('../views/GuideView.vue') },
       { path: '/community', component: () => import('../views/CommunityView.vue') },
+      { path: '/post/:id', component: () => import('../views/PostDetailView.vue') },
       { path: '/:pathMatch(.*)*', component: { template: '<div style="padding:60px">404</div>' } },
     ],
   })
