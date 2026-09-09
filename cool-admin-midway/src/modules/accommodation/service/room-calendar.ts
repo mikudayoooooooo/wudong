@@ -29,10 +29,17 @@ export class RoomCalendarService extends BaseService {
    * availableStock 截断到房型 stock。
    */
   async batch(param: {
-    roomTypeId: number; startDate: string; endDate: string;
-    weekDays?: number[]; price?: number; availableStock?: number; closed?: boolean;
+    roomTypeId: number;
+    startDate: string;
+    endDate: string;
+    weekDays?: number[];
+    price?: number;
+    availableStock?: number;
+    closed?: boolean;
   }): Promise<{ count: number }> {
-    const roomType = await this.roomTypeEntity.findOneBy({ id: param.roomTypeId });
+    const roomType = await this.roomTypeEntity.findOneBy({
+      id: param.roomTypeId,
+    });
     if (!roomType) {
       throw new CoolCommException('房型不存在');
     }
@@ -64,7 +71,10 @@ export class RoomCalendarService extends BaseService {
           row.status = 1;
           if (param.price != null) row.price = param.price;
           if (param.availableStock != null) {
-            row.availableStock = Math.min(Number(param.availableStock), roomType.stock);
+            row.availableStock = Math.min(
+              Number(param.availableStock),
+              roomType.stock
+            );
           } else if (row.availableStock == null) {
             row.availableStock = roomType.stock;
           }
@@ -81,8 +91,12 @@ export class RoomCalendarService extends BaseService {
    * 区间查询（含回退默认：无记录日期 = 房型基础价/满库/房型是否启用）
    */
   async range(
-    roomTypeId: number, startDate: string, endDate: string
-  ): Promise<{ date: string; price: any; availableStock: number; status: number }[]> {
+    roomTypeId: number,
+    startDate: string,
+    endDate: string
+  ): Promise<
+    { date: string; price: any; availableStock: number; status: number }[]
+  > {
     const roomType = await this.roomTypeEntity.findOneBy({ id: roomTypeId });
     if (!roomType) {
       throw new CoolCommException('房型不存在');

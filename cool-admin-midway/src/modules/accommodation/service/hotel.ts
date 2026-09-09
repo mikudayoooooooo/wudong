@@ -21,19 +21,31 @@ export class AccommodationHotelService extends BaseService {
    * 避免 groupBy+having 的 TypeORM 歧义）；minPrice 附在每个结果上。
    */
   async search(query: {
-    keyword?: string; styleTags?: string; facilityTags?: string;
-    minPrice?: number; maxPrice?: number; rating?: number;
-    sort?: string; page?: number; size?: number;
+    keyword?: string;
+    styleTags?: string;
+    facilityTags?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    rating?: number;
+    sort?: string;
+    page?: number;
+    size?: number;
   }) {
     const qb = this.hotelEntity.createQueryBuilder('a').where('a.status = 1');
     if (query.keyword) {
-      qb.andWhere('(a.name LIKE :kw OR a.address LIKE :kw)', { kw: `%${query.keyword}%` });
+      qb.andWhere('(a.name LIKE :kw OR a.address LIKE :kw)', {
+        kw: `%${query.keyword}%`,
+      });
     }
     if (query.styleTags) {
-      qb.andWhere('JSON_CONTAINS(a.styleTags, :tag)', { tag: JSON.stringify(query.styleTags) });
+      qb.andWhere('JSON_CONTAINS(a.styleTags, :tag)', {
+        tag: JSON.stringify(query.styleTags),
+      });
     }
     if (query.facilityTags) {
-      qb.andWhere('JSON_CONTAINS(a.facilityTags, :fac)', { fac: JSON.stringify(query.facilityTags) });
+      qb.andWhere('JSON_CONTAINS(a.facilityTags, :fac)', {
+        fac: JSON.stringify(query.facilityTags),
+      });
     }
     if (query.rating) {
       qb.andWhere('a.rating >= :rating', { rating: query.rating });
@@ -60,9 +72,12 @@ export class AccommodationHotelService extends BaseService {
     }
 
     const hasPriceFilter = query.minPrice != null || query.maxPrice != null;
-    let rows: any[] = all.map((h: any) => ({ ...h, minPrice: minMap[h.id] ?? null }));
+    let rows: any[] = all.map((h: any) => ({
+      ...h,
+      minPrice: minMap[h.id] ?? null,
+    }));
     if (hasPriceFilter) {
-      rows = rows.filter((h) => {
+      rows = rows.filter(h => {
         if (h.minPrice == null) return false;
         const p = Number(h.minPrice);
         if (query.minPrice != null && p < Number(query.minPrice)) return false;
@@ -71,15 +86,22 @@ export class AccommodationHotelService extends BaseService {
       });
     }
     if (query.sort === 'price') {
-      rows.sort((a, b) => (Number(a.minPrice) || 0) - (Number(b.minPrice) || 0));
+      rows.sort(
+        (a, b) => (Number(a.minPrice) || 0) - (Number(b.minPrice) || 0)
+      );
     } else if (query.sort === 'priceDesc') {
-      rows.sort((a, b) => (Number(b.minPrice) || 0) - (Number(a.minPrice) || 0));
+      rows.sort(
+        (a, b) => (Number(b.minPrice) || 0) - (Number(a.minPrice) || 0)
+      );
     }
 
     const total = rows.length;
     const pageNo = Math.max(Number(query.page) || 1, 1);
     const pageSize = Math.max(Number(query.size) || 10, 1);
-    return { list: rows.slice((pageNo - 1) * pageSize, pageNo * pageSize), total };
+    return {
+      list: rows.slice((pageNo - 1) * pageSize, pageNo * pageSize),
+      total,
+    };
   }
 
   /**

@@ -1,4 +1,10 @@
-import { CoolController, BaseController, CoolUrlTag, TagTypes, CoolTag } from '@cool-midway/core';
+import {
+  CoolController,
+  BaseController,
+  CoolUrlTag,
+  TagTypes,
+  CoolTag,
+} from '@cool-midway/core';
 import { Get, Inject, Query } from '@midwayjs/core';
 import { AccommodationHotelService } from '../../service/hotel';
 

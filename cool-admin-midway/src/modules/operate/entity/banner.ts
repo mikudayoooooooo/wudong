@@ -23,10 +23,20 @@ export class BannerEntity extends BaseEntity {
   @Column({ comment: '排序', default: 0 })
   sort: number;
 
-  @Column({ comment: '生效开始时间', type: 'varchar', nullable: true, transformer: transformerTime })
+  @Column({
+    comment: '生效开始时间',
+    type: 'varchar',
+    nullable: true,
+    transformer: transformerTime,
+  })
   startTime: Date;
 
-  @Column({ comment: '生效结束时间', type: 'varchar', nullable: true, transformer: transformerTime })
+  @Column({
+    comment: '生效结束时间',
+    type: 'varchar',
+    nullable: true,
+    transformer: transformerTime,
+  })
   endTime: Date;
 
   @Column({ comment: '状态：1启用 0禁用', dict: ['禁用', '启用'], default: 1 })

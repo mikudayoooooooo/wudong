@@ -1,4 +1,10 @@
-import { CoolController, BaseController, CoolUrlTag, TagTypes, CoolTag } from '@cool-midway/core';
+import {
+  CoolController,
+  BaseController,
+  CoolUrlTag,
+  TagTypes,
+  CoolTag,
+} from '@cool-midway/core';
 import { Get, Inject, Query } from '@midwayjs/core';
 import { RoomCalendarService } from '../../service/room-calendar';
 
@@ -19,7 +25,11 @@ export class AppAccommodationRoomTypeController extends BaseController {
     @Query('endDate') endDate: string
   ) {
     return this.ok(
-      await this.roomCalendarService.range(Number(roomTypeId), startDate, endDate)
+      await this.roomCalendarService.range(
+        Number(roomTypeId),
+        startDate,
+        endDate
+      )
     );
   }
 }

@@ -10,13 +10,27 @@ export class AnnouncementEntity extends BaseEntity {
   @Column({ comment: '内容', type: 'text' })
   content: string;
 
-  @Column({ comment: '类型：1系统 2活动', dict: ['系统公告', '活动公告'], default: 1 })
+  @Column({
+    comment: '类型：1系统 2活动',
+    dict: ['系统公告', '活动公告'],
+    default: 1,
+  })
   type: number;
 
-  @Column({ comment: '生效开始时间', type: 'varchar', nullable: true, transformer: transformerTime })
+  @Column({
+    comment: '生效开始时间',
+    type: 'varchar',
+    nullable: true,
+    transformer: transformerTime,
+  })
   startTime: Date;
 
-  @Column({ comment: '生效结束时间', type: 'varchar', nullable: true, transformer: transformerTime })
+  @Column({
+    comment: '生效结束时间',
+    type: 'varchar',
+    nullable: true,
+    transformer: transformerTime,
+  })
   endTime: Date;
 
   @Column({ comment: '是否置顶', dict: ['否', '是'], default: 0 })

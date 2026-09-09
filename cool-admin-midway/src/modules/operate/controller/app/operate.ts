@@ -1,4 +1,10 @@
-import { CoolController, BaseController, CoolUrlTag, TagTypes, CoolTag } from '@cool-midway/core';
+import {
+  CoolController,
+  BaseController,
+  CoolUrlTag,
+  TagTypes,
+  CoolTag,
+} from '@cool-midway/core';
 import { Get, Inject, Query } from '@midwayjs/core';
 import { BannerService } from '../../service/banner';
 import { AnnouncementService } from '../../service/announcement';
@@ -27,7 +33,9 @@ export class AppOperateController extends BaseController {
   @Get('/announcement', { summary: '公告下发' })
   async announcement(@Query('type') type?: number) {
     return this.ok(
-      await this.announcementService.announcementList(type != null ? Number(type) : undefined)
+      await this.announcementService.announcementList(
+        type != null ? Number(type) : undefined
+      )
     );
   }
 }

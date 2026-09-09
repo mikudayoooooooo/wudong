@@ -17,7 +17,9 @@ export class AnnouncementService extends BaseService {
 
   /** 下发：发布态 + 时间窗内，置顶优先再创建时间倒序 */
   async announcementList(type?: number) {
-    const qb = this.announcementEntity.createQueryBuilder('a').where('a.status = 1');
+    const qb = this.announcementEntity
+      .createQueryBuilder('a')
+      .where('a.status = 1');
     if (type != null) {
       qb.andWhere('a.type = :type', { type });
     }
@@ -27,7 +29,9 @@ export class AnnouncementService extends BaseService {
       .getMany();
     const now = NOW();
     return rows.filter(
-      (r) => (!r.startTime || String(r.startTime) <= now) && (!r.endTime || String(r.endTime) >= now)
+      r =>
+        (!r.startTime || String(r.startTime) <= now) &&
+        (!r.endTime || String(r.endTime) >= now)
     );
   }
 }

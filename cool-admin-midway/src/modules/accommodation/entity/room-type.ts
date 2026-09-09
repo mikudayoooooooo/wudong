@@ -20,7 +20,12 @@ export class RoomTypeEntity extends BaseEntity {
   @Column({ comment: '最多入住人数', default: 2 })
   maxGuests: number;
 
-  @Column({ comment: '设施列表', type: 'json', nullable: true, transformer: transformerJson })
+  @Column({
+    comment: '设施列表',
+    type: 'json',
+    nullable: true,
+    transformer: transformerJson,
+  })
   facilities: string[];
 
   @Column({ comment: '基础价格', type: 'decimal', precision: 10, scale: 2 })
@@ -29,7 +34,12 @@ export class RoomTypeEntity extends BaseEntity {
   @Column({ comment: '房间数量', default: 1 })
   stock: number;
 
-  @Column({ comment: '房型图片', type: 'json', nullable: true, transformer: transformerJson })
+  @Column({
+    comment: '房型图片',
+    type: 'json',
+    nullable: true,
+    transformer: transformerJson,
+  })
   images: string[];
 
   @Column({ comment: '状态：1正常 0停用', dict: ['停用', '正常'], default: 1 })

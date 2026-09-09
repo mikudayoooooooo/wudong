@@ -24,10 +24,19 @@ export class FinanceRecordEntity extends BaseEntity {
   @Column({ comment: '商家收入', type: 'decimal', precision: 10, scale: 2 })
   merchantIncome: number;
 
-  @Column({ comment: '结算状态：1待结算 2已结算', dict: ['待结算', '已结算'], default: 1 })
+  @Column({
+    comment: '结算状态：1待结算 2已结算',
+    dict: ['待结算', '已结算'],
+    default: 1,
+  })
   settlementStatus: number;
 
-  @Column({ comment: '结算时间', type: 'varchar', nullable: true, transformer: transformerTime })
+  @Column({
+    comment: '结算时间',
+    type: 'varchar',
+    nullable: true,
+    transformer: transformerTime,
+  })
   settlementTime: Date;
 
   @Column({ comment: '结算批次号', length: 50, nullable: true })

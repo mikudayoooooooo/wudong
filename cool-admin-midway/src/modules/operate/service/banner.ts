@@ -21,10 +21,15 @@ export class BannerService extends BaseService {
     if (position) {
       qb.andWhere('a.position = :position', { position });
     }
-    const rows = await qb.orderBy('a.sort', 'ASC').addOrderBy('a.id', 'ASC').getMany();
+    const rows = await qb
+      .orderBy('a.sort', 'ASC')
+      .addOrderBy('a.id', 'ASC')
+      .getMany();
     const now = NOW();
     return rows.filter(
-      (r) => (!r.startTime || String(r.startTime) <= now) && (!r.endTime || String(r.endTime) >= now)
+      r =>
+        (!r.startTime || String(r.startTime) <= now) &&
+        (!r.endTime || String(r.endTime) >= now)
     );
   }
 }

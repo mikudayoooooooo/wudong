@@ -25,6 +25,12 @@ export class AdminAccommodationRoomCalendarController extends BaseController {
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string
   ) {
-    return this.ok(await this.roomCalendarService.range(Number(roomTypeId), startDate, endDate));
+    return this.ok(
+      await this.roomCalendarService.range(
+        Number(roomTypeId),
+        startDate,
+        endDate
+      )
+    );
   }
 }
