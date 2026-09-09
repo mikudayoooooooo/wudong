@@ -1075,7 +1075,7 @@ npm run test -- base-order-query
 
 ```ts
   @Get('/page', { summary: '我的订单分页' })
-  async page(
+  async pageList(
     @Query('status') status: number,
     @Query('page') page: number,
     @Query('size') size: number

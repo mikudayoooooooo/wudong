@@ -154,4 +154,61 @@ export class OrderService extends BaseService {
       1000 + Math.random() * 9000
     )}`;
   }
+
+  /**
+   * 我的订单分页（id 倒序，status 可选过滤）
+   */
+  async pageList(userId: number, status?: number, page = 1, size = 10) {
+    const qb = this.orderEntity
+      .createQueryBuilder('a')
+      .where('a.userId = :userId', { userId })
+      .orderBy('a.id', 'DESC');
+    if (status) {
+      qb.andWhere('a.status = :status', { status });
+    }
+    const pageNo = Math.max(Number(page) || 1, 1);
+    const pageSize = Math.max(Number(size) || 10, 1);
+    qb.skip((pageNo - 1) * pageSize).take(pageSize);
+    const [list, total] = await qb.getManyAndCount();
+    return { list, total };
+  }
+
+  /**
+   * 订单详情：主单 + 明细快照
+   */
+  async getByNo(userId: number, orderNo: string) {
+    const order = await this.orderEntity.findOneBy({
+      orderNo: Equal(orderNo),
+      userId: Equal(userId),
+    });
+    if (!order) {
+      throw new CoolCommException('订单不存在');
+    }
+    const detailEntity = TYPE_DETAIL[order.orderType];
+    const items = await this.dataSource
+      .getRepository(detailEntity)
+      .find({ where: { orderId: Equal(order.id) }, order: { id: 'ASC' } });
+    return { ...order, items };
+  }
+
+  /**
+   * 取消订单（仅待支付）
+   */
+  async cancel(userId: number, orderNo: string) {
+    const order = await this.orderEntity.findOneBy({
+      orderNo: Equal(orderNo),
+      userId: Equal(userId),
+    });
+    if (!order) {
+      throw new CoolCommException('订单不存在');
+    }
+    if (order.status !== 1) {
+      throw new CoolCommException('仅待支付订单可取消');
+    }
+    await this.orderEntity.update(
+      { id: order.id },
+      { status: 4, cancelTime: new Date() }
+    );
+    return true;
+  }
 }
