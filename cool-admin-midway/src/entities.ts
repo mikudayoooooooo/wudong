@@ -35,18 +35,27 @@ import * as entity32 from './modules/member/entity/favorite';
 import * as entity33 from './modules/dict/entity/type';
 import * as entity34 from './modules/dict/entity/info';
 import * as entity35 from './modules/demo/entity/goods';
-import * as entity36 from './modules/cart/entity/cart';
-import * as entity37 from './modules/base/entity/base';
-import * as entity38 from './modules/base/entity/sys/user_role';
-import * as entity39 from './modules/base/entity/sys/user';
-import * as entity40 from './modules/base/entity/sys/role_menu';
-import * as entity41 from './modules/base/entity/sys/role_department';
-import * as entity42 from './modules/base/entity/sys/role';
-import * as entity43 from './modules/base/entity/sys/param';
-import * as entity44 from './modules/base/entity/sys/menu';
-import * as entity45 from './modules/base/entity/sys/log';
-import * as entity46 from './modules/base/entity/sys/department';
-import * as entity47 from './modules/base/entity/sys/conf';
+import * as entity36 from './modules/community/entity/topic';
+import * as entity37 from './modules/community/entity/topic-follow';
+import * as entity38 from './modules/community/entity/report';
+import * as entity39 from './modules/community/entity/post';
+import * as entity40 from './modules/community/entity/post-footprint';
+import * as entity41 from './modules/community/entity/message';
+import * as entity42 from './modules/community/entity/like';
+import * as entity43 from './modules/community/entity/follow';
+import * as entity44 from './modules/community/entity/comment';
+import * as entity45 from './modules/cart/entity/cart';
+import * as entity46 from './modules/base/entity/base';
+import * as entity47 from './modules/base/entity/sys/user_role';
+import * as entity48 from './modules/base/entity/sys/user';
+import * as entity49 from './modules/base/entity/sys/role_menu';
+import * as entity50 from './modules/base/entity/sys/role_department';
+import * as entity51 from './modules/base/entity/sys/role';
+import * as entity52 from './modules/base/entity/sys/param';
+import * as entity53 from './modules/base/entity/sys/menu';
+import * as entity54 from './modules/base/entity/sys/log';
+import * as entity55 from './modules/base/entity/sys/department';
+import * as entity56 from './modules/base/entity/sys/conf';
 export const entities = [
   ...Object.values(entity0),
   ...Object.values(entity1),
@@ -96,4 +105,13 @@ export const entities = [
   ...Object.values(entity45),
   ...Object.values(entity46),
   ...Object.values(entity47),
+  ...Object.values(entity48),
+  ...Object.values(entity49),
+  ...Object.values(entity50),
+  ...Object.values(entity51),
+  ...Object.values(entity52),
+  ...Object.values(entity53),
+  ...Object.values(entity54),
+  ...Object.values(entity55),
+  ...Object.values(entity56),
 ];
