@@ -1,10 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import HomeView from '../views/home/HomeView.vue';
 
-// 三条路由先统一指向 HomeView 占位，Task 4/5/6 依次替换为真实视图：
-//   /            → HomeView        （Task 4 真实首页）
-//   /hotels      → HotelListView   （Task 5）
-//   /hotels/:id  → HotelDetailView（Task 6）
+// 路由现状：/ 已是真实首页（Task 4）；/hotels、/hotels/:id 暂仍指向 HomeView 占位，Task 5/6 依次替换为真实视图。
 const router = createRouter({
   history: createWebHistory(),
   routes: [
