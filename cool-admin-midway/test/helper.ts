@@ -14,3 +14,19 @@ export async function boot() {
 export function auth(token: string) {
   return { Authorization: token };
 }
+
+/** 注册一个测试用户并返回 token（依赖 Task 4 的 /app/member/login/* 接口） */
+export async function registerAndLogin(
+  app,
+  phone: string,
+  password = 'abc123456'
+) {
+  const sms = await createHttpRequest(app)
+    .post('/app/member/login/smsCode')
+    .send({ phone });
+  const register = await createHttpRequest(app)
+    .post('/app/member/login/register')
+    .send({ phone, smsCode: sms.body.data.code, password });
+  expect(register.body.code).toBe(1000);
+  return register.body.data.token as string;
+}
