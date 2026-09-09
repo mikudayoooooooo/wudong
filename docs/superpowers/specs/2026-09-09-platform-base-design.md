@@ -152,7 +152,8 @@ cool-admin-midway/src/modules/
 - `announcement`：title、content、type（1系统 2活动）、startTime、endTime、isTop、status、createdBy
 - `finance_record`：orderId、merchantId、orderAmount、commissionRate、commissionAmount、merchantIncome、settlementStatus（1待结算 2已结算）、settlementTime、settlementBatch（表本期只建不用，结算逻辑 Phase 4）
 
-**接口**：C 端（匿名浏览，IGNORE_TOKEN）`GET /app/operate/banner?position=`、`GET /app/operate/announcement`；管理端 `/admin/operate/*` 三表标准 CRUD
+**接口**：C 端（匿名浏览，IGNORE_TOKEN）`GET /app/operate/banner/list?position=`、`GET /app/operate/announcement/list`；管理端 `/admin/operate/*` 三表标准 CRUD
+> URL 说明：带 IGNORE_TOKEN 的自定义路由控制器必须走"文件名=资源名"的推导前缀（显式 prefix 会导致 tag 注册在推导路径上、鉴权不豁免），故 C 端 URL 为三段式 /app/operate/<资源>/list
 
 ### 5.8 sensitive（敏感词，DFA）
 
@@ -224,7 +225,11 @@ member ────────────────────────�
 2. 测试手机号段按模块划分（order 用 135xxx、merchant 用 134xxx…），避免撞号
 3. 服务契约以本文档 §5 签名为准，改契约必须先改文档再动代码
 4. 合入顺序 = 依赖顺序：T1 的 order 先合 → pay 合；T2/T3 任意顺序
-5. **控制器 URL 用显式 `prefix`**（如 `@CoolController({ prefix: '/app/order' })`）：文件名与模块目录同名时，cool-admin 会按文件路径推导出重复前缀（/app/order/order），实际路由以显式 prefix 为准，但 swagger 会多出一条派生的幽灵路径（仅文档展示问题，真实请求 404）；此外 `BaseController` 自带无参 `page()/list()` 等内置方法，控制器自定义方法不可与其重名（方法名用 `pageList`，路由仍可写 `/page`）
+5. **控制器 prefix 的两条规则**：
+   - 需要登录的自定义路由可用显式 `prefix` 精确控制 URL（如 `@CoolController({ prefix: '/app/order' })`）；文件名与模块目录同名时推导会重复（/app/order/order），实际路由以显式 prefix 为准，但 swagger 会多一条派生幽灵路径（仅文档展示问题）
+   - **带 `IGNORE_TOKEN` 标签的控制器禁止显式 prefix**：tag 按"推导前缀+路由"注册鉴权豁免，显式 prefix 会分裂（豁免注册到幽灵路径、真实路径仍被拦截）；用"文件名=资源名"凑出目标 URL（如 controller/app/banner.ts + @Get('/list') → /app/operate/banner/list）
+   - 此外 `BaseController`/`BaseService` 自带 page/list/info/add/update/delete 等内置方法，自定义方法名必须避开（用 pageList/addItem 等）
+6. **每个测试文件只 `boot()` 一次**：同文件多次 createApp/close 会相互干扰导致用例随机失败；多场景用一个 describe 串行覆盖。另注意 `ok(null)` 不输出 data 键（cool-admin 全局行为），断言空值用 `res.body.data ?? null`
 
 ### 9.4 实施阶段
 
