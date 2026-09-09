@@ -50,7 +50,7 @@ export class AppMemberFavoriteController extends BaseController {
     @Query('size') size: number
   ) {
     return this.ok(
-      await this.memberFavoriteService.page(
+      await this.memberFavoriteService.pageList(
         this.ctx.user.id,
         targetType,
         page,

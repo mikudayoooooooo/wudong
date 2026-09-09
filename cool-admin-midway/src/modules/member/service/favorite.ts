@@ -50,12 +50,10 @@ export class MemberFavoriteService extends BaseService {
   /**
    * 我的收藏（分页，可按类型筛选）
    *
-   * 注：方法名 page 为跨模块契约（行/社区模块调用），与 BaseService 内置
-   * 分页 page(query, option) 的返回结构（{list, pagination}）不兼容，
-   * TS2416 为预期冲突，此处显式忽略。
+   * 注：方法名 pageList——BaseService 内置分页方法名为 page(query, option)，
+   * 自定义 page 会产生 TS2416 覆写冲突，故改名规避（跨模块以代码为准）。
    */
-  // @ts-expect-error 覆写 BaseService 内置 page 的签名（参数/返回结构不同）
-  async page(userId: number, targetType?: string, page = 1, size = 10) {
+  async pageList(userId: number, targetType?: string, page = 1, size = 10) {
     const qb = this.memberFavoriteEntity
       .createQueryBuilder('a')
       .where('a.userId = :userId', { userId })
