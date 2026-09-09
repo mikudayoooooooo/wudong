@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getUser, getPosts, getSpot, getAllSpots } from '../data/mock'
+import { getUser, getPosts, getAllSpots } from '../data/mock'
 import { userLitSpotIds } from '../lib/footprint'
 import FootprintMap from '../components/FootprintMap.vue'
 import Waterfall from '../components/Waterfall.vue'
