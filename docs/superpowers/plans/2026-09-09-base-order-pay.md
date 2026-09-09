@@ -827,8 +827,10 @@ import { OrderService } from '../../service/order';
 
 /**
  * C端统一订单（需登录）
+ * 说明：文件名与模块名同名会导致前缀推导重复（/app/order/order），
+ * 故显式指定 prefix，保证 URL 与 base 设计一致
  */
-@CoolController()
+@CoolController({ prefix: '/app/order' })
 export class AppOrderController extends BaseController {
   @Inject()
   ctx;
@@ -1267,6 +1269,7 @@ import { OrderEntity } from '../../entity/order';
  * 统一订单管理
  */
 @CoolController({
+  prefix: '/admin/order',
   api: ['page', 'list', 'info', 'update', 'delete'],
   entity: OrderEntity,
   pageQueryOp: {
@@ -1656,7 +1659,7 @@ import { PayService } from '../../service/pay';
 /**
  * C端统一支付（需登录）
  */
-@CoolController()
+@CoolController({ prefix: '/app/pay' })
 export class AppPayController extends BaseController {
   @Inject()
   ctx;
@@ -1696,6 +1699,7 @@ import { PaymentRecordEntity } from '../../entity/record';
  * 支付流水管理
  */
 @CoolController({
+  prefix: '/admin/pay/record',
   api: ['page', 'list', 'info'],
   entity: PaymentRecordEntity,
   pageQueryOp: {
