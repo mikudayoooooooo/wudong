@@ -8,12 +8,21 @@ const emit = defineEmits<{
   (e: 'search'): void;
 }>();
 
+// 评分 select 的可选值（字符串，含 '4.0' 补零形式）
+const RATE_OPTS = ['4.5', '4.0'] as const;
+
+/** 把数字评分规整回 select option 字符串：Number('4.0')=4 → '4.0'（保留补零），无匹配 → '' */
+function ratingOption(rating: number | undefined): string {
+  if (rating == null) return '';
+  return RATE_OPTS.find((o) => Number(o) === rating) ?? '';
+}
+
 // 本地编辑副本：父级用 v-model 同步 modelValue；改动即发 update:modelValue，
 // chips/select/回车/搜索按钮 触发 search 让父级重新查询。
 const local = reactive({
   keyword: props.modelValue.keyword ?? '',
   style: props.modelValue.styleTags ?? '',
-  rating: props.modelValue.rating != null ? String(props.modelValue.rating) : '',
+  rating: ratingOption(props.modelValue.rating),
   sort: props.modelValue.sort ?? ''
 });
 
@@ -58,7 +67,7 @@ watch(
   (v) => {
     local.keyword = v.keyword ?? '';
     local.style = v.styleTags ?? '';
-    local.rating = v.rating != null ? String(v.rating) : '';
+    local.rating = ratingOption(v.rating);
     local.sort = v.sort ?? '';
   }
 );
