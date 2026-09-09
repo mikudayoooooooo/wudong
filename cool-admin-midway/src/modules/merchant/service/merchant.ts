@@ -8,12 +8,7 @@ import { MemberUserEntity } from '../../member/entity/user';
 import { MessageService } from '../../message/service/message';
 
 /** 可入驻模块白名单 */
-export const MERCHANT_MODULES = [
-  'product',
-  'food',
-  'accommodation',
-  'travel',
-];
+export const MERCHANT_MODULES = ['product', 'food', 'accommodation', 'travel'];
 
 /**
  * 商家中心
@@ -112,7 +107,12 @@ export class MerchantService extends BaseService {
   /**
    * 审核：通过则生成/启用店铺 + 回写 member role=2 + 站内通知；驳回则通知并可重新申请
    */
-  async audit(applicationId: number, pass: boolean, auditResult: string, adminId: number) {
+  async audit(
+    applicationId: number,
+    pass: boolean,
+    auditResult: string,
+    adminId: number
+  ) {
     const application = await this.merchantApplicationEntity.findOneBy({
       id: Equal(applicationId),
     });

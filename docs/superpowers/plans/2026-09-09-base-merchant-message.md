@@ -17,7 +17,7 @@
 - **枚举口径**：merchant.module ∈ `product|food|accommodation|travel`；merchant.status 1正常 0禁用；application.status 1待审核 2已通过 3已驳回；member_user.role 1游客 2商家；message.type ∈ `order|system|activity|interact`。
 - **商家账号规则**：`username = 'm' + userId`（每用户一家店铺，重复入驻走更新）。
 - **全员消息**：`system_message.userId = NULL` 表示全员广播，查询 `userId IS NULL OR userId = me`，不逐条复制。
-- **测试手机号段**：member role `13900139xxx`、message `13300133xxx`、merchant `13200132xxx`、pay×message 集成 `13100131xxx`。
+- **测试手机号段**：member role `13000130xxx`、message `13300133xxx`、merchant `13200132xxx`、pay×message 集成 `13100131xxx`（member 系已占用 136-139，勿复用；jest 按文件大小排序执行，跨文件同号会随机撞"已注册"）。
 
 ---
 

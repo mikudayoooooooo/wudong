@@ -1,6 +1,6 @@
 import { auth, boot, close, createHttpRequest, registerAndLogin } from './helper';
 
-const phone = '13900139001';
+const phone = '13000130001';
 
 describe('member_user.role 字段（D1）', () => {
   let app;
