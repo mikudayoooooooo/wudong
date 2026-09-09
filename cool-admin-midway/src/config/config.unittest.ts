@@ -36,8 +36,11 @@ export default {
   cool: {
     // 测试环境关闭 eps
     eps: false,
-    // 自动导入模块数据库
-    initDB: true,
+    // 关闭自动导入模块数据库：其 2s 延迟种子导入定时器不被 await，
+    // 快速套件 close 后会在已销毁容器上触发，引发间歇性 teardown 失败
+    // （Pool is closed 等）；测试用例不依赖种子数据，表结构由 typeorm
+    // synchronize 创建
+    initDB: false,
     // 判断是否初始化的方式
     initJudge: 'db',
     // 不导入菜单
