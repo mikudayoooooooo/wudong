@@ -4,7 +4,7 @@ import {
   InjectDataSource,
   InjectEntityModel,
 } from '@midwayjs/typeorm';
-import { DataSource, Equal, Repository } from 'typeorm';
+import { DataSource, Equal, In, Repository } from 'typeorm';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import { OrderEntity } from '../entity/order';
@@ -209,6 +209,34 @@ export class OrderService extends BaseService {
       { id: order.id },
       { status: 4, cancelTime: new Date() }
     );
+    return true;
+  }
+
+  /**
+   * 标记已支付（供 pay 模块回调）：仅待支付可置
+   */
+  async markPaid(orderNo: string) {
+    const ret = await this.orderEntity.update(
+      { orderNo: Equal(orderNo), status: 1 },
+      { status: 2, payTime: new Date() }
+    );
+    if (!ret.affected) {
+      throw new CoolCommException('订单不存在或状态已变化');
+    }
+    return true;
+  }
+
+  /**
+   * 标记已退款（供业务模块退票/退款流程调用）：已支付/已完成可置
+   */
+  async markRefunded(orderNo: string) {
+    const ret = await this.orderEntity.update(
+      { orderNo: Equal(orderNo), status: In([2, 3]) },
+      { status: 5 }
+    );
+    if (!ret.affected) {
+      throw new CoolCommException('订单不存在或状态已变化');
+    }
     return true;
   }
 }
