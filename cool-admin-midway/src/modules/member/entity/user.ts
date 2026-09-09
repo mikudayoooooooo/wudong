@@ -28,6 +28,9 @@ export class MemberUserEntity extends BaseEntity {
   @Column({ comment: '状态', dict: ['禁用', '正常'], default: 1 })
   status: number;
 
+  @Column({ comment: '角色 1游客 2商家', dict: ['游客', '商家'], default: 1 })
+  role: number;
+
   @Column({
     comment: '最后登录时间',
     type: 'varchar',

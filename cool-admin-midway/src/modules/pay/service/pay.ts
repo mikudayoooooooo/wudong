@@ -5,6 +5,7 @@ import { Equal, Repository } from 'typeorm';
 import * as moment from 'moment';
 import { OrderEntity } from '../../order/entity/order';
 import { OrderService } from '../../order/service/order';
+import { MessageService } from '../../message/service/message';
 import { PaymentRecordEntity } from '../entity/record';
 
 /**
@@ -21,6 +22,9 @@ export class PayService extends BaseService {
 
   @Inject()
   orderService: OrderService;
+
+  @Inject()
+  messageService: MessageService;
 
   /**
    * 创建支付单：校验归属与待支付状态；同订单已有待支付流水则幂等复用
@@ -85,6 +89,13 @@ export class PayService extends BaseService {
       }
     );
     await this.orderService.markPaid(order.orderNo);
+    // T2 集成点：支付成功站内通知
+    await this.messageService.send(
+      order.userId,
+      'order',
+      '支付成功',
+      `订单 ${order.orderNo} 支付成功`
+    );
     return true;
   }
 

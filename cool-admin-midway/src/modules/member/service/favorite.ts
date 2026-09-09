@@ -4,8 +4,16 @@ import { InjectEntityModel } from '@midwayjs/typeorm';
 import { Equal, Repository } from 'typeorm';
 import { MemberFavoriteEntity } from '../entity/favorite';
 
-/** 收藏目标类型（行/社区模块共用，规格 §5.5） */
-export const FAVORITE_TYPES = ['scenic', 'route', 'guide', 'post'];
+/** 收藏目标类型（全平台共用，需求文档与行/社区 spec 的并集） */
+export const FAVORITE_TYPES = [
+  'product',
+  'restaurant',
+  'hotel',
+  'scenic',
+  'route',
+  'guide',
+  'post',
+];
 
 /**
  * 收藏
