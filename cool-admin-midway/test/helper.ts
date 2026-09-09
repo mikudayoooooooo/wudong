@@ -1,0 +1,32 @@
+import { createApp, close, createHttpRequest } from '@midwayjs/mock';
+import { Framework } from '@midwayjs/koa';
+
+export { close, createHttpRequest };
+
+/** 启动完整应用（unittest 环境自动读取 src/config/config.unittest.ts）
+ *  注：@midwayjs/mock 3.20 的 createApp 签名为 (baseDir?, options?, customFramework?)，
+ *  框架作为泛型参数传入：createApp<Framework>() */
+export async function boot() {
+  return createApp<Framework>();
+}
+
+/** 携带 C 端 token 的请求头（脚手架中间件直接读取裸 token，无 Bearer 前缀） */
+export function auth(token: string) {
+  return { Authorization: token };
+}
+
+/** 注册一个测试用户并返回 token（依赖 Task 4 的 /app/member/login/* 接口） */
+export async function registerAndLogin(
+  app,
+  phone: string,
+  password = 'abc123456'
+) {
+  const sms = await createHttpRequest(app)
+    .post('/app/member/login/smsCode')
+    .send({ phone });
+  const register = await createHttpRequest(app)
+    .post('/app/member/login/register')
+    .send({ phone, smsCode: sms.body.data.code, password });
+  expect(register.body.code).toBe(1000);
+  return register.body.data.token as string;
+}

@@ -115,6 +115,10 @@ export class PluginCenterService {
       'plugin',
       'hooks'
     );
+    // 目录可能不存在（如 jest 从 src 启动且未编译 dist），此时跳过插件钩子加载
+    if (!fs.existsSync(hooksPath)) {
+      return;
+    }
     for (const key of fs.readdirSync(hooksPath)) {
       const stat = fs.statSync(path.join(hooksPath, key));
       if (!stat.isDirectory()) {
