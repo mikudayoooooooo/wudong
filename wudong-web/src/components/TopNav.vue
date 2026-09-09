@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useSession } from '../stores/session'
+
+const session = useSession()
 const items = [
   { path: '/', label: '首页' },
   { path: '/route', label: '行·订票' },
@@ -17,7 +20,7 @@ const items = [
       </RouterLink>
       <span class="spacer" />
       <input class="search" placeholder="🔍 搜索路线 / 景区 / 游记 / 话题" />
-      <span class="user">🧑‍🌾 山野小鱼</span>
+      <span class="user" data-testid="nav-user" @click="session.login()">{{ session.isLogged ? '🧑‍🌾 山野小鱼' : '登录' }}</span>
     </div>
   </nav>
 </template>
@@ -30,5 +33,5 @@ const items = [
 .item.router-link-exact-active { color: var(--orange-500); font-weight: 700; }
 .spacer { flex: 1; }
 .search { background: #f2f2f2; border: none; border-radius: 14px; padding: 5px 14px; width: 240px; outline: none; }
-.user { font-size: 13px; }
+.user { font-size: 13px; cursor: pointer; }
 </style>

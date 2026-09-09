@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getSpot, getTicketTypes, getReviews, getUser, getRoutes, getItinerary, getInventories } from '../data/mock'
 import SectionHeader from '../components/SectionHeader.vue'
+import BookingModal from '../components/BookingModal.vue'
 
 const routeParam = useRoute()
 const router = useRouter()
@@ -13,7 +14,15 @@ const reviews = computed(() => getReviews('scenic', spotId.value))
 const relatedRoutes = computed(() =>
   getRoutes().filter((r) => getItinerary(r.id).some((s) => s.spotId === spotId.value)),
 )
-const nextDate = computed(() => getInventories('ticket', tickets.value[0]?.id ?? 0)[0]?.useDate)
+
+const buyTicketId = ref<number | null>(null)
+function onBuy(ticketId: number): void {
+  if (!getInventories('ticket', ticketId).length) {
+    alert('该票种演示数据未配库存')
+    return
+  }
+  buyTicketId.value = ticketId
+}
 </script>
 
 <template>
@@ -30,7 +39,7 @@ const nextDate = computed(() => getInventories('ticket', tickets.value[0]?.id ??
         <b>{{ t.name }}</b>
         <div class="price">¥{{ t.price }}</div>
         <div class="stock">库存 {{ t.stock }}</div>
-        <button class="btn-primary" @click="alert(`演示：购票弹窗 Task 16 接入（票种 ${t.name}，最近可约 ${nextDate ?? '—'}）`)">选日期购票</button>
+        <button class="btn-primary" @click="onBuy(t.id)">选日期购票</button>
       </div>
       <div v-if="!tickets.length" class="card tk empty">此地点暂无可售票种（餐饮/住宿/体验类）</div>
     </section>
@@ -52,6 +61,8 @@ const nextDate = computed(() => getInventories('ticket', tickets.value[0]?.id ??
         <p>{{ r.content }}</p>
       </div>
     </section>
+
+    <BookingModal :open="buyTicketId !== null" item-type="ticket" :item-id="buyTicketId ?? 0" @close="buyTicketId = null" />
   </div>
 </template>
 

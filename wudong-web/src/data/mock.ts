@@ -148,6 +148,7 @@ export const getRoute = (id: number): RoutePackage | undefined => routes.find((r
 export const getItinerary = (routeId: number): ItineraryStop[] =>
   itineraries.filter((i) => i.routeId === routeId).sort((a, b) => a.dayNo - b.dayNo || a.sort - b.sort)
 export const getTicketTypes = (spotId: number): TicketType[] => ticketTypes.filter((t) => t.spotId === spotId)
+export const findTicketType = (id: number): TicketType | undefined => ticketTypes.find((t) => t.id === id)
 export const getAllTicketTypes = (): TicketType[] => [...ticketTypes]
 export const getInventories = (itemType: 'ticket' | 'route', itemId: number): InventoryDay[] =>
   inventories.filter((i) => i.itemType === itemType && i.itemId === itemId)

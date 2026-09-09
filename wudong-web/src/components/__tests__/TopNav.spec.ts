@@ -1,4 +1,5 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
+import { setActivePinia, createPinia } from 'pinia'
 import { mount } from '@vue/test-utils'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import TopNav from '../TopNav.vue'
@@ -6,6 +7,9 @@ import TopNav from '../TopNav.vue'
 const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/:pathMatch(.*)*', component: { template: '<div/>' } }] })
 
 describe('TopNav', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+  })
   it('渲染五个导航项与搜索框', async () => {
     await router.push('/'); await router.isReady()
     const w = mount(TopNav, { global: { plugins: [router] } })

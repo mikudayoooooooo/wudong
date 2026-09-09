@@ -6,6 +6,7 @@ import { routeStopsView } from '../lib/footprint'
 import FootprintMap from '../components/FootprintMap.vue'
 import PostCard from '../components/PostCard.vue'
 import SectionHeader from '../components/SectionHeader.vue'
+import BookingModal from '../components/BookingModal.vue'
 
 const routeParam = useRoute()
 const router = useRouter()
@@ -23,9 +24,13 @@ const stockCls = (sold: number, total: number): string =>
 const stockText = (inv: { sold: number; total: number }): string =>
   inv.sold >= inv.total ? '满' : `余${inv.total - inv.sold}`
 
+const bookingOpen = ref(false)
 function onBook(): void {
-  // BookingModal 在 Task 16 接入；此处先行占位提示
-  alert(`已选择 ${chosenDate.value || '请选日期'} × ${people.value} 人（Task 16 接入下单弹窗）`)
+  if (!chosenDate.value) {
+    alert('请先选择出行日期')
+    return
+  }
+  bookingOpen.value = true
 }
 </script>
 
@@ -92,6 +97,8 @@ function onBook(): void {
         <p>{{ r.content }}</p>
       </div>
     </section>
+
+    <BookingModal :open="bookingOpen" item-type="route" :item-id="routeId" @close="bookingOpen = false" />
   </div>
 </template>
 

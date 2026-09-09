@@ -1,4 +1,5 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
+import { setActivePinia, createPinia } from 'pinia'
 import { mount } from '@vue/test-utils'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import RouteDetailView from '../RouteDetailView.vue'
@@ -9,6 +10,9 @@ const router = createRouter({
 })
 
 describe('RouteDetailView', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia()) // BookingModal 使用 session/booking store
+  })
   it('渲染路线信息、行程地图、购票卡与联动游记', async () => {
     await router.push('/route/1'); await router.isReady()
     const w = mount(RouteDetailView, { global: { plugins: [router] } })
