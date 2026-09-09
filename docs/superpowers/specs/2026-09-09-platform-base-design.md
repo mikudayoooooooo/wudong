@@ -224,6 +224,7 @@ member ────────────────────────�
 2. 测试手机号段按模块划分（order 用 135xxx、merchant 用 134xxx…），避免撞号
 3. 服务契约以本文档 §5 签名为准，改契约必须先改文档再动代码
 4. 合入顺序 = 依赖顺序：T1 的 order 先合 → pay 合；T2/T3 任意顺序
+5. **控制器 URL 用显式 `prefix`**（如 `@CoolController({ prefix: '/app/order' })`）：文件名与模块目录同名时，cool-admin 会按文件路径推导出重复前缀（/app/order/order），实际路由以显式 prefix 为准，但 swagger 会多出一条派生的幽灵路径（仅文档展示问题，真实请求 404）；此外 `BaseController` 自带无参 `page()/list()` 等内置方法，控制器自定义方法不可与其重名（方法名用 `pageList`，路由仍可写 `/page`）
 
 ### 9.4 实施阶段
 
