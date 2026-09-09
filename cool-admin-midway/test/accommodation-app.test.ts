@@ -5,6 +5,11 @@ const DB = { host: '127.0.0.1', port: 3307, user: 'root', password: '123456', da
 
 async function seed() {
   const conn = await mysql.createConnection(DB);
+  // 清空本 seed 涉及的表，保证与其它 suite（如 accommodation-room-calendar 先建 status=1 民宿）
+  // 的执行顺序无关；无外键约束，DELETE 顺序任意。不重置自增——断言只数行数且返回 insertId。
+  await conn.query('DELETE FROM room_calendar');
+  await conn.query('DELETE FROM room_type');
+  await conn.query('DELETE FROM hotel');
   const t = '2026-09-01 00:00:00';
   // A：上架苗寨木楼（2 个启用房型，最低 380）；B：下架客栈（不应出现在搜索）
   const [h] = await conn.query(
