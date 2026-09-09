@@ -31,8 +31,17 @@ export class MemberFavoriteService extends BaseService {
       await this.memberFavoriteEntity.delete({ id: exist.id });
       return { favorited: false };
     }
-    await this.memberFavoriteEntity.insert({ userId, targetType, targetId });
-    return { favorited: true };
+    try {
+      // 并发语义：双击/并发下可能同时通过存在性检查都走 insert，唯一索引
+      // uk_user_target 挡住重复行；败方捕获重复键后按最终落库状态（已收藏）幂等返回
+      await this.memberFavoriteEntity.insert({ userId, targetType, targetId });
+      return { favorited: true };
+    } catch (err: any) {
+      if (err?.code === 'ER_DUP_ENTRY' || err?.errno === 1062) {
+        return { favorited: true };
+      }
+      throw err;
+    }
   }
 
   /**

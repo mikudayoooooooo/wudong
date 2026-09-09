@@ -5,6 +5,7 @@ import {
   createHttpRequest,
   registerAndLogin,
 } from './helper';
+import { MemberFavoriteService } from '../src/modules/member/service/favorite';
 
 const phoneA = '13600136001';
 const phoneB = '13600136002';
@@ -118,5 +119,37 @@ describe('member 收藏', () => {
       .get('/app/member/favorite/page?page=1&size=10')
       .set(auth(tokenB));
     expect(mineB.body.data.total).toBe(1); // B 只能看到自己的
+  });
+
+  it('并发重复 toggle 落到唯一索引时仍返回 favorited（无 500）', async () => {
+    // 先真实收藏 guide:401，使库中存在该行（A 的 userId 从已有收藏行反推）
+    await createHttpRequest(app)
+      .post('/app/member/favorite/toggle')
+      .set(auth(tokenA))
+      .send({ targetType: 'guide', targetId: 401 });
+    const svc = await app
+      .getApplicationContext()
+      .getAsync(MemberFavoriteService);
+    const row = await svc.memberFavoriteEntity.findOneBy({
+      targetType: 'route',
+      targetId: 101,
+    });
+    expect(row).toBeTruthy();
+    const userIdA = row!.userId;
+
+    // 确定性模拟竞态窗口：并发双方都没看见已存在行（findOneBy 返回 null），
+    // 使 toggle 走 insert 分支撞上 uk_user_target 重复键，
+    // 断言败方被捕获并按最终落库状态返回 { favorited: true }，而非抛 500
+    const spy = jest
+      .spyOn(svc.memberFavoriteEntity, 'findOneBy')
+      .mockResolvedValue(null as any);
+    try {
+      const res = await svc.toggle(userIdA, 'guide', 401);
+      expect(res).toEqual({ favorited: true });
+    } finally {
+      spy.mockRestore();
+    }
+    // 竞态败方不产生第二行，终态仍为已收藏
+    expect(await svc.check(userIdA, 'guide', 401)).toBe(true);
   });
 });
