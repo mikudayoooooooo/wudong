@@ -21,6 +21,16 @@ const router = createRouter({
       meta: { requiresAuth: true },
       children: [
         // 后续 Task 逐个追加子路由（只改这一段）
+        {
+          path: '',
+          name: 'merchant-home',
+          component: () => import('../views/merchant/MerchantHomeView.vue'),
+        },
+        {
+          path: 'apply',
+          name: 'merchant-apply',
+          component: () => import('../views/merchant/MerchantApplyView.vue'),
+        },
       ],
     },
   ],
