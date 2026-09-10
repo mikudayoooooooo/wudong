@@ -293,6 +293,13 @@ declare namespace Eps {
 		[key: string]: any;
 	}
 
+	interface MessageTemplateEntity {
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
 	type json = any;
 
 	type DictKey = "brand" | "occupation";

@@ -4,6 +4,7 @@
 			<cl-refresh-btn />
 			<!-- 新增即群发：用户ID留空为全员广播 -->
 			<cl-add-btn />
+			<el-button type="success" plain @click="openSend">按模板发送</el-button>
 			<cl-multi-delete-btn />
 			<cl-flex1 />
 			<cl-search-key placeholder="搜索消息标题" />
@@ -18,6 +19,41 @@
 			<cl-pagination />
 		</cl-row>
 
+		<!-- 按模板发送 -->
+		<el-dialog v-model="sendDlg.visible" title="按模板发送" width="520px">
+			<el-form label-width="90px">
+				<el-form-item label="模板" required>
+					<el-select v-model="sendDlg.templateCode" placeholder="仅列出启用中的模板" style="width: 100%">
+						<el-option
+							v-for="t in sendDlg.templates"
+							:key="t.code"
+							:value="t.code"
+							:label="`${t.name}（${t.title}）`"
+						/>
+					</el-select>
+				</el-form-item>
+				<el-form-item label="接收用户">
+					<el-input-number
+						v-model="sendDlg.userId"
+						:min="1"
+						controls-position="right"
+						placeholder="留空为全员广播"
+						style="width: 100%"
+					/>
+				</el-form-item>
+				<el-form-item label="跳转">
+					<el-input v-model="sendDlg.linkType" placeholder="跳转类型，选填（如 order）" />
+				</el-form-item>
+				<el-form-item label="">
+					<el-input v-model="sendDlg.linkValue" placeholder="跳转地址，选填" />
+				</el-form-item>
+			</el-form>
+			<template #footer>
+				<el-button @click="sendDlg.visible = false">取消</el-button>
+				<el-button type="primary" :loading="sendDlg.loading" @click="submitSend">发送</el-button>
+			</template>
+		</el-dialog>
+
 		<cl-upsert ref="Upsert" />
 	</cl-crud>
 </template>
@@ -27,10 +63,68 @@ defineOptions({
 	name: 'message-message'
 });
 
+import { reactive } from 'vue';
+import { ElMessage } from 'element-plus';
 import { useCrud, useTable, useUpsert } from '@cool-vue/crud';
 import { useCool } from '/@/cool';
 
 const { service } = useCool();
+
+// 按模板发送弹窗
+const sendDlg = reactive({
+	visible: false,
+	loading: false,
+	templates: [] as any[],
+	templateCode: '',
+	userId: undefined as number | undefined,
+	linkType: '',
+	linkValue: ''
+});
+
+async function openSend() {
+	sendDlg.templateCode = '';
+	sendDlg.userId = undefined;
+	sendDlg.linkType = '';
+	sendDlg.linkValue = '';
+	try {
+		const r = await service.request({
+			url: '/admin/message/template/list',
+			method: 'POST',
+			data: { status: 1, size: 100 }
+		});
+		sendDlg.templates = r.list || [];
+	} catch {
+		sendDlg.templates = [];
+	}
+	sendDlg.visible = true;
+}
+
+async function submitSend() {
+	if (!sendDlg.templateCode) {
+		ElMessage.warning('请选择模板');
+		return;
+	}
+	sendDlg.loading = true;
+	try {
+		await service.request({
+			url: '/admin/message/sendByTemplate',
+			method: 'POST',
+			data: {
+				templateCode: sendDlg.templateCode,
+				userId: sendDlg.userId,
+				linkType: sendDlg.linkType || undefined,
+				linkValue: sendDlg.linkValue || undefined
+			}
+		});
+		ElMessage.success(sendDlg.userId ? '已发送' : '已全员广播');
+		sendDlg.visible = false;
+		Crud.value?.refresh();
+	} catch (err: any) {
+		ElMessage.error(err.message || '发送失败');
+	} finally {
+		sendDlg.loading = false;
+	}
+}
 
 // 消息类型
 const typeDict = [
