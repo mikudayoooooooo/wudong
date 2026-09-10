@@ -21,6 +21,7 @@
 - C 端未登录的响应形态：HTTP **200** + `{"code":1001,"message":"登录失效~"}`；业务错误也是 `code:1001`。**前端只能靠 `message.startsWith('登录失效')` 区分鉴权失败**，不能靠 code。
 - 所有 B 端路由挂在显式前缀 `/app/accommodation/merchant`（`@CoolController({ prefix: ... })`）；`/app/*` 自动受登录中间件保护，**不要**加 `@CoolTag(TagTypes.IGNORE_TOKEN)`。
 - 控制器方法名**不得**与 `BaseController` 内置方法同名（`page/list/info/add/update/delete`），否则 TS2416 编译失败；一律用 `hotelPage` / `hotelAdd` 这类前缀名。
+- **服务方法名同样受限**：`@cool-midway/core` 的 `BaseService` 也声明了 `page/list/info/add/update/delete`（`node_modules/@cool-midway/core/dist/service/base.js:135-215`），同名即 TS2416 且应用启动失败。因此 `MerchantHotelService` 用 `hotelPage/hotelInfo/hotelAdd/hotelUpdate/hotelRemove`，`MerchantRoomTypeService` 用 `roomTypePage/roomTypeAdd/roomTypeUpdate/roomTypeRemove`（`MerchantCalendarService.range/batch` 不冲突，保持原名）。T1 实现时已按此基线落地命名。
 - 归属字段：`hotel.merchantId` 定民宿归属；`room_type.hotelId` → `hotel.merchantId` 定房型归属；`room_calendar.roomTypeId` → 房型归属。
 - 后端错误文案（测试精确断言，不得改写）：
   `仅商家可访问` / `无权操作该资源` / `请指定民宿` / `请填写完整的民宿信息` / `请填写完整的房型信息` / `房型价格必须大于 0` / `房间数量至少为 1` / `标签格式不正确` / `您的入驻模块非住宿，无法新增民宿` / `请先删除该民宿下的房型` / `日期区间无效` / `日期区间最多32天`。
@@ -99,7 +100,7 @@
   - `MerchantScopeService.requireMerchant(userId: number): Promise<MerchantEntity>`
   - `MerchantScopeService.requireOwnedHotel(merchantId: number, hotelId: number): Promise<HotelEntity>`
   - `MerchantScopeService.requireOwnedRoomType(merchantId: number, roomTypeId: number): Promise<RoomTypeEntity>`
-  - `MerchantHotelService.page(merchantId: number, query: any): Promise<{ list: HotelEntity[]; total: number }>`
+  - `MerchantHotelService.hotelPage(merchantId: number, query: any): Promise<{ list: HotelEntity[]; total: number }>`
   - 控制器 `AppAccommodationMerchantController` 前缀 `/app/accommodation/merchant`，本节交付 `GET /hotel/page`
   - 测试夹具 `test/helper.ts` 新增 `APPLY_OK`、`registerMerchant(app, phone, module?)` → `{ token, userId, merchantId }`
 
@@ -344,7 +345,7 @@ export class MerchantHotelService extends BaseService {
   scopeService: MerchantScopeService;
 
   /** 我的民宿分页：name 模糊 + status 精确，按 id 倒序 */
-  async page(
+  async hotelPage(
     merchantId: number,
     query: any
   ): Promise<{ list: HotelEntity[]; total: number }> {
@@ -397,7 +398,7 @@ export class AppAccommodationMerchantController extends BaseController {
   @Get('/hotel/page', { summary: '我的民宿分页' })
   async hotelPage(@Query() query) {
     const merchant = await this.scopeService.requireMerchant(this.ctx.user.id);
-    return this.ok(await this.merchantHotelService.page(merchant.id, query));
+    return this.ok(await this.merchantHotelService.hotelPage(merchant.id, query));
   }
 }
 ```
@@ -430,10 +431,10 @@ git commit -m "feat(merchant): B 端住宿归属校验基座 + 我的民宿分�
 **Interfaces:**
 - Consumes: Task 1 的 `MerchantScopeService.requireOwnedHotel`、`MerchantHotelService` 类。
 - Produces:
-  - `MerchantHotelService.info(merchantId, id): Promise<HotelEntity>`
-  - `MerchantHotelService.add(merchantId, module, body): Promise<HotelEntity>`
-  - `MerchantHotelService.update(merchantId, body): Promise<boolean>`
-  - `MerchantHotelService.remove(merchantId, id): Promise<boolean>`
+  - `MerchantHotelService.hotelInfo(merchantId, id): Promise<HotelEntity>`
+  - `MerchantHotelService.hotelAdd(merchantId, module, body): Promise<HotelEntity>`
+  - `MerchantHotelService.hotelUpdate(merchantId, body): Promise<boolean>`
+  - `MerchantHotelService.hotelRemove(merchantId, id): Promise<boolean>`
   - 路由 `GET /hotel/info?id=`、`POST /hotel/add`、`POST /hotel/update`、`POST /hotel/delete`
 
 - [ ] **Step 1: 续写失败测试（追加到 `test/merchant-hotel.test.ts` 的最后一个 `it` 之后、`afterAll` 之前）**
@@ -663,12 +664,12 @@ import { MerchantScopeService } from './merchant-scope';
   }
 
   /** 民宿详情（仅本人） */
-  async info(merchantId: number, id: number): Promise<HotelEntity> {
+  async hotelInfo(merchantId: number, id: number): Promise<HotelEntity> {
     return this.scopeService.requireOwnedHotel(merchantId, id);
   }
 
   /** 新增民宿：P4 模块校验 + P5 归属回写；rating/reviewCount/deposit/status 由实体默认值给出 */
-  async add(merchantId: number, module: string, body: any): Promise<HotelEntity> {
+  async hotelAdd(merchantId: number, module: string, body: any): Promise<HotelEntity> {
     if (module !== 'accommodation') {
       throw new CoolCommException('您的入驻模块非住宿，无法新增民宿');
     }
@@ -689,7 +690,7 @@ import { MerchantScopeService } from './merchant-scope';
   }
 
   /** 更新民宿：归属不可改（merchantId 不在白名单） */
-  async update(merchantId: number, body: any): Promise<boolean> {
+  async hotelUpdate(merchantId: number, body: any): Promise<boolean> {
     const hotel = await this.scopeService.requireOwnedHotel(merchantId, body?.id);
     Object.assign(hotel, this.pick(body));
     await this.hotelEntity.save(hotel);
@@ -697,7 +698,7 @@ import { MerchantScopeService } from './merchant-scope';
   }
 
   /** 删除民宿：P6 有房型时拒绝 */
-  async remove(merchantId: number, id: number): Promise<boolean> {
+  async hotelRemove(merchantId: number, id: number): Promise<boolean> {
     const hotel = await this.scopeService.requireOwnedHotel(merchantId, id);
     const roomCount = await this.roomTypeEntity.countBy({ hotelId: hotel.id });
     if (roomCount > 0) {
@@ -717,27 +718,27 @@ import { MerchantScopeService } from './merchant-scope';
   @Get('/hotel/info', { summary: '民宿详情' })
   async hotelInfo(@Query('id') id: number) {
     const merchant = await this.scopeService.requireMerchant(this.ctx.user.id);
-    return this.ok(await this.merchantHotelService.info(merchant.id, Number(id)));
+    return this.ok(await this.merchantHotelService.hotelInfo(merchant.id, Number(id)));
   }
 
   @Post('/hotel/add', { summary: '新增民宿' })
   async hotelAdd(@Body() body) {
     const merchant = await this.scopeService.requireMerchant(this.ctx.user.id);
     return this.ok(
-      await this.merchantHotelService.add(merchant.id, merchant.module, body)
+      await this.merchantHotelService.hotelAdd(merchant.id, merchant.module, body)
     );
   }
 
   @Post('/hotel/update', { summary: '更新民宿' })
   async hotelUpdate(@Body() body) {
     const merchant = await this.scopeService.requireMerchant(this.ctx.user.id);
-    return this.ok(await this.merchantHotelService.update(merchant.id, body));
+    return this.ok(await this.merchantHotelService.hotelUpdate(merchant.id, body));
   }
 
   @Post('/hotel/delete', { summary: '删除民宿' })
   async hotelDelete(@Body('id') id: number) {
     const merchant = await this.scopeService.requireMerchant(this.ctx.user.id);
-    return this.ok(await this.merchantHotelService.remove(merchant.id, Number(id)));
+    return this.ok(await this.merchantHotelService.hotelRemove(merchant.id, Number(id)));
   }
 ```
 
@@ -768,10 +769,10 @@ git commit -m "feat(merchant): 商家民宿增查改删（模块/归属/删除�
 **Interfaces:**
 - Consumes: `MerchantScopeService.requireOwnedHotel / requireOwnedRoomType`（Task 1）、`RoomCalendarEntity`。
 - Produces:
-  - `MerchantRoomTypeService.page(merchantId, query): Promise<{ list: RoomTypeEntity[]; total: number }>`
-  - `MerchantRoomTypeService.add(merchantId, body): Promise<RoomTypeEntity>`
-  - `MerchantRoomTypeService.update(merchantId, body): Promise<boolean>`
-  - `MerchantRoomTypeService.remove(merchantId, id): Promise<boolean>`
+  - `MerchantRoomTypeService.roomTypePage(merchantId, query): Promise<{ list: RoomTypeEntity[]; total: number }>`
+  - `MerchantRoomTypeService.roomTypeAdd(merchantId, body): Promise<RoomTypeEntity>`
+  - `MerchantRoomTypeService.roomTypeUpdate(merchantId, body): Promise<boolean>`
+  - `MerchantRoomTypeService.roomTypeRemove(merchantId, id): Promise<boolean>`
   - 路由 `GET /room-type/page?hotelId=`、`POST /room-type/add|update|delete`
 
 - [ ] **Step 1: 写失败测试 `test/merchant-room-type.test.ts`**
@@ -1032,7 +1033,7 @@ export class MerchantRoomTypeService extends BaseService {
   }
 
   /** 某民宿的房型分页（必须先确认民宿归属） */
-  async page(
+  async roomTypePage(
     merchantId: number,
     query: any
   ): Promise<{ list: RoomTypeEntity[]; total: number }> {
@@ -1067,7 +1068,7 @@ export class MerchantRoomTypeService extends BaseService {
   }
 
   /** 新增房型 */
-  async add(merchantId: number, body: any): Promise<RoomTypeEntity> {
+  async roomTypeAdd(merchantId: number, body: any): Promise<RoomTypeEntity> {
     const hotel = await this.scopeService.requireOwnedHotel(
       merchantId,
       body?.hotelId
@@ -1090,7 +1091,7 @@ export class MerchantRoomTypeService extends BaseService {
   }
 
   /** 更新房型 */
-  async update(merchantId: number, body: any): Promise<boolean> {
+  async roomTypeUpdate(merchantId: number, body: any): Promise<boolean> {
     const roomType = await this.scopeService.requireOwnedRoomType(
       merchantId,
       body?.id
@@ -1107,7 +1108,7 @@ export class MerchantRoomTypeService extends BaseService {
   }
 
   /** 删除房型：P7 先清该房型的房态记录（二者无外键，需显式级联） */
-  async remove(merchantId: number, id: number): Promise<boolean> {
+  async roomTypeRemove(merchantId: number, id: number): Promise<boolean> {
     const roomType = await this.scopeService.requireOwnedRoomType(
       merchantId,
       id
@@ -1137,27 +1138,27 @@ import { MerchantRoomTypeService } from '../../service/merchant-room-type';
   async roomTypePage(@Query() query) {
     const merchant = await this.scopeService.requireMerchant(this.ctx.user.id);
     return this.ok(
-      await this.merchantRoomTypeService.page(merchant.id, query)
+      await this.merchantRoomTypeService.roomTypePage(merchant.id, query)
     );
   }
 
   @Post('/room-type/add', { summary: '新增房型' })
   async roomTypeAdd(@Body() body) {
     const merchant = await this.scopeService.requireMerchant(this.ctx.user.id);
-    return this.ok(await this.merchantRoomTypeService.add(merchant.id, body));
+    return this.ok(await this.merchantRoomTypeService.roomTypeAdd(merchant.id, body));
   }
 
   @Post('/room-type/update', { summary: '更新房型' })
   async roomTypeUpdate(@Body() body) {
     const merchant = await this.scopeService.requireMerchant(this.ctx.user.id);
-    return this.ok(await this.merchantRoomTypeService.update(merchant.id, body));
+    return this.ok(await this.merchantRoomTypeService.roomTypeUpdate(merchant.id, body));
   }
 
   @Post('/room-type/delete', { summary: '删除房型' })
   async roomTypeDelete(@Body('id') id: number) {
     const merchant = await this.scopeService.requireMerchant(this.ctx.user.id);
     return this.ok(
-      await this.merchantRoomTypeService.remove(merchant.id, Number(id))
+      await this.merchantRoomTypeService.roomTypeRemove(merchant.id, Number(id))
     );
   }
 ```
@@ -7219,8 +7220,8 @@ Task 15 Step 4 的 `MerchantCalendarView.vue`）是为了让路由始终指向�
 **3. Type consistency**
 
 - 后端：`MerchantScopeService.requireMerchant/requireOwnedHotel/requireOwnedRoomType` 在 Task 1 定义，
-  Task 2/3/4 一致引用；`MerchantHotelService` 方法名 `page/info/add/update/remove` 与控制器调用一致；
-  `MerchantRoomTypeService` 方法名 `page/add/update/remove` 一致；`MerchantCalendarService.range/batch` 一致。
+  Task 2/3/4 一致引用；`MerchantHotelService` 方法名 `hotelPage/hotelInfo/hotelAdd/hotelUpdate/hotelRemove` 与控制器调用一致；
+  `MerchantRoomTypeService` 方法名 `roomTypePage/roomTypeAdd/roomTypeUpdate/roomTypeRemove` 一致；`MerchantCalendarService.range/batch` 一致（不撞 `BaseService`）。
 - 控制器方法名 `hotelPage/hotelInfo/hotelAdd/hotelUpdate/hotelDelete`、`roomTypePage/Add/Update/Delete`、
   `calendarRange/calendarBatch` 与 `BaseController` 内置方法（`page/info/add/update/delete`）**均不重名**。
 - 前端：`MerchantHotel`/`MerchantRoomType`/`HotelForm`/`RoomTypeForm`/`CalendarBatchForm` 在 Task 7 定义，
