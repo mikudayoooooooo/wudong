@@ -28,7 +28,7 @@ vi.mock('../../../api/operate', () => ({
 }))
 
 const tick = () => new Promise((r) => setTimeout(r, 0))
-async function settle(w: any, rounds = 30) {
+async function settle(_w: any, rounds = 30) {
   for (let i = 0; i < rounds; i++) { await flushPromises(); await tick() }
 }
 async function openButler() {
