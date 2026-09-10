@@ -60,6 +60,9 @@ export class RestaurantEntity extends BaseEntity {
   })
   avgPrice: number;
 
+  @Column({ comment: '评分', type: 'decimal', precision: 3, scale: 1, default: 0 })
+  rating: number;
+
   @Column({ comment: '特色菜品', type: 'text', nullable: true })
   specialty: string;
 

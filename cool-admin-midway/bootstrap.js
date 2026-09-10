@@ -1,10 +1,10 @@
 const { Bootstrap } = require('@midwayjs/bootstrap');
 
-// 显式以组件方式引入用户代码
-Bootstrap.configure({
-  // 这里引用的是编译后的入口，本地开发不走这个文件
-  // eslint-disable-next-line node/no-unpublished-require
-  imports: require('./dist/index'),
-  // 禁用依赖注入的目录扫描
-  moduleDetector: false,
-}).run();
+/**
+ * 生产启动（无 bundle 构建）：
+ * - 省略 imports → 自动加载 dist/configuration.js
+ * - 省略 moduleDetector → CommonJSFileDetector 目录扫描 dist/**
+ *   （保留方法级 @CoolTag 元数据，/app/** 匿名豁免在生产环境正常生效；
+ *    原方式经 bundle 内联会丢失方法级元数据，导致匿名接口全部 401）
+ */
+Bootstrap.configure({}).run();
