@@ -125,6 +125,33 @@ export class PayService extends BaseService {
   }
 
   /**
+   * 管理端退款审批：按流水 id 全额/部分退款，并联动订单置已退款
+   */
+  async refundApprove(recordId: number, amount?: number) {
+    const record = await this.paymentRecordEntity.findOneBy({
+      id: Equal(recordId),
+    });
+    if (!record) {
+      throw new CoolCommException('支付流水不存在');
+    }
+    if (record.payStatus !== 2) {
+      throw new CoolCommException('仅已支付的流水可退款');
+    }
+    const order = await this.orderEntity.findOneBy({
+      id: Equal(record.orderId),
+    });
+    if (!order) {
+      throw new CoolCommException('关联订单不存在');
+    }
+    if (order.status !== 2) {
+      throw new CoolCommException('仅已支付订单可退款');
+    }
+    await this.refund(record.paymentNo, amount ?? Number(record.payAmount));
+    await this.orderService.markRefunded(order.orderNo);
+    return true;
+  }
+
+  /**
    * 本人订单的支付流水
    */
   async records(userId: number, orderNo: string) {
