@@ -49,7 +49,7 @@
 | `isMerchant(userId)` 返回启用状态的商家记录（数据权限挂接点） | `MerchantService.isMerchant` |
 | 登录/注册：`/app/member/login/{smsCode,register,sms,password,refreshToken}`；资料：`/app/member/info/person` | `member/controller/app/*` |
 | 文件上传：`POST /app/base/comm/upload`（需登录） | `base/controller/app/comm.ts` |
-| `/app/*` 未登录：中间件置 `ctx.status = 401` 并抛 `CoolCommException('登录失效~')` | `user/middleware/app.ts:56-59` |
+| `/app/*` 未登录：中间件置 `ctx.status = 401` 并抛 `CoolCommException('登录失效~')`；**实测响应为 HTTP 200 + `{"code":1001,"message":"登录失效~"}`**（错误过滤器覆盖了 status） | `user/middleware/app.ts:56-59` + `curl` 实测 |
 | 业务异常（`CoolCommException`）在 app 侧经全局错误处理返回 `code 1001` | 既有 C 端/管理端行为 |
 | order 不反查业务表、不占房态 | `order/service/order.ts` 类注释 |
 
@@ -136,7 +136,7 @@ assertRoomTypeOwned(roomTypeId, merchantId) → RoomTypeEntity
 
 - 新增 `getToken/setToken/clearToken`（localStorage，key `wudong_token`）
 - `request`（GET）与新增 `post` 均携带 `Authorization: Bearer <token>`
-- **鉴权失败判定**（关键，见 §3 推论）：HTTP 非 2xx（尤其 401）**或**（`code === 1001` 且 `message` 以 `登录失效` 开头）→ 判定为鉴权失败：清 token → 通知注入的 `onUnauthorized` 回调（跳 `/login?redirect=`）；其余非 1000 的 code 一律作业务错误抛出（**不得因业务错误登出用户**）
+- **鉴权失败判定**（关键，见 §3 推论）：HTTP 非 2xx（防御未预期形态）**或**（`code === 1001` 且 `message` 以 `登录失效` 开头）→ 判定为鉴权失败：清 token → 通知注入的 `onUnauthorized` 回调（跳 `/login?redirect=`）；其余非 1000 的 code 一律作业务错误抛出（**不得因业务错误登出用户**）。实测未登录为「HTTP 200 + `登录失效~`」，故 message 判定是主路径
 - `onUnauthorized` 由 `main.ts` 注入（避免 http 层 import router 造成循环依赖）
 - 新增 `uploadFile(file)` → `POST /app/base/comm/upload`（FormData，不设 Content-Type）
 - **不做自动续期**：登录返回的 `refreshToken` 本期不使用，access token 过期即走鉴权失败路径（清 token + 跳登录，回跳原页）。自动续期留二期
@@ -245,7 +245,8 @@ assertRoomTypeOwned(roomTypeId, merchantId) → RoomTypeEntity
 ## 10. 风险与依赖位
 
 1. **本地分支曾落后 origin**：已同步（本地 HEAD = bee95ed）。`config.local.ts` 被上游提交了他人本机环境（`zhuwenjin`/`wudong_platform`），本机已改回 3307/`cool` 且保持未提交 —— 后续每次拉取都可能再冲突，注意勿误提交。
-2. **operate 模块并集嫌疑**：合并后 base 版（`controller/admin/finance.ts`、`controller/app/operate.ts`）与本组版（`controller/admin/{banner,announcement,finance-record}.ts`、`controller/app/{banner,announcement}.ts`、两个 service）同时存在，可能重复路由/重复查询逻辑。**不属本次范围**，但联调前需核对一次。
+2. **operate 模块并集重复（已确认）**：本次 merge 后模块内是两套实现的并集 —— 本组版（`controller/app/operate.ts` + `service/*`，带生效时间窗过滤）与 base 版（`controller/app/{banner,announcement}.ts`，直查仓储、**不过滤时间窗**；`controller/admin/finance.ts`）。两份 spec 对同一能力给了不同 URL 契约（`/app/operate/banner` vs `/app/operate/banner/list`）。**本次处理**：merge 提交只做纯冲突解决、不删任何一方 URL（避免破坏他人契约）；把「base 侧 app 控制器改为复用本组 service 以消除逻辑重复」与「admin 财务双入口去留」列为待办，**需与 cja 对齐后再动**。
+2b. **本组已交付代码存在缺陷（顺带修复）**：`controller/admin/{banner,announcement}.ts` 的 `pageQueryOp` 把 `keyWordLikeFields` 误写为 `keywordLikeFields`（小写 w），导致平台运营页的**关键字搜索静默失效**（TS 报错被 mwtsc 在他人模块错误中被淹没，jest 未覆盖该字段）。已列入实施 plan 修复并补测试。
 3. **房态与订单不联动**：order 不反查业务表，C 端无住宿下单链路 → 本期房态是**展示性数据**，无真实占态，不存在超卖。真实占态（下单锁库存、取消回滚）属二期，需在 accommodation 内新开下单前置校验或提供占用接口。
 4. **图片上传**：走 `/app/base/comm/upload`（本地存储模式），需在本机真机验证一次；正式接入 OSS 后再换。
 5. **mock 登录态是新概念**：原工程纯匿名，mock 需提供假 token/假商家/可变数据集，须与真实同构，避免 demo 通过而真实失败。
