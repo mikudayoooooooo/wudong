@@ -147,7 +147,7 @@ function check(name, cond, extra = '') {
     check('E4b 订单状态→已退款(5)', r.data?.status === 5, `status=${r.data?.status}`);
   }
 
-  r = await call('POST', '/admin/message/template/add', {
+  r = await call('POST', '/admin/messageTemplate/add', {
     body: { code: 'smoke-1', name: '冒烟模板', type: 'activity', title: 'hi {nickname}', content: '欢迎 {nickname} 来乌东', status: 1 },
     token: adminToken,
   });

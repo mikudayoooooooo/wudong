@@ -61,7 +61,7 @@ export class TravelFootprintService {
           : ticketSpot.has(t.itemId)
             ? [ticketSpot.get(t.itemId)!]
             : [];
-      ticketVerify.push({ userId: t.userId, verifyTime: t.verifyTime as string, spots });
+      ticketVerify.push({ userId: t.userId, verifyTime: t.verifyTime as unknown as string, spots });
       for (const s of spots) {
         if (!spotUsers.has(s)) spotUsers.set(s, new Set());
         spotUsers.get(s)!.add(t.userId);

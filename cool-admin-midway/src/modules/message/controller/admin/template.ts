@@ -5,7 +5,7 @@ import { MessageTemplateEntity } from '../../entity/template';
  * 消息模板管理
  */
 @CoolController({
-  prefix: '/admin/message/template',
+  prefix: '/admin/messageTemplate',
   api: ['page', 'list', 'info', 'add', 'update', 'delete'],
   entity: MessageTemplateEntity,
   pageQueryOp: {

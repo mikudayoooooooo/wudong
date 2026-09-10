@@ -7,7 +7,7 @@ import { MerchantService } from '../../service/merchant';
  * 入驻申请管理
  */
 @CoolController({
-  prefix: '/admin/merchant/application',
+  prefix: '/admin/merchantApplication',
   api: ['page', 'list', 'info'],
   entity: MerchantApplicationEntity,
   pageQueryOp: {

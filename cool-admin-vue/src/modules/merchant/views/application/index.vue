@@ -98,7 +98,7 @@ async function submit() {
 	audit.loading = true;
 	try {
 		await service.request({
-			url: '/admin/merchant/application/audit',
+			url: '/admin/merchantApplication/audit',
 			method: 'POST',
 			data: {
 				id: audit.row?.id,
@@ -117,7 +117,7 @@ async function submit() {
 }
 
 // cl-crud
-const Crud = useCrud({ service: service.merchant.application }, app => {
+const Crud = useCrud({ service: service.merchantApplication }, app => {
 	app.refresh();
 });
 

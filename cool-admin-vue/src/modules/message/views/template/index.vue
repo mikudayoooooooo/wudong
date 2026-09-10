@@ -45,7 +45,7 @@ const statusDict = [
 	{ label: '启用', value: 1, type: 'success' }
 ];
 
-const Crud = useCrud({ service: service.message.template }, app => {
+const Crud = useCrud({ service: service.messageTemplate }, app => {
 	app.refresh();
 });
 
