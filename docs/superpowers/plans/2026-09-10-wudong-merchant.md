@@ -1629,7 +1629,7 @@ import { MerchantCalendarService } from '../../service/merchant-calendar';
 - [ ] **Step 5: 运行测试确认通过**
 
 Run: `npx cross-env NODE_ENV=unittest jest test/merchant-calendar.test.ts --runInBand`
-Expected: PASS（10 个用例）。
+Expected: PASS（9 个用例）。
 
 - [ ] **Step 6: 手工冒烟（可选但推荐）**
 
