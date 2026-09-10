@@ -70,6 +70,7 @@ import * as entity67 from './modules/base/entity/sys/conf';
 import * as entity68 from './modules/accommodation/entity/room-type';
 import * as entity69 from './modules/accommodation/entity/room-calendar';
 import * as entity70 from './modules/accommodation/entity/hotel';
+import * as entity71 from './modules/message/entity/template';
 export const entities = [
   ...Object.values(entity0),
   ...Object.values(entity1),
@@ -142,4 +143,5 @@ export const entities = [
   ...Object.values(entity68),
   ...Object.values(entity69),
   ...Object.values(entity70),
+  ...Object.values(entity71),
 ];

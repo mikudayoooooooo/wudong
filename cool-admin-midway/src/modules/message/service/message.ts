@@ -3,6 +3,7 @@ import { BaseService, CoolCommException } from '@cool-midway/core';
 import { InjectEntityModel } from '@midwayjs/typeorm';
 import { Equal, In, Repository } from 'typeorm';
 import { SystemMessageEntity } from '../entity/system-message';
+import { MessageTemplateEntity } from '../entity/template';
 
 /** 消息类型白名单 */
 export const MESSAGE_TYPES = ['order', 'system', 'activity', 'interact'];
@@ -14,6 +15,9 @@ export const MESSAGE_TYPES = ['order', 'system', 'activity', 'interact'];
 export class MessageService extends BaseService {
   @InjectEntityModel(SystemMessageEntity)
   systemMessageEntity: Repository<SystemMessageEntity>;
+
+  @InjectEntityModel(MessageTemplateEntity)
+  messageTemplateEntity: Repository<MessageTemplateEntity>;
 
   /**
    * 发送消息：userId 为 null 表示全员广播
@@ -37,6 +41,30 @@ export class MessageService extends BaseService {
       linkValue: link?.linkValue,
     });
     return true;
+  }
+
+  /**
+   * 按模板发送：取启用模板的 type/title/content 落库；userId 空则全员广播
+   */
+  async sendByTemplate(
+    templateCode: string,
+    userId?: number,
+    link?: { linkType: string; linkValue: string }
+  ) {
+    const template = await this.messageTemplateEntity.findOneBy({
+      code: Equal(templateCode),
+      status: 1,
+    });
+    if (!template) {
+      throw new CoolCommException('模板不存在或已停用');
+    }
+    return this.send(
+      userId ?? null,
+      template.type,
+      template.title,
+      template.content,
+      link
+    );
   }
 
   /**
