@@ -158,6 +158,9 @@ describe('MerchantHotelListView', () => {
     vi.mocked(merchantHotelPage).mockRejectedValue(new Error('仅商家可访问'));
     const { wrapper } = await mountView();
     expect(wrapper.text()).toContain('仅商家可访问');
+    // 错误态与空态必须互斥：查询失败会把 list 清空，若分支链退回成同级 v-if，
+    // 空态文案就会和错误一起冒出来——所以这里钉住它不得出现。
+    expect(wrapper.text()).not.toContain('还没有民宿');
   });
 
   it('慢响应乱序返回：过期响应不覆盖较新的结果', async () => {
