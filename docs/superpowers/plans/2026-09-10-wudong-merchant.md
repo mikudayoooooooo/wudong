@@ -47,8 +47,8 @@
 | `cool-admin-midway/src/modules/accommodation/service/merchant-room-type.ts` | 新增。商家房型 page/add/update/remove（P7 级联清房态） |
 | `cool-admin-midway/src/modules/accommodation/service/merchant-calendar.ts` | 新增。商家房态 range/batch（校验归属 + 32 天窗口，委托 `RoomCalendarService`） |
 | `cool-admin-midway/src/modules/accommodation/controller/app/merchant.ts` | 新增。B 端唯一控制器，前缀 `/app/accommodation/merchant` |
-| `cool-admin-midway/src/modules/operate/controller/admin/banner.ts` | 修改第 13 行缺陷：`keywordLikeFields` → `keyWordLikeFields` |
-| `cool-admin-midway/src/modules/operate/controller/admin/announcement.ts` | 修改同上 |
+| `cool-admin-midway/src/modules/operate/controller/admin/banner.ts` | **不改**。Task 5 原计划改此文件，执行前核对发现第 9 行本已是正确的 `keyWordLikeFields`（详见 Task 5） |
+| `cool-admin-midway/src/modules/operate/controller/admin/announcement.ts` | 同上，**不改** |
 | `cool-admin-midway/test/helper.ts` | 修改：追加 `APPLY_OK`、`registerMerchant()` |
 | `cool-admin-midway/test/merchant-hotel.test.ts` | 新增。T1 建、T2 续写 |
 | `cool-admin-midway/test/merchant-room-type.test.ts` | 新增 |
@@ -1648,22 +1648,30 @@ git commit -m "feat(merchant): 商家房态日历（批量设价/关房 + 32 天
 
 ---
 
-## Task 5: 修复 operate 管理端关键字搜索配置缺陷（顺带交付回归测试）
+## Task 5: operate 管理端关键字搜索字段名的回归守卫（**无生产代码改动**）
 
-**背景（缺陷已记录在 spec §10.2b）：** `operate/controller/admin/{banner,announcement}.ts` 的 `pageQueryOp` 把
-`keyWordLikeFields`（大写 W，cool 的正确属性名）误写成 `keywordLikeFields`（小写 w）。属性名不匹配 → cool 忽略该配置 →
-管理端按关键字搜索永远不生效（不报错，静默失效）。本 Task 修复并加回归断言。
+**背景（已修正，见 spec §10.2b）：** spec 原文声称 `operate/controller/admin/{banner,announcement}.ts` 的 `pageQueryOp`
+把 `keyWordLikeFields`（大写 W）误写成 `keywordLikeFields`（小写 w）。**执行前核对发现该缺陷并不存在**：
+两个控制器第 9 行本已是正确写法，`git log -S keywordLikeFields --all` 也证明小写形式从未出现在本仓库代码里
+（唯一命中是 spec/plan 自己的描述文字）。因此**不要修改任何生产文件**。
+
+保留本 Task 的理由是机制值得守卫：cool 在
+`node_modules/@cool-midway/core/dist/service/mysql.js:366-368` 直接读 `option.keyWordLikeFields` 去拼
+`orWhere(... like :keyWord)`（`dist/rest/eps.js:55` 读同一属性），而 `pageQueryOp` 是无类型校验的普通对象字面量——
+写成小写 w **不会**被任何编译或运行时报错拦住，只会让管理端关键字搜索静默失效。本 Task 把这个属性名钉进测试，
+防止后续（本组或其它组）改动时无声退化。
+
+因为代码本来就是对的，本 Task **拿不到 RED**——这是诚实的「特性固化/回归守卫」测试，不是 TDD 的新功能测试。
+不要为了凑 RED 去先改坏生产代码。
 
 **Files:**
-- Modify: `cool-admin-midway/src/modules/operate/controller/admin/banner.ts:13`
-- Modify: `cool-admin-midway/src/modules/operate/controller/admin/announcement.ts:13`
-- Test: `cool-admin-midway/test/operate-admin.test.ts`（追加）
+- Test: `cool-admin-midway/test/operate-admin.test.ts`（追加 1 个用例）
 
 **Interfaces:**
 - Consumes: `@midwayjs/core` 的 `getClassMetadata` / `CONTROLLER_KEY`（该测试文件已在用）；cool 的 `saveClassMetadata(CONTROLLER_KEY, { prefix, routerOptions, curdOption, module })` 会把**原始 curdOption**整体存进元数据，因此可以直接断言 `pageQueryOp`。
-- Produces: 无新接口，仅恢复管理端 `keyWord` 搜索能力。
+- Produces: 无新接口。
 
-- [ ] **Step 1: 追加失败断言到 `test/operate-admin.test.ts`**
+- [ ] **Step 1: 追加速守卫断言到 `test/operate-admin.test.ts`**
 
 在文件顶部 import 之后、`describe` 之前加：
 
@@ -1695,40 +1703,33 @@ const keyWordFieldsOf = (controller: any): string[] | undefined =>
   });
 ```
 
-- [ ] **Step 2: 运行测试确认失败**
+- [ ] **Step 2: 先确认生产代码本来就是对的（不要跳过这步）**
+
+Run: `git log -S keywordLikeFields --oneline --all`（在仓库根目录跑）
+Expected: 只命中本计划/spec 的 docs 提交，**没有任何**改这两个控制器的代码提交。
+
+再打开 `src/modules/operate/controller/admin/banner.ts` 与 `announcement.ts`，确认第 9 行是
+`keyWordLikeFields: ['a.title'],`（大写 W）。若发现真有小写写法，说明前提变了 —— **停下来报告 NEEDS_CONTEXT**，
+不要自行改生产代码（本 Task 的 brief 已明确「无生产代码改动」）。
+
+- [ ] **Step 3: 运行测试**
 
 Run: `npx cross-env NODE_ENV=unittest jest test/operate-admin.test.ts --runInBand`
-Expected: FAIL — `expect(undefined).toEqual(['a.title'])`。
+Expected: **PASS**。新用例一开始就通过 —— 代码本来就是对的，本 Task 拿不到 RED，这是守卫测试的正常形态。
+（如果它 FAIL 了，说明属性名真的写错了，那就是真缺陷：报 DONE_WITH_CONCERNS 并把失败输出写进报告。）
 
-- [ ] **Step 3: 修正两个控制器**
-
-`src/modules/operate/controller/admin/banner.ts` 第 13 行、`src/modules/operate/controller/admin/announcement.ts` 第 13 行：
-
-```ts
-// 修改前
-    keywordLikeFields: ['a.title'],
-// 修改后
-    keyWordLikeFields: ['a.title'],
-```
-
-- [ ] **Step 4: 运行测试确认通过**
-
-Run: `npx cross-env NODE_ENV=unittest jest test/operate-admin.test.ts --runInBand`
-Expected: PASS。
-
-- [ ] **Step 5: 跑一遍 operate 相关既有测试，确认无回归**
+- [ ] **Step 4: 跑一遍 operate 相关既有测试，确认无回归**
 
 Run: `npx cross-env NODE_ENV=unittest jest test/operate-admin.test.ts test/operate-app.test.ts test/base-operate.test.ts --runInBand`
-Expected: 全部 PASS。
+Expected: 全部 PASS。（`test/base-operate.test.ts` 在本次基线偶发 `Pool is closed` 跨套件污染，
+若只有它失败且失败原因是 teardown 竞争，属既有环境问题，写进报告的 concerns，不要试图修。）
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
 cd cool-admin-midway
-git add src/modules/operate/controller/admin/banner.ts \
-  src/modules/operate/controller/admin/announcement.ts \
-  test/operate-admin.test.ts
-git commit -m "fix(operate): 管理端 pageQueryOp 关键字字段名大小写写错导致搜索静默失效"
+git add test/operate-admin.test.ts
+git commit -m "test(operate): 钉住管理端 pageQueryOp 的 keyWordLikeFields 属性名（写错会静默失效）"
 ```
 
 ---
@@ -7368,7 +7369,7 @@ git commit -m "docs(merchant): 商家区路由/接口/演示数据说明"
 | §5 前端：入驻申请与进度 | Task 12 |
 | §5 前端：民宿/房型/房态管理 | Task 13、Task 14、Task 15、Task 16 |
 | §5 前端：图片上传、标签 | Task 11 |
-| §10.2b operate `keyWordLikeFields` 缺陷 | Task 5 |
+| §10.2b operate `keyWordLikeFields` 属性名 | Task 5（原判为「修复缺陷」，核对后降级为纯回归守卫；见 Task 5 与 spec §10.2b 的修正说明） |
 | §5.1 鉴权头 **裸 token**（对 spec 的更正） | 全局约束 + Task 6/8（spec 里写的 `Bearer` 是错的，以本 plan 为准） |
 | 演示/mock 能力（`.env.demo`） | Task 7（`mocks/merchant.ts`）、Task 17（README） |
 
@@ -7392,7 +7393,9 @@ Task 15 Step 4 的 `MerchantCalendarView.vue`）是为了让路由始终指向�
 **4. 已知偏差（需要知晓）**
 
 - Task 5 的回归测试是**元数据断言**（`curdOption.pageQueryOp`），不是行为测试——jest 里拿不到 admin token
-  （测试配置 `initDB: false` 不导入种子管理员）。行为确认放在 Task 5 Step 6 之外的手工验证与 Task 17 的整体联调里。
+  （测试配置 `initDB: false` 不导入种子管理员）。行为确认放在手工验证与 Task 17 的整体联调里。
+- Task 5 声称的「小写 w 缺陷」经核对**不存在**（两个控制器本已正确、历史中从未出现小写写法），
+  故该 Task 无生产代码改动、也无 RED，只是把 cool 读取的属性名钉进测试防退化。执行时不要为了凑 TDD 去先改坏代码。
 - 房态本期是**展示性数据**：base 的 `order` 模块不反查 `room_calendar`（单向依赖），因此设置房态不会影响下单库存。
 - 商家订单/财务不在本期范围（需要 `order` 模块提供商家维度接口，属跨模块工作）。
 

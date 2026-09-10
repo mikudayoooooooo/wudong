@@ -246,7 +246,8 @@ assertRoomTypeOwned(roomTypeId, merchantId) → RoomTypeEntity
 
 1. **本地分支曾落后 origin**：已同步（本地 HEAD = bee95ed）。`config.local.ts` 被上游提交了他人本机环境（`zhuwenjin`/`wudong_platform`），本机已改回 3307/`cool` 且保持未提交 —— 后续每次拉取都可能再冲突，注意勿误提交。
 2. **operate 模块并集重复（已确认）**：本次 merge 后模块内是两套实现的并集 —— 本组版（`controller/app/operate.ts` + `service/*`，带生效时间窗过滤）与 base 版（`controller/app/{banner,announcement}.ts`，直查仓储、**不过滤时间窗**；`controller/admin/finance.ts`）。两份 spec 对同一能力给了不同 URL 契约（`/app/operate/banner` vs `/app/operate/banner/list`）。**本次处理**：merge 提交只做纯冲突解决、不删任何一方 URL（避免破坏他人契约）；把「base 侧 app 控制器改为复用本组 service 以消除逻辑重复」与「admin 财务双入口去留」列为待办，**需与 cja 对齐后再动**。
-2b. **本组已交付代码存在缺陷（顺带修复）**：`controller/admin/{banner,announcement}.ts` 的 `pageQueryOp` 把 `keyWordLikeFields` 误写为 `keywordLikeFields`（小写 w），导致平台运营页的**关键字搜索静默失效**（TS 报错被 mwtsc 在他人模块错误中被淹没，jest 未覆盖该字段）。已列入实施 plan 修复并补测试。
+2b. **关键字搜索字段名（原判为缺陷，实测不存在，改为回归守卫）**：本条原写「`controller/admin/{banner,announcement}.ts` 的 `pageQueryOp` 把 `keyWordLikeFields` 误写为 `keywordLikeFields`（小写 w）」。执行到 Task 5 前核对发现**该缺陷并不存在**：两个控制器第 9 行都是正确的大写 W 写法，且 `git log -S keywordLikeFields --all` 显示小写形式从未在本仓库代码中出现过（唯一命中是本 spec 与 plan 的描述文字）。
+   机制本身是真的、且值得守卫：cool 在 `node_modules/@cool-midway/core/dist/service/mysql.js:366-368` 直接读 `option.keyWordLikeFields` 拼 `orWhere(... like :keyWord)`，`dist/rest/eps.js:55` 也读同一属性——写成小写 w 不会被任何编译或运行时报错拦住，只会让关键字搜索**静默失效**。因此 plan 的 Task 5 保留，但降级为**纯回归守卫**：断言两个控制器的 `pageQueryOp.keyWordLikeFields === ['a.title']`，并反向断言小写形式不存在。无生产代码改动。
 3. **房态与订单不联动**：order 不反查业务表，C 端无住宿下单链路 → 本期房态是**展示性数据**，无真实占态，不存在超卖。真实占态（下单锁库存、取消回滚）属二期，需在 accommodation 内新开下单前置校验或提供占用接口。
 4. **图片上传**：走 `/app/base/comm/upload`（本地存储模式），需在本机真机验证一次；正式接入 OSS 后再换。
 5. **mock 登录态是新概念**：原工程纯匿名，mock 需提供假 token/假商家/可变数据集，须与真实同构，避免 demo 通过而真实失败。
