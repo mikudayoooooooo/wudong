@@ -1,5 +1,5 @@
 import { Body, Get, Inject, Post, Provide, Query } from '@midwayjs/core';
-import { CoolController, BaseController } from '@cool-midway/core';
+import { BaseController, CoolController, CoolTag, CoolUrlTag, TagTypes } from '@cool-midway/core';
 import { FarmProductService } from '../../service/farm-product';
 import { Context } from '@midwayjs/koa';
 
@@ -7,6 +7,7 @@ import { Context } from '@midwayjs/koa';
  * 农产品C端控制器
  */
 @Provide()
+@CoolUrlTag()
 @CoolController('/app/food/farm-product')
 export class AppFarmProductController extends BaseController {
   @Inject()
@@ -18,6 +19,7 @@ export class AppFarmProductController extends BaseController {
   /**
    * 农产品列表
    */
+  @CoolTag(TagTypes.IGNORE_TOKEN)
   @Get('/list', { summary: '农产品列表' })
   async list(
     @Query('page') page = 1,
@@ -39,6 +41,7 @@ export class AppFarmProductController extends BaseController {
   /**
    * 农产品详情
    */
+  @CoolTag(TagTypes.IGNORE_TOKEN)
   @Get('/:id', { summary: '农产品详情' })
   async infoItem(@Query('id') id: number) {
     const product = await this.farmProductService.getDetail(id);
@@ -51,6 +54,7 @@ export class AppFarmProductController extends BaseController {
   /**
    * 获取农产品分类
    */
+  @CoolTag(TagTypes.IGNORE_TOKEN)
   @Get('/categories', { summary: '农产品分类' })
   async getCategories() {
     const categories = await this.farmProductService.getCategories();

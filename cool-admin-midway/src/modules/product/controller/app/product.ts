@@ -1,5 +1,5 @@
 import { Body, Get, Inject, Post, Provide, Query } from '@midwayjs/core';
-import { CoolController, BaseController } from '@cool-midway/core';
+import { BaseController, CoolController, CoolTag, CoolUrlTag, TagTypes } from '@cool-midway/core';
 import { ProductService } from '../../service/product';
 import { ProductCategoryService } from '../../service/category';
 import { Context } from '@midwayjs/koa';
@@ -8,6 +8,7 @@ import { Context } from '@midwayjs/koa';
  * 商品C端控制器
  */
 @Provide()
+@CoolUrlTag()
 @CoolController('/app/product')
 export class AppProductController extends BaseController {
   @Inject()
@@ -22,8 +23,9 @@ export class AppProductController extends BaseController {
   /**
    * 获取商品分类
    */
+  @CoolTag(TagTypes.IGNORE_TOKEN)
   @Get('/categories', { summary: '获取商品分类' })
-  async getCategories() {
+    async getCategories() {
     const categories = await this.categoryService.tree();
     return this.ok(categories);
   }
@@ -31,8 +33,9 @@ export class AppProductController extends BaseController {
   /**
    * 商品列表
    */
+  @CoolTag(TagTypes.IGNORE_TOKEN)
   @Get('/list', { summary: '商品列表' })
-  async list(
+    async list(
     @Query('page') page = 1,
     @Query('size') size = 10,
     @Query('categoryId') categoryId?: number,
@@ -52,8 +55,9 @@ export class AppProductController extends BaseController {
   /**
    * 商品详情
    */
+  @CoolTag(TagTypes.IGNORE_TOKEN)
   @Get('/:id', { summary: '商品详情' })
-  async infoItem(@Query('id') id: number) {
+    async infoItem(@Query('id') id: number) {
     const product = await this.productService.getDetail(id);
     if (!product) {
       return this.fail('商品不存在');
@@ -106,8 +110,9 @@ export class AppProductController extends BaseController {
   /**
    * 评价列表
    */
+  @CoolTag(TagTypes.IGNORE_TOKEN)
   @Get('/:id/reviews', { summary: '商品评价列表' })
-  async getReviews(
+    async getReviews(
     @Query('id') id: number,
     @Query('page') page = 1,
     @Query('size') size = 10
