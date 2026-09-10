@@ -68,7 +68,12 @@ export const searchFarmProducts = async (q: FarmProductQuery = {}): Promise<Farm
 
 /** 农产品详情 */
 export const farmProductDetail = async (id: number): Promise<any> => {
-  return await request<any>(`/app/food/farm-product/${id}`);
+  const d = await request<any>('/app/food/farm-product/detail', { id });
+  return {
+    ...d,
+    price: toNum(d.price),
+    stock: toNum(d.stock),
+  };
 };
 
 /** 获取农产品分类 */

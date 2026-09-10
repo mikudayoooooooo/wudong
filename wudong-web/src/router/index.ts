@@ -44,6 +44,11 @@ const router = createRouter({
       name: 'farm-products',
       component: () => import('../views/food/FarmProductListView.vue'),
     },
+    {
+      path: '/farm-products/:id',
+      name: 'farm-product-detail',
+      component: () => import('../views/food/FarmProductDetailView.vue'),
+    },
 
     // 购物车模块（新增）
     {
