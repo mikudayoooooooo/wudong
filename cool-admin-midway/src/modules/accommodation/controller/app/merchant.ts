@@ -3,6 +3,7 @@ import { Body, Get, Inject, Post, Query } from '@midwayjs/core';
 import { MerchantScopeService } from '../../service/merchant-scope';
 import { MerchantHotelService } from '../../service/merchant-hotel';
 import { MerchantRoomTypeService } from '../../service/merchant-room-type';
+import { MerchantCalendarService } from '../../service/merchant-calendar';
 
 /**
  * B 端民宿管理（需登录 + 商家身份 + 归属校验）
@@ -20,6 +21,9 @@ export class AppAccommodationMerchantController extends BaseController {
 
   @Inject()
   merchantRoomTypeService: MerchantRoomTypeService;
+
+  @Inject()
+  merchantCalendarService: MerchantCalendarService;
 
   @Get('/hotel/page', { summary: '我的民宿分页' })
   async hotelPage(@Query() query) {
@@ -90,6 +94,31 @@ export class AppAccommodationMerchantController extends BaseController {
     const merchant = await this.scopeService.requireMerchant(this.ctx.user.id);
     return this.ok(
       await this.merchantRoomTypeService.roomTypeRemove(merchant.id, Number(id))
+    );
+  }
+
+  @Get('/calendar/range', { summary: '房态区间查询' })
+  async calendarRange(
+    @Query('roomTypeId') roomTypeId: number,
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string
+  ) {
+    const merchant = await this.scopeService.requireMerchant(this.ctx.user.id);
+    return this.ok(
+      await this.merchantCalendarService.range(
+        merchant.id,
+        Number(roomTypeId),
+        startDate,
+        endDate
+      )
+    );
+  }
+
+  @Post('/calendar/batch', { summary: '批量设置房态' })
+  async calendarBatch(@Body() body) {
+    const merchant = await this.scopeService.requireMerchant(this.ctx.user.id);
+    return this.ok(
+      await this.merchantCalendarService.batch(merchant.id, body)
     );
   }
 }
