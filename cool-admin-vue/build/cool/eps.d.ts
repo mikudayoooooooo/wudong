@@ -160,6 +160,48 @@ declare namespace Eps {
 		[key: string]: any;
 	}
 
+	interface OrderEntity {
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
+	interface PaymentRecordEntity {
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
+	interface MerchantEntity {
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
+	interface MerchantApplicationEntity {
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
+	interface SystemMessageEntity {
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
+	interface SensitiveWordEntity {
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
 	type json = any;
 
 	type DictKey = "brand" | "occupation";
@@ -285,6 +327,31 @@ declare namespace Eps {
 	interface UserInfoPageResponse {
 		pagination: PagePagination;
 		list: UserInfoEntity[];
+	}
+
+	interface OrderPageResponse {
+		pagination: PagePagination;
+		list: OrderEntity[];
+	}
+
+	interface PayRecordPageResponse {
+		pagination: PagePagination;
+		list: PaymentRecordEntity[];
+	}
+
+	interface MerchantPageResponse {
+		pagination: PagePagination;
+		list: MerchantEntity[];
+	}
+
+	interface MessagePageResponse {
+		pagination: PagePagination;
+		list: SystemMessageEntity[];
+	}
+
+	interface SensitiveWordPageResponse {
+		pagination: PagePagination;
+		list: SensitiveWordEntity[];
 	}
 
 	interface AccommodationHotel {
@@ -1746,6 +1813,267 @@ declare namespace Eps {
 		request: Request;
 	}
 
+	interface Order {
+		/**
+		 * delete
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * update
+		 */
+		update(data?: any): Promise<any>;
+
+		/**
+		 * page
+		 */
+		page(data?: any): Promise<OrderPageResponse>;
+
+		/**
+		 * list
+		 */
+		list(data?: any): Promise<OrderEntity[]>;
+
+		/**
+		 * info
+		 */
+		info(data?: any): Promise<OrderEntity>;
+
+		/**
+		 * add
+		 */
+		add(data?: any): Promise<any>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: {
+			delete: string;
+			update: string;
+			page: string;
+			list: string;
+			info: string;
+			add: string;
+		};
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {
+			delete: boolean;
+			update: boolean;
+			page: boolean;
+			list: boolean;
+			info: boolean;
+			add: boolean;
+		};
+
+		request: Request;
+	}
+
+	interface PayRecord {
+		/**
+		 * page
+		 */
+		page(data?: any): Promise<PayRecordPageResponse>;
+
+		/**
+		 * list
+		 */
+		list(data?: any): Promise<PaymentRecordEntity[]>;
+
+		/**
+		 * info
+		 */
+		info(data?: any): Promise<PaymentRecordEntity>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: { page: string; list: string; info: string };
+
+		/**
+		 * 权限状态
+		 */
+		_permission: { page: boolean; list: boolean; info: boolean };
+
+		request: Request;
+	}
+
+	interface Merchant {
+		/**
+		 * delete
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * update
+		 */
+		update(data?: any): Promise<any>;
+
+		/**
+		 * page
+		 */
+		page(data?: any): Promise<MerchantPageResponse>;
+
+		/**
+		 * list
+		 */
+		list(data?: any): Promise<MerchantEntity[]>;
+
+		/**
+		 * info
+		 */
+		info(data?: any): Promise<MerchantEntity>;
+
+		/**
+		 * add
+		 */
+		add(data?: any): Promise<any>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: {
+			delete: string;
+			update: string;
+			page: string;
+			list: string;
+			info: string;
+			add: string;
+		};
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {
+			delete: boolean;
+			update: boolean;
+			page: boolean;
+			list: boolean;
+			info: boolean;
+			add: boolean;
+		};
+
+		request: Request;
+	}
+
+	interface Message {
+		/**
+		 * delete
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * update
+		 */
+		update(data?: any): Promise<any>;
+
+		/**
+		 * page
+		 */
+		page(data?: any): Promise<MessagePageResponse>;
+
+		/**
+		 * list
+		 */
+		list(data?: any): Promise<SystemMessageEntity[]>;
+
+		/**
+		 * info
+		 */
+		info(data?: any): Promise<SystemMessageEntity>;
+
+		/**
+		 * add
+		 */
+		add(data?: any): Promise<any>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: {
+			delete: string;
+			update: string;
+			page: string;
+			list: string;
+			info: string;
+			add: string;
+		};
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {
+			delete: boolean;
+			update: boolean;
+			page: boolean;
+			list: boolean;
+			info: boolean;
+			add: boolean;
+		};
+
+		request: Request;
+	}
+
+	interface SensitiveWord {
+		/**
+		 * delete
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * update
+		 */
+		update(data?: any): Promise<any>;
+
+		/**
+		 * page
+		 */
+		page(data?: any): Promise<SensitiveWordPageResponse>;
+
+		/**
+		 * list
+		 */
+		list(data?: any): Promise<SensitiveWordEntity[]>;
+
+		/**
+		 * info
+		 */
+		info(data?: any): Promise<SensitiveWordEntity>;
+
+		/**
+		 * add
+		 */
+		add(data?: any): Promise<any>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: {
+			delete: string;
+			update: string;
+			page: string;
+			list: string;
+			info: string;
+			add: string;
+		};
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {
+			delete: boolean;
+			update: boolean;
+			page: boolean;
+			list: boolean;
+			info: boolean;
+			add: boolean;
+		};
+
+		request: Request;
+	}
+
 	interface RequestOptions {
 		url: string;
 		method?: "OPTIONS" | "GET" | "HEAD" | "POST" | "PUT" | "DELETE" | "TRACE" | "CONNECT";
@@ -1792,5 +2120,10 @@ declare namespace Eps {
 		space: { info: SpaceInfo; type: SpaceType };
 		task: { info: TaskInfo };
 		user: { address: UserAddress; info: UserInfo };
+		order: Order;
+		pay: { record: PayRecord };
+		merchant: Merchant;
+		message: Message;
+		sensitive: { word: SensitiveWord };
 	};
 }
