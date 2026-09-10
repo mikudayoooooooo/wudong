@@ -1,9 +1,7 @@
-import { BaseEntity, transformerTime } from '../../base/entity/base';
 import { Column, Entity } from 'typeorm';
+import { BaseEntity } from '../../base/entity/base';
 
-/**
- * 公告
- */
+/** 平台公告 */
 @Entity('announcement')
 export class AnnouncementEntity extends BaseEntity {
   @Column({ comment: '标题', length: 200 })
@@ -13,34 +11,32 @@ export class AnnouncementEntity extends BaseEntity {
   content: string;
 
   @Column({
-    comment: '类型 1系统公告 2活动公告',
-    dict: ['系统', '活动'],
+    comment: '类型：1系统 2活动',
+    dict: ['系统公告', '活动公告'],
     default: 1,
   })
   type: number;
 
   @Column({
-    comment: '开始时间',
+    comment: '生效开始时间',
     type: 'varchar',
     nullable: true,
-    transformer: transformerTime,
   })
-  startTime: Date;
+  startTime: string;
 
   @Column({
-    comment: '结束时间',
+    comment: '生效结束时间',
     type: 'varchar',
     nullable: true,
-    transformer: transformerTime,
   })
-  endTime: Date;
+  endTime: string;
 
-  @Column({ comment: '是否置顶 1是 0否', default: 0 })
+  @Column({ comment: '是否置顶', dict: ['否', '是'], default: 0 })
   isTop: number;
 
-  @Column({ comment: '状态 1发布 0草稿', dict: ['草稿', '发布'], default: 1 })
+  @Column({ comment: '状态：1发布 0草稿', dict: ['草稿', '发布'], default: 1 })
   status: number;
 
-  @Column({ comment: '创建人ID' })
+  @Column({ comment: '创建人ID', nullable: true })
   createdBy: number;
 }
