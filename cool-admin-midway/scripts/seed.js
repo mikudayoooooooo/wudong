@@ -28,6 +28,7 @@ async function main() {
     'community_topic', 'community_topic_follow', 'community_follow',
     'community_like', 'community_report', 'community_message',
     'banner', 'announcement',
+    'hotel', 'room_type', 'room_calendar',
   ]) {
     await conn.query(`TRUNCATE TABLE \`${t}\``);
   }
@@ -221,6 +222,33 @@ async function main() {
     [
       ['中秋两日游余票紧张', '中秋前后路线余票紧张，建议提前 3 天预订。', 1, 1, 1, 1, now, now],
       ['新上线：银饰锻造体验票', '银饰工坊体验票上线，体验 60 分钟锻造。', 2, 0, 1, 1, now, now],
+    ]);
+
+  // ---- 住宿（组员 accommodation 模块演示数据）----
+  await ins('hotel',
+    ['id', 'merchantId', 'name', 'address', 'longitude', 'latitude', 'styleTags', 'facilityTags', 'mainImage', 'images', 'intro', 'rating', 'reviewCount', 'checkInTime', 'checkOutTime', 'status', 'createTime', 'updateTime'],
+    [
+      [1, null, '乌东苗寨木楼', '雷山县 · 乌东村一组', 108.100000, 26.300000,
+       JSON.stringify(['苗寨', '江景']), JSON.stringify(['WiFi', '空调', '独立卫浴']),
+       'https://picsum.photos/seed/h1/900/600', JSON.stringify(['https://picsum.photos/seed/h1/900/600', 'https://picsum.photos/seed/h1b/900/600']),
+       '坐落于梯田之上的百年木楼，推窗见云雾青山。', 4.8, 126, '14:00', '12:00', 1, now, now],
+      [2, null, '云雾观星客栈', '雷山县 · 乌东村东岭', 108.105000, 26.305000,
+       JSON.stringify(['观星', '山景']), JSON.stringify(['WiFi', '暖气']),
+       'https://picsum.photos/seed/h2/900/600', JSON.stringify(['https://picsum.photos/seed/h2/900/600']),
+       '海拔最高的一家，夜里推窗就是星海。', 4.6, 89, '14:00', '12:00', 1, now, now],
+      [3, null, '梯田经济客栈', '乌东村口', 108.110000, 26.310000,
+       JSON.stringify(['经济']), JSON.stringify(['WiFi']),
+       'https://picsum.photos/seed/h3/900/600', JSON.stringify(['https://picsum.photos/seed/h3/900/600']),
+       '干净实惠，步行到长桌宴广场五分钟。', 4.2, 57, '14:00', '12:00', 1, now, now],
+    ]);
+  await ins('room_type',
+    ['hotelId', 'name', 'bedType', 'area', 'maxGuests', 'facilities', 'price', 'stock', 'status', 'createTime', 'updateTime'],
+    [
+      [1, '木屋大床房', '大床', 28, 2, JSON.stringify(['WiFi', '空调']), 380, 3, 1, now, now],
+      [1, '吊脚楼双床房', '双床', 32, 2, JSON.stringify(['WiFi', '空调', '江景']), 520, 2, 1, now, now],
+      [1, '阁楼家庭房', '大床+单床', 40, 4, JSON.stringify(['WiFi', '空调']), 680, 1, 1, now, now],
+      [2, '星空标间', '双床', 26, 2, JSON.stringify(['WiFi', '暖气']), 420, 4, 1, now, now],
+      [3, '经济单人间', '单床', 16, 1, JSON.stringify(['WiFi']), 120, 5, 1, now, now],
     ]);
 
   const [rows] = await conn.query(`SELECT
