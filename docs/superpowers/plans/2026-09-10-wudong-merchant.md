@@ -6015,6 +6015,10 @@ describe('MerchantHotelEditView', () => {
     const { wrapper } = await mountView('/merchant/hotels/new');
     await wrapper.find('.field-name input').setValue('新院子');
     await wrapper.find('.field-address input').setValue('雷山县六组');
+    // 经纬度必须给非 0 值：否则 submit() 的「不能为空或 0」守卫会先返回，
+    // 根本走不到 merchantHotelSave，这条断言永远拿不到后端的 message。
+    await wrapper.find('.field-longitude input').setValue('108.2');
+    await wrapper.find('.field-latitude input').setValue('26.5');
     await wrapper.find('form').trigger('submit');
     await flushPromises();
     expect(wrapper.text()).toContain('您的入驻模块非住宿，无法新增民宿');
