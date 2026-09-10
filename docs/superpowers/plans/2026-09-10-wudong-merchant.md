@@ -6303,6 +6303,7 @@ import {
 } from '@/api/merchant';
 import ImageUploader from '@/components/ImageUploader.vue';
 import TagInput from '@/components/TagInput.vue';
+import { fmtPrice } from '@/utils/format';
 import type { MerchantRoomType, RoomTypeForm } from '@/api/types';
 
 const FACILITY_SUGGESTIONS = ['WiFi', '空调', '独立卫浴', '电热毯', '浴缸', '投影仪'];
@@ -6318,6 +6319,10 @@ const loading = ref(true);
 const error = ref('');
 const busy = ref(false);
 const pendingDelete = ref<number | null>(null);
+
+/** 数字输入框被清空时 v-model.number 会留下 ''，这里统一归为 null */
+const toNullableNumber = (v: unknown): number | null =>
+  v === '' || v == null || Number.isNaN(Number(v)) ? null : Number(v);
 
 /** 表单：null = 关闭；否则为编辑目标（新增时为 undefined id） */
 const editing = ref<RoomTypeForm | null>(null);
@@ -6402,7 +6407,7 @@ async function submit(): Promise<void> {
       price: Number(form.price),
       stock: Number(form.stock),
       maxGuests: Number(form.maxGuests) || 2,
-      area: form.area == null || form.area === ('' as unknown) ? null : Number(form.area),
+      area: toNullableNumber(form.area),
       status: Number(form.status),
     });
     editing.value = null;
@@ -6478,7 +6483,7 @@ onMounted(load);
               <button
                 type="button"
                 class="link manage-calendar"
-                @click="router.push({ name: 'merchant-room-calendar', params: { id: roomType.id } })"
+                @click="router.push({ name: 'merchant-room-calendar', params: { id: roomType.id }, query: { hotelId } })"
               >
                 房态
               </button>
@@ -6565,19 +6570,7 @@ onMounted(load);
     </div>
   </div>
 </template>
-
-<script lang="ts">
-import { fmtPrice } from '@/utils/format';
-
-export default { name: 'MerchantRoomTypeView' };
-</script>
 ```
-
-> **注意**：上面的 `<script lang="ts">` 块只是为了同时拿到 `fmtPrice` 并声明组件名。
-> 更干净的做法是**不用第二个 script 块**：把 `fmtPrice` 从 `@/utils/format` 加进第一个
-> `<script setup>` 的 import，并在模板里直接用（`<script setup>` 的导入在模板中可见）。
-> **请采用后者**——即删除末尾的 `<script lang="ts">` 块，并在顶部 import 里加上
-> `import { fmtPrice } from '@/utils/format';`。
 
 - [ ] **Step 4: 在 `src/router/index.ts` 的 `/merchant` `children` 里追加两行**
 
@@ -7084,11 +7077,9 @@ onMounted(load);
 </style>
 ```
 
-> **房型名获取**：上面用 `merchantRoomTypePage(Number(route.query.hotelId) || 0, ...)` 取房型。
-> 由于房型管理页跳转时未带 `hotelId`，更稳妥的做法是**房型管理页跳转时带上 query**：
-> 把 Task 15 里的跳转改为
-> `router.push({ name: 'merchant-room-calendar', params: { id: roomType.id }, query: { hotelId } })`。
-> **请一并做这个改动**（Task 15 的 Step 3 代码里同步修改），否则房态页取不到房型名（只影响标题展示，不影响功能）。
+> **房型名获取**：上面用 `merchantRoomTypePage(Number(route.query.hotelId) || 0, ...)` 取房型，
+> `hotelId` 由 Task 15 的房型管理页跳转时通过 query 带过来（`params: { id }, query: { hotelId }`）。
+> 本 Task 的 `MerchantRoomTypeView.vue` 无需改动。取不到时只影响标题展示，不影响功能。
 
 - [ ] **Step 4: 运行测试确认通过**
 
@@ -7102,8 +7093,7 @@ Run: `npm run type-check` → 无错误。
 ```bash
 cd wudong-web
 git add src/views/merchant/MerchantCalendarView.vue \
-  src/views/merchant/MerchantCalendarView.spec.ts \
-  src/views/merchant/MerchantRoomTypeView.vue
+  src/views/merchant/MerchantCalendarView.spec.ts
 git commit -m "feat(merchant): 房态日历（7/30 天 + 批量设价/关房）"
 ```
 
