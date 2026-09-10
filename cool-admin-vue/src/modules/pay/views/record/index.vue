@@ -63,6 +63,12 @@ const Table = useTable({
 			align: 'center'
 		},
 		{
+			prop: 'merchantId',
+			label: '商家ID',
+			width: 80,
+			align: 'center'
+		},
+		{
 			prop: 'payChannel',
 			label: '渠道',
 			width: 90,

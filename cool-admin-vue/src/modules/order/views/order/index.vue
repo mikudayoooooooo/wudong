@@ -79,6 +79,12 @@ const Table = useTable({
 			align: 'center'
 		},
 		{
+			prop: 'merchantId',
+			label: '商家ID',
+			width: 80,
+			align: 'center'
+		},
+		{
 			prop: 'orderType',
 			label: '类型',
 			width: 80,

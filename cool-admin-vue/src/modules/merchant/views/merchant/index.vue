@@ -94,6 +94,12 @@ const Table = useTable({
 			align: 'center'
 		},
 		{
+			prop: 'adminUserId',
+			label: '绑定管理端ID',
+			width: 110,
+			align: 'center'
+		},
+		{
 			prop: 'status',
 			label: '状态',
 			width: 90,
@@ -143,6 +149,19 @@ const Upsert = useUpsert<Eps.MerchantEntity>({
 			prop: 'userId',
 			label: '关联用户ID',
 			span: 12,
+			component: {
+				name: 'el-input-number',
+				props: {
+					min: 1,
+					'controls-position': 'right'
+				}
+			}
+		},
+		{
+			prop: 'adminUserId',
+			label: '绑定管理端账号',
+			span: 12,
+			help: '填管理端 sys_user 的 ID，绑定后该账号按商家角色只能看到本商家数据',
 			component: {
 				name: 'el-input-number',
 				props: {
