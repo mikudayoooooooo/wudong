@@ -3232,7 +3232,7 @@ git commit -m "feat(merchant): 认证 api 与 auth store（token 持久化 + 店
 **Interfaces:**
 - Consumes: `useAuthStore`（Task 8）、`setAuthToken/setUnauthorizedHandler`（Task 6）。
 - Produces:
-  - 路由名：`login`(`/login`)、`merchant`(`/merchant`，含 `meta.requiresAuth: true`)、`merchant-home`(`/merchant/home`)、`merchant-apply`(`/merchant/apply`)、`merchant-hotels`(`/merchant/hotels`)、`merchant-hotel-new`(`/merchant/hotels/new`)、`merchant-hotel-edit`(`/merchant/hotels/:id/edit`)、`merchant-hotel-rooms`(`/merchant/hotels/:id/rooms`)、`merchant-room-calendar`(`/merchant/rooms/:id/calendar`)
+  - 路由名：`login`(`/login`)、`merchant`(`/merchant`，含 `meta.requiresAuth: true`)、`merchant-home`(`path: ''`，即 `/merchant` 本身)、`merchant-apply`(`/merchant/apply`)、`merchant-hotels`(`/merchant/hotels`)、`merchant-hotel-new`(`/merchant/hotels/new`)、`merchant-hotel-edit`(`/merchant/hotels/:id/edit`)、`merchant-hotel-rooms`(`/merchant/hotels/:id/rooms`)、`merchant-room-calendar`(`/merchant/rooms/:id/calendar`)
   - 组件（后续 Task 实现，本 Task 先用占位组件文件：`views/merchant/MerchantHomeView.vue` 等由后续 Task 逐个替换）——
     **为避免“引用不存在的文件”，本 Task 只注册已存在的组件**：`MerchantShell` + 后续 Task 创建的视图。
     因此本 Task 先注册 `/login` 与 `/merchant`（shell 内只放一个 `MerchantHomeView` 占位），其余子路由在各自 Task 里追加。
@@ -4717,7 +4717,9 @@ describe('MerchantHomeView', () => {
 
     expect(wrapper.text()).toContain('待审核');
     expect(wrapper.text()).toContain('苗银世家');
-    expect(wrapper.text()).toContain('我的民宿');
+    // 审核中态渲染的是「入驻进度」卡片，其中只有「查看入驻申请」按钮；
+    // 「我的民宿」入口只出现在已入驻态（本用例 merchantMy 为 null，渲染不到那里）。
+    expect(wrapper.text()).toContain('查看入驻申请');
   });
 
   it('未入驻且无申请：引导去入驻申请', async () => {
