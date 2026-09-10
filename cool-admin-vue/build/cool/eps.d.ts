@@ -202,9 +202,98 @@ declare namespace Eps {
 		[key: string]: any;
 	}
 
-	type json = any;
+	interface RoutePackageEntity {
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
 
-	type DictKey = "brand" | "occupation";
+	interface ScenicSpotEntity {
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
+	interface TicketTypeEntity {
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
+	interface TravelInventoryEntity {
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
+	interface RouteItineraryEntity {
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
+	interface ETicketEntity {
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
+	interface RecommendSlotEntity {
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
+	interface TrafficGuideEntity {
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
+	interface TravelReviewEntity {
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
+	interface CommunityPostEntity {
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
+	interface CommunityTopicEntity {
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
+	interface CommunityCommentEntity {
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
+	interface CommunityReportEntity {
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
+	type json = any;
 
 	interface PagePagination {
 		size: number;
@@ -352,6 +441,71 @@ declare namespace Eps {
 	interface SensitiveWordPageResponse {
 		pagination: PagePagination;
 		list: SensitiveWordEntity[];
+	}
+
+	interface TravelRoutePageResponse {
+		pagination: PagePagination;
+		list: RoutePackageEntity[];
+	}
+
+	interface TravelScenicPageResponse {
+		pagination: PagePagination;
+		list: ScenicSpotEntity[];
+	}
+
+	interface TravelTicketTypePageResponse {
+		pagination: PagePagination;
+		list: TicketTypeEntity[];
+	}
+
+	interface TravelInventoryPageResponse {
+		pagination: PagePagination;
+		list: TravelInventoryEntity[];
+	}
+
+	interface TravelItineraryPageResponse {
+		pagination: PagePagination;
+		list: RouteItineraryEntity[];
+	}
+
+	interface TravelETicketPageResponse {
+		pagination: PagePagination;
+		list: ETicketEntity[];
+	}
+
+	interface TravelRecommendPageResponse {
+		pagination: PagePagination;
+		list: RecommendSlotEntity[];
+	}
+
+	interface TravelGuidePageResponse {
+		pagination: PagePagination;
+		list: TrafficGuideEntity[];
+	}
+
+	interface TravelReviewPageResponse {
+		pagination: PagePagination;
+		list: TravelReviewEntity[];
+	}
+
+	interface CommunityPostPageResponse {
+		pagination: PagePagination;
+		list: CommunityPostEntity[];
+	}
+
+	interface CommunityTopicPageResponse {
+		pagination: PagePagination;
+		list: CommunityTopicEntity[];
+	}
+
+	interface CommunityCommentPageResponse {
+		pagination: PagePagination;
+		list: CommunityCommentEntity[];
+	}
+
+	interface CommunityReportPageResponse {
+		pagination: PagePagination;
+		list: CommunityReportEntity[];
 	}
 
 	interface AccommodationHotel {
@@ -2074,6 +2228,681 @@ declare namespace Eps {
 		request: Request;
 	}
 
+	interface TravelRoute {
+		/**
+		 * delete
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * update
+		 */
+		update(data?: any): Promise<any>;
+
+		/**
+		 * page
+		 */
+		page(data?: any): Promise<TravelRoutePageResponse>;
+
+		/**
+		 * list
+		 */
+		list(data?: any): Promise<RoutePackageEntity[]>;
+
+		/**
+		 * info
+		 */
+		info(data?: any): Promise<RoutePackageEntity>;
+
+		/**
+		 * add
+		 */
+		add(data?: any): Promise<any>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: {
+			delete: string;
+			update: string;
+			page: string;
+			list: string;
+			info: string;
+			add: string;
+		};
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {
+			delete: boolean;
+			update: boolean;
+			page: boolean;
+			list: boolean;
+			info: boolean;
+			add: boolean;
+		};
+
+		request: Request;
+	}
+
+	interface TravelScenic {
+		/**
+		 * delete
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * update
+		 */
+		update(data?: any): Promise<any>;
+
+		/**
+		 * page
+		 */
+		page(data?: any): Promise<TravelScenicPageResponse>;
+
+		/**
+		 * list
+		 */
+		list(data?: any): Promise<ScenicSpotEntity[]>;
+
+		/**
+		 * info
+		 */
+		info(data?: any): Promise<ScenicSpotEntity>;
+
+		/**
+		 * add
+		 */
+		add(data?: any): Promise<any>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: {
+			delete: string;
+			update: string;
+			page: string;
+			list: string;
+			info: string;
+			add: string;
+		};
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {
+			delete: boolean;
+			update: boolean;
+			page: boolean;
+			list: boolean;
+			info: boolean;
+			add: boolean;
+		};
+
+		request: Request;
+	}
+
+	interface TravelTicketType {
+		/**
+		 * delete
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * update
+		 */
+		update(data?: any): Promise<any>;
+
+		/**
+		 * page
+		 */
+		page(data?: any): Promise<TravelTicketTypePageResponse>;
+
+		/**
+		 * list
+		 */
+		list(data?: any): Promise<TicketTypeEntity[]>;
+
+		/**
+		 * info
+		 */
+		info(data?: any): Promise<TicketTypeEntity>;
+
+		/**
+		 * add
+		 */
+		add(data?: any): Promise<any>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: {
+			delete: string;
+			update: string;
+			page: string;
+			list: string;
+			info: string;
+			add: string;
+		};
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {
+			delete: boolean;
+			update: boolean;
+			page: boolean;
+			list: boolean;
+			info: boolean;
+			add: boolean;
+		};
+
+		request: Request;
+	}
+
+	interface TravelInventory {
+		/**
+		 * delete
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * update
+		 */
+		update(data?: any): Promise<any>;
+
+		/**
+		 * page
+		 */
+		page(data?: any): Promise<TravelInventoryPageResponse>;
+
+		/**
+		 * list
+		 */
+		list(data?: any): Promise<TravelInventoryEntity[]>;
+
+		/**
+		 * info
+		 */
+		info(data?: any): Promise<TravelInventoryEntity>;
+
+		/**
+		 * add
+		 */
+		add(data?: any): Promise<any>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: {
+			delete: string;
+			update: string;
+			page: string;
+			list: string;
+			info: string;
+			add: string;
+		};
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {
+			delete: boolean;
+			update: boolean;
+			page: boolean;
+			list: boolean;
+			info: boolean;
+			add: boolean;
+		};
+
+		request: Request;
+	}
+
+	interface TravelItinerary {
+		/**
+		 * delete
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * update
+		 */
+		update(data?: any): Promise<any>;
+
+		/**
+		 * page
+		 */
+		page(data?: any): Promise<TravelItineraryPageResponse>;
+
+		/**
+		 * list
+		 */
+		list(data?: any): Promise<RouteItineraryEntity[]>;
+
+		/**
+		 * info
+		 */
+		info(data?: any): Promise<RouteItineraryEntity>;
+
+		/**
+		 * add
+		 */
+		add(data?: any): Promise<any>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: {
+			delete: string;
+			update: string;
+			page: string;
+			list: string;
+			info: string;
+			add: string;
+		};
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {
+			delete: boolean;
+			update: boolean;
+			page: boolean;
+			list: boolean;
+			info: boolean;
+			add: boolean;
+		};
+
+		request: Request;
+	}
+
+	interface TravelETicket {
+		/**
+		 * delete
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * update
+		 */
+		update(data?: any): Promise<any>;
+
+		/**
+		 * page
+		 */
+		page(data?: any): Promise<TravelETicketPageResponse>;
+
+		/**
+		 * list
+		 */
+		list(data?: any): Promise<ETicketEntity[]>;
+
+		/**
+		 * info
+		 */
+		info(data?: any): Promise<ETicketEntity>;
+
+		/**
+		 * add
+		 */
+		add(data?: any): Promise<any>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: {
+			delete: string;
+			update: string;
+			page: string;
+			list: string;
+			info: string;
+			add: string;
+		};
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {
+			delete: boolean;
+			update: boolean;
+			page: boolean;
+			list: boolean;
+			info: boolean;
+			add: boolean;
+		};
+
+		request: Request;
+	}
+
+	interface TravelRecommend {
+		/**
+		 * delete
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * update
+		 */
+		update(data?: any): Promise<any>;
+
+		/**
+		 * page
+		 */
+		page(data?: any): Promise<TravelRecommendPageResponse>;
+
+		/**
+		 * list
+		 */
+		list(data?: any): Promise<RecommendSlotEntity[]>;
+
+		/**
+		 * info
+		 */
+		info(data?: any): Promise<RecommendSlotEntity>;
+
+		/**
+		 * add
+		 */
+		add(data?: any): Promise<any>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: {
+			delete: string;
+			update: string;
+			page: string;
+			list: string;
+			info: string;
+			add: string;
+		};
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {
+			delete: boolean;
+			update: boolean;
+			page: boolean;
+			list: boolean;
+			info: boolean;
+			add: boolean;
+		};
+
+		request: Request;
+	}
+
+	interface TravelGuide {
+		/**
+		 * delete
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * update
+		 */
+		update(data?: any): Promise<any>;
+
+		/**
+		 * page
+		 */
+		page(data?: any): Promise<TravelGuidePageResponse>;
+
+		/**
+		 * list
+		 */
+		list(data?: any): Promise<TrafficGuideEntity[]>;
+
+		/**
+		 * info
+		 */
+		info(data?: any): Promise<TrafficGuideEntity>;
+
+		/**
+		 * add
+		 */
+		add(data?: any): Promise<any>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: {
+			delete: string;
+			update: string;
+			page: string;
+			list: string;
+			info: string;
+			add: string;
+		};
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {
+			delete: boolean;
+			update: boolean;
+			page: boolean;
+			list: boolean;
+			info: boolean;
+			add: boolean;
+		};
+
+		request: Request;
+	}
+
+	interface TravelReview {
+		/**
+		 * delete
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * update
+		 */
+		update(data?: any): Promise<any>;
+
+		/**
+		 * page
+		 */
+		page(data?: any): Promise<TravelReviewPageResponse>;
+
+		/**
+		 * list
+		 */
+		list(data?: any): Promise<TravelReviewEntity[]>;
+
+		/**
+		 * info
+		 */
+		info(data?: any): Promise<TravelReviewEntity>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: { delete: string; update: string; page: string; list: string; info: string };
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {
+			delete: boolean;
+			update: boolean;
+			page: boolean;
+			list: boolean;
+			info: boolean;
+		};
+
+		request: Request;
+	}
+
+	interface CommunityPost {
+		/**
+		 * delete
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * page
+		 */
+		page(data?: any): Promise<CommunityPostPageResponse>;
+
+		/**
+		 * list
+		 */
+		list(data?: any): Promise<CommunityPostEntity[]>;
+
+		/**
+		 * info
+		 */
+		info(data?: any): Promise<CommunityPostEntity>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: { delete: string; page: string; list: string; info: string };
+
+		/**
+		 * 权限状态
+		 */
+		_permission: { delete: boolean; page: boolean; list: boolean; info: boolean };
+
+		request: Request;
+	}
+
+	interface CommunityTopic {
+		/**
+		 * delete
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * update
+		 */
+		update(data?: any): Promise<any>;
+
+		/**
+		 * page
+		 */
+		page(data?: any): Promise<CommunityTopicPageResponse>;
+
+		/**
+		 * list
+		 */
+		list(data?: any): Promise<CommunityTopicEntity[]>;
+
+		/**
+		 * info
+		 */
+		info(data?: any): Promise<CommunityTopicEntity>;
+
+		/**
+		 * add
+		 */
+		add(data?: any): Promise<any>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: {
+			delete: string;
+			update: string;
+			page: string;
+			list: string;
+			info: string;
+			add: string;
+		};
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {
+			delete: boolean;
+			update: boolean;
+			page: boolean;
+			list: boolean;
+			info: boolean;
+			add: boolean;
+		};
+
+		request: Request;
+	}
+
+	interface CommunityComment {
+		/**
+		 * delete
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * update
+		 */
+		update(data?: any): Promise<any>;
+
+		/**
+		 * page
+		 */
+		page(data?: any): Promise<CommunityCommentPageResponse>;
+
+		/**
+		 * list
+		 */
+		list(data?: any): Promise<CommunityCommentEntity[]>;
+
+		/**
+		 * info
+		 */
+		info(data?: any): Promise<CommunityCommentEntity>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: { delete: string; update: string; page: string; list: string; info: string };
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {
+			delete: boolean;
+			update: boolean;
+			page: boolean;
+			list: boolean;
+			info: boolean;
+		};
+
+		request: Request;
+	}
+
+	interface CommunityReport {
+		/**
+		 * page
+		 */
+		page(data?: any): Promise<CommunityReportPageResponse>;
+
+		/**
+		 * list
+		 */
+		list(data?: any): Promise<CommunityReportEntity[]>;
+
+		/**
+		 * info
+		 */
+		info(data?: any): Promise<CommunityReportEntity>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: { page: string; list: string; info: string };
+
+		/**
+		 * 权限状态
+		 */
+		_permission: { page: boolean; list: boolean; info: boolean };
+
+		request: Request;
+	}
+
 	interface RequestOptions {
 		url: string;
 		method?: "OPTIONS" | "GET" | "HEAD" | "POST" | "PUT" | "DELETE" | "TRACE" | "CONNECT";
@@ -2125,5 +2954,22 @@ declare namespace Eps {
 		merchant: Merchant;
 		message: Message;
 		sensitive: { word: SensitiveWord };
+		travel: {
+			route: TravelRoute;
+			scenic: TravelScenic;
+			ticketType: TravelTicketType;
+			inventory: TravelInventory;
+			itinerary: TravelItinerary;
+			eTicket: TravelETicket;
+			recommend: TravelRecommend;
+			guide: TravelGuide;
+			review: TravelReview;
+		};
+		community: {
+			post: CommunityPost;
+			topic: CommunityTopic;
+			comment: CommunityComment;
+			report: CommunityReport;
+		};
 	};
 }
