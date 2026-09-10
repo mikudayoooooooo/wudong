@@ -56,6 +56,9 @@ import * as entity53 from './modules/base/entity/sys/menu';
 import * as entity54 from './modules/base/entity/sys/log';
 import * as entity55 from './modules/base/entity/sys/department';
 import * as entity56 from './modules/base/entity/sys/conf';
+import * as entity57 from './modules/accommodation/entity/room-type';
+import * as entity58 from './modules/accommodation/entity/room-calendar';
+import * as entity59 from './modules/accommodation/entity/hotel';
 export const entities = [
   ...Object.values(entity0),
   ...Object.values(entity1),
@@ -114,4 +117,7 @@ export const entities = [
   ...Object.values(entity54),
   ...Object.values(entity55),
   ...Object.values(entity56),
+  ...Object.values(entity57),
+  ...Object.values(entity58),
+  ...Object.values(entity59),
 ];

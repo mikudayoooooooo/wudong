@@ -14,3 +14,9 @@
 # Windows 系统文件
 Thumbs.db
 Desktop.ini
+
+# Claude Code 本地工程与临时截图
+.claude/
+*.png
+!cool-admin-vue/public/**/*.png
+!cool-admin-midway/public/**/*.png

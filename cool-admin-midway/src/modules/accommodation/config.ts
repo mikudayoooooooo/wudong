@@ -2,9 +2,9 @@ import { ModuleConfig } from '@cool-midway/core';
 
 export default () => {
   return {
-    name: '平台运营位',
+    name: '住-住宿预订',
     description:
-      'operate：banner/announcement 运营内容管理 + finance_record 预留（模块6 子集）',
+      'accommodation：民宿/房型/房态日历管理，C端浏览；预订闭环待 base order/pay',
     middlewares: [],
     globalMiddlewares: [],
     order: 0,

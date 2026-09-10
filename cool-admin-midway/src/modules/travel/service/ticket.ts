@@ -4,6 +4,9 @@ import { InjectEntityModel } from '@midwayjs/typeorm';
 import { Repository } from 'typeorm';
 import { TravelETicketEntity } from '../entity/e-ticket';
 import { TravelInventoryEntity } from '../entity/inventory';
+import { TravelRoutePackageEntity } from '../entity/route-package';
+import { TravelTicketTypeEntity } from '../entity/ticket-type';
+import { TravelScenicSpotEntity } from '../entity/scenic-spot';
 import { OrderEntity } from '../../order/entity/order';
 import { OrderService } from '../../order/service/order';
 import { PayService } from '../../pay/service/pay';
@@ -29,6 +32,15 @@ export class TravelTicketService extends BaseService {
   @InjectEntityModel(PaymentRecordEntity)
   paymentRecordEntity: Repository<PaymentRecordEntity>;
 
+  @InjectEntityModel(TravelRoutePackageEntity)
+  routePackageEntity: Repository<TravelRoutePackageEntity>;
+
+  @InjectEntityModel(TravelTicketTypeEntity)
+  ticketTypeEntity: Repository<TravelTicketTypeEntity>;
+
+  @InjectEntityModel(TravelScenicSpotEntity)
+  scenicSpotEntity: Repository<TravelScenicSpotEntity>;
+
   @Inject()
   orderService: OrderService;
 
@@ -49,10 +61,26 @@ export class TravelTicketService extends BaseService {
           .getMany()
       : [];
     const orderMap = new Map(orders.map((o) => [o.orderNo, o]));
-    return tickets.map((t) => {
+    // 附项目名称（路线标题 / 景区·票种）
+    const nameCache = new Map<string, { itemName?: string; ticketName?: string; spotName?: string }>();
+    const view = [];
+    for (const t of tickets) {
+      const key = `${t.itemType}:${t.itemId}`;
+      if (!nameCache.has(key)) {
+        if (t.itemType === 'route') {
+          const rp = await this.routePackageEntity.findOneBy({ id: t.itemId });
+          nameCache.set(key, { itemName: rp?.title, ticketName: `${rp?.days ?? 1}天行程套餐` });
+        } else {
+          const tt = await this.ticketTypeEntity.findOneBy({ id: t.itemId });
+          const spot = tt ? await this.scenicSpotEntity.findOneBy({ id: tt.scenicSpotId }) : null;
+          nameCache.set(key, { itemName: tt?.name, ticketName: tt?.name, spotName: spot?.name });
+        }
+      }
+      const names = nameCache.get(key)!;
       const o = orderMap.get(t.orderNo);
-      return {
+      view.push({
         ...t,
+        ...names,
         orderStatus: o?.status,
         payAmount: o?.payAmount,
         // 未支付订单的票不可核销，展示为待支付
@@ -60,8 +88,9 @@ export class TravelTicketService extends BaseService {
           t.status === 'unused' && o?.status !== 2 && o?.status !== 3
             ? 'unpaid'
             : t.status,
-      };
-    });
+      });
+    }
+    return view;
   }
 
   /**
