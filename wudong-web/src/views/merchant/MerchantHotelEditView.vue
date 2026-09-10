@@ -84,6 +84,7 @@ async function load(): Promise<void> {
 }
 
 async function submit(): Promise<void> {
+  if (submitting.value) return; // 双击保护不依赖 :disabled 的刷新时机
   error.value = '';
   form.mainImage = mainImageList.value[0] ?? '';
   form.images = imageList.value.slice();

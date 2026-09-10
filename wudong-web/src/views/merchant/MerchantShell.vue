@@ -53,7 +53,10 @@ onMounted(async () => {
         </div>
         <div class="merchant-shop-meta">
           {{ auth.member?.phone || '' }}
-          <span v-if="auth.merchant" class="tag tag-on">营业中</span>
+          <span v-if="auth.merchant && Number(auth.merchant.status) === 1" class="tag tag-on">
+            营业中
+          </span>
+          <span v-else-if="auth.merchant" class="tag tag-off">已禁用</span>
           <span v-else class="tag tag-off">未入驻</span>
         </div>
       </div>

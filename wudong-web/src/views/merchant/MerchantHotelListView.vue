@@ -61,6 +61,7 @@ async function toggleStatus(hotel: MerchantHotel): Promise<void> {
 }
 
 async function confirmDelete(id: number): Promise<void> {
+  if (busy.value) return; // 双击保护不依赖 :disabled 的刷新时机
   error.value = '';
   busy.value = true;
   try {

@@ -314,4 +314,8 @@ onMounted(load);
 .link.danger {
   color: var(--gold-600);
 }
+.link:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 </style>

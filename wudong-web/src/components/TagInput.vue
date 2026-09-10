@@ -21,7 +21,10 @@ function add(tag: string): void {
   emit('update:modelValue', [...props.modelValue, value]);
 }
 
-function onEnter(): void {
+/** 中文输入法选词回车会带 isComposing：此时必须忽略，否则选字会误添加标签 */
+function onEnter(event?: KeyboardEvent): void {
+  if (event?.isComposing || event?.keyCode === 229) return;
+  event?.preventDefault(); // 在表单内回车不得触发提交
   add(draft.value);
   draft.value = '';
 }
@@ -53,7 +56,7 @@ function remove(index: number): void {
       v-model="draft"
       type="text"
       :placeholder="placeholder"
-      @keydown.enter.prevent="onEnter"
+      @keydown.enter="onEnter"
       @keydown="onKeydown"
     />
 

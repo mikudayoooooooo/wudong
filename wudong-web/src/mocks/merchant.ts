@@ -174,6 +174,24 @@ export const mockCalendarRange = (
   );
 };
 
+/** 区间合法性：与后端 MerchantCalendarService.assertPeriod 同规则、同文案（逐字一致） */
+const MAX_CALENDAR_DAYS = 32;
+const assertCalendarPeriod = (startDate: string, endDate: string): void => {
+  // 正午解析避免时区把日期推到前一天
+  const start = new Date(`${startDate}T12:00:00`);
+  const end = new Date(`${endDate}T12:00:00`);
+  if (
+    Number.isNaN(start.getTime()) ||
+    Number.isNaN(end.getTime()) ||
+    start > end
+  ) {
+    throw new Error('日期区间无效');
+  }
+  if (Math.round((end.getTime() - start.getTime()) / 86400000) + 1 > MAX_CALENDAR_DAYS) {
+    throw new Error('日期区间最多32天');
+  }
+};
+
 /** 批量设置：区间内逐日写覆盖，可按星期筛选；availableStock 截断到房型 stock */
 export const mockCalendarBatch = (form: {
   roomTypeId: number;
@@ -186,6 +204,8 @@ export const mockCalendarBatch = (form: {
 }): { count: number } => {
   const roomType = roomTypes.find((r) => r.id === Number(form.roomTypeId));
   if (!roomType) throw new Error('无权操作该资源');
+  // 校验顺序与后端一致：归属 → 区间合法性（否则非法区间会算出空数组，返回 count:0 掩盖错误）
+  assertCalendarPeriod(form.startDate, form.endDate);
   const dates = buildCalendar(
     form.roomTypeId,
     roomType.price,

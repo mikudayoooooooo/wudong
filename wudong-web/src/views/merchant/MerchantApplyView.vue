@@ -126,8 +126,8 @@ onMounted(load);
     <template v-else>
       <div v-if="error && !showForm" class="m-card m-state m-error">{{ error }}</div>
 
-      <!-- 已入驻 -->
-      <div v-if="auth.merchant" class="m-card">
+      <!-- 已入驻：必须与上面的错误条互斥（两条独立 v-if 会让「刷新失败 + store 已有店铺」同屏） -->
+      <div v-else-if="auth.merchant" class="m-card">
         <h2 class="m-card-title">已入驻</h2>
         <p class="m-hint">
           店铺「{{ auth.merchant.shopName }}」已通过审核，无需重复申请。

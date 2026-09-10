@@ -16,7 +16,6 @@ const emit = defineEmits<{ 'update:modelValue': [string[]] }>();
 
 const uploading = ref(false);
 const error = ref('');
-const inputRef = ref<HTMLInputElement | null>(null);
 
 const canUpload = computed(() => props.modelValue.length < props.max);
 
@@ -24,20 +23,24 @@ async function onChange(event: Event): Promise<void> {
   const input = event.target as HTMLInputElement;
   const files = Array.from(input.files ?? []);
   if (!files.length) return;
+  // 飞行中再次选择必须忽略：否则会并发上传并突破 max（DOM 的 :disabled 要等 nextTick 才生效）
+  if (uploading.value) return;
 
   error.value = '';
   uploading.value = true;
+  // 逐张累积：部分失败时已上传成功的 URL 也必须交出去，不能整批丢弃
+  const urls: string[] = [];
+  const capacity = Math.max(0, props.max - props.modelValue.length);
   try {
-    const urls: string[] = [];
-    for (const file of files.slice(0, props.max - props.modelValue.length)) {
+    for (const file of files.slice(0, capacity)) {
       urls.push(await uploadImage(file));
     }
-    emit('update:modelValue', [...props.modelValue, ...urls]);
   } catch (e) {
     error.value = e instanceof Error ? e.message : '图片上传失败';
   } finally {
     uploading.value = false;
     input.value = ''; // 允许重复选择同一文件
+    if (urls.length) emit('update:modelValue', [...props.modelValue, ...urls]);
   }
 }
 
@@ -58,7 +61,7 @@ function remove(index: number): void {
     </div>
 
     <label v-if="canUpload" class="image-pick">
-      <input ref="inputRef" type="file" accept="image/*" multiple @change="onChange" />
+      <input type="file" accept="image/*" multiple :disabled="uploading" @change="onChange" />
       <span>{{ uploading ? '上传中…' : label }}</span>
     </label>
 

@@ -37,6 +37,15 @@ import {
 
 const BASE = '/app/accommodation/merchant';
 
+/**
+ * 写后回读失败时的兜底实体（A18）：回读只用于拿到归一后的完整行，失败不该致命。
+ * 调用方（编辑页）本就丢弃返回值，因此这里用写入表单补出形态闭合的对象即可。
+ */
+const fallbackHotel = (form: HotelForm, id: number): MerchantHotel =>
+  ({ ...form, id } as MerchantHotel);
+const fallbackRoomType = (form: RoomTypeForm, id: number): MerchantRoomType =>
+  ({ ...form, id } as MerchantRoomType);
+
 /** 提交入驻申请 */
 export const merchantApply = async (form: MerchantApplyForm): Promise<true> => {
   if (USE_MOCK) return mockMerchantApply();
@@ -64,7 +73,10 @@ export const merchantHotelPage = async (q: {
   name?: string;
   status?: number;
 } = {}): Promise<PageResult<MerchantHotel>> => {
-  if (USE_MOCK) return mockHotelPage(q);
+  if (USE_MOCK) {
+    const page = mockHotelPage(q);
+    return { list: page.list.map(normMerchantHotel), total: page.total };
+  }
   const data = await request<PageResult<MerchantHotel>>(`${BASE}/hotel/page`, {
     page: q.page ?? 1,
     size: q.size ?? 10,
@@ -96,10 +108,16 @@ export const merchantHotelSave = async (form: HotelForm): Promise<MerchantHotel>
   }
   const path = form.id ? `${BASE}/hotel/update` : `${BASE}/hotel/add`;
   if (form.id) {
+    const id = form.id;
     await post<boolean>(path, { ...form });
-    return normMerchantHotel(
-      await request<MerchantHotel>(`${BASE}/hotel/info`, { id: form.id })
-    );
+    try {
+      return normMerchantHotel(
+        await request<MerchantHotel>(`${BASE}/hotel/info`, { id })
+      );
+    } catch {
+      // 更新已成功，回读失败不得让调用方把「保存成功」报成「保存失败」
+      return normMerchantHotel(fallbackHotel(form, id));
+    }
   }
   return normMerchantHotel(await post<MerchantHotel>(path, { ...form }));
 };
@@ -124,7 +142,10 @@ export const merchantRoomTypePage = async (
   hotelId: number,
   q: { page?: number; size?: number } = {}
 ): Promise<PageResult<MerchantRoomType>> => {
-  if (USE_MOCK) return mockRoomTypePage(hotelId);
+  if (USE_MOCK) {
+    const page = mockRoomTypePage(hotelId);
+    return { list: page.list.map(normMerchantRoomType), total: page.total };
+  }
   const data = await request<PageResult<MerchantRoomType>>(
     `${BASE}/room-type/page`,
     { hotelId, page: q.page ?? 1, size: q.size ?? 50 }
@@ -144,11 +165,16 @@ export const merchantRoomTypeSave = async (
   }
   const path = form.id ? `${BASE}/room-type/update` : `${BASE}/room-type/add`;
   if (form.id) {
+    const id = form.id;
     await post<boolean>(path, { ...form });
-    const page = await merchantRoomTypePage(form.hotelId);
-    const found = page.list.find((r) => r.id === form.id);
-    if (!found) throw new Error('房型不存在');
-    return found;
+    try {
+      const page = await merchantRoomTypePage(form.hotelId);
+      const found = page.list.find((r) => r.id === id);
+      if (found) return found;
+    } catch {
+      // 回读失败不致命（同 merchantHotelSave）
+    }
+    return normMerchantRoomType(fallbackRoomType(form, id));
   }
   return normMerchantRoomType(await post<MerchantRoomType>(path, { ...form }));
 };
