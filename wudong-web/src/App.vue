@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
+import CartBadge from '@/components/CartBadge.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -33,7 +34,10 @@ function isActive(itemPath: string): boolean {
             {{ item.label }}
           </button>
         </nav>
-        <span class="badge-coming">在线预订 · 即将上线</span>
+        <div class="header-actions">
+          <CartBadge />
+          <span class="badge-coming">在线预订 · 即将上线</span>
+        </div>
       </div>
     </header>
 
@@ -42,3 +46,18 @@ function isActive(itemPath: string): boolean {
     <footer class="site-footer container">乌东文旅 · 衣 食 住 行 社区 — 云上苗寨游客站</footer>
   </div>
 </template>
+
+<style scoped>
+.site-header .container {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-left: auto;
+}
+</style>
