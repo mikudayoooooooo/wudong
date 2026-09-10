@@ -1,5 +1,5 @@
 import { CoolController, BaseController } from '@cool-midway/core';
-import { Get, Inject, Query } from '@midwayjs/core';
+import { Body, Get, Inject, Post, Query } from '@midwayjs/core';
 import { MerchantScopeService } from '../../service/merchant-scope';
 import { MerchantHotelService } from '../../service/merchant-hotel';
 
@@ -22,6 +22,42 @@ export class AppAccommodationMerchantController extends BaseController {
     const merchant = await this.scopeService.requireMerchant(this.ctx.user.id);
     return this.ok(
       await this.merchantHotelService.hotelPage(merchant.id, query)
+    );
+  }
+
+  @Get('/hotel/info', { summary: '民宿详情' })
+  async hotelInfo(@Query('id') id: number) {
+    const merchant = await this.scopeService.requireMerchant(this.ctx.user.id);
+    return this.ok(
+      await this.merchantHotelService.hotelInfo(merchant.id, Number(id))
+    );
+  }
+
+  @Post('/hotel/add', { summary: '新增民宿' })
+  async hotelAdd(@Body() body) {
+    const merchant = await this.scopeService.requireMerchant(this.ctx.user.id);
+    return this.ok(
+      await this.merchantHotelService.hotelAdd(
+        merchant.id,
+        merchant.module,
+        body
+      )
+    );
+  }
+
+  @Post('/hotel/update', { summary: '更新民宿' })
+  async hotelUpdate(@Body() body) {
+    const merchant = await this.scopeService.requireMerchant(this.ctx.user.id);
+    return this.ok(
+      await this.merchantHotelService.hotelUpdate(merchant.id, body)
+    );
+  }
+
+  @Post('/hotel/delete', { summary: '删除民宿' })
+  async hotelDelete(@Body('id') id: number) {
+    const merchant = await this.scopeService.requireMerchant(this.ctx.user.id);
+    return this.ok(
+      await this.merchantHotelService.hotelRemove(merchant.id, Number(id))
     );
   }
 }
