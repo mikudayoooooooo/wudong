@@ -135,7 +135,7 @@ assertRoomTypeOwned(roomTypeId, merchantId) → RoomTypeEntity
 ### 5.1 http 层扩展
 
 - 新增 `getToken/setToken/clearToken`（localStorage，key `wudong_token`）
-- `request`（GET）与新增 `post` 均携带 `Authorization: Bearer <token>`
+- `request`（GET）与新增 `post` 均携带 `Authorization: <token>`（**裸 token，不加 `Bearer ` 前缀**——后端中间件是 `jwt.verify(ctx.get('Authorization'))`，见 `cool-admin-midway/test/helper.ts` 的 `auth()`）
 - **鉴权失败判定**（关键，见 §3 推论）：HTTP 非 2xx（防御未预期形态）**或**（`code === 1001` 且 `message` 以 `登录失效` 开头）→ 判定为鉴权失败：清 token → 通知注入的 `onUnauthorized` 回调（跳 `/login?redirect=`）；其余非 1000 的 code 一律作业务错误抛出（**不得因业务错误登出用户**）。实测未登录为「HTTP 200 + `登录失效~`」，故 message 判定是主路径
 - `onUnauthorized` 由 `main.ts` 注入（避免 http 层 import router 造成循环依赖）
 - 新增 `uploadFile(file)` → `POST /app/base/comm/upload`（FormData，不设 Content-Type）
