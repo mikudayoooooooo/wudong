@@ -1,0 +1,158 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { mount, flushPromises } from '@vue/test-utils';
+import { createMemoryHistory, createRouter } from 'vue-router';
+import { createPinia, setActivePinia } from 'pinia';
+import MerchantHotelListView from './MerchantHotelListView.vue';
+import {
+  merchantHotelDelete,
+  merchantHotelPage,
+  merchantHotelSetStatus,
+} from '@/api/merchant';
+
+vi.mock('@/api/merchant', () => ({
+  merchantHotelPage: vi.fn(),
+  merchantHotelDelete: vi.fn(),
+  merchantHotelSetStatus: vi.fn(),
+}));
+
+const hotelOn = {
+  id: 1,
+  name: '乌东苗寨木楼',
+  address: '雷山县 · 乌东村一组',
+  longitude: 108.1,
+  latitude: 26.4,
+  styleTags: ['苗寨'],
+  facilityTags: ['WiFi'],
+  mainImage: '/a.jpg',
+  images: [],
+  intro: '梯田木楼',
+  rating: 4.8,
+  reviewCount: 126,
+  minPrice: 380,
+  checkInTime: '14:00',
+  checkOutTime: '12:00',
+  petPolicy: '可携带小型宠物',
+  hasBreakfast: 1,
+  deposit: 100,
+  status: 1,
+  merchantId: 1,
+};
+const hotelOff = { ...hotelOn, id: 2, name: '已下架的院子', status: 0 };
+
+beforeEach(() => {
+  setActivePinia(createPinia());
+  localStorage.clear();
+  vi.mocked(merchantHotelPage).mockReset().mockResolvedValue({
+    list: [hotelOn, hotelOff],
+    total: 2,
+  });
+  vi.mocked(merchantHotelDelete).mockReset().mockResolvedValue(true);
+  vi.mocked(merchantHotelSetStatus).mockReset().mockResolvedValue(true);
+});
+
+async function mountView() {
+  const router = createRouter({
+    history: createMemoryHistory(),
+    routes: [
+      { path: '/merchant/hotels', name: 'merchant-hotels', component: MerchantHotelListView },
+      { path: '/merchant/hotels/new', name: 'merchant-hotel-new', component: { template: '<div>new</div>' } },
+      { path: '/merchant/hotels/:id/edit', name: 'merchant-hotel-edit', component: { template: '<div>edit</div>' } },
+      { path: '/merchant/hotels/:id/rooms', name: 'merchant-hotel-rooms', component: { template: '<div>rooms</div>' } },
+    ],
+  });
+  await router.push('/merchant/hotels');
+  await router.isReady();
+  const wrapper = mount(MerchantHotelListView, { global: { plugins: [router] } });
+  await flushPromises();
+  return { wrapper, router };
+}
+
+describe('MerchantHotelListView', () => {
+  it('加载并渲染我的民宿与状态', async () => {
+    const { wrapper } = await mountView();
+    expect(merchantHotelPage).toHaveBeenCalled();
+    expect(wrapper.text()).toContain('乌东苗寨木楼');
+    expect(wrapper.text()).toContain('已下架的院子');
+    expect(wrapper.text()).toContain('已下架');
+  });
+
+  it('无民宿时展示空态与新增引导', async () => {
+    vi.mocked(merchantHotelPage).mockResolvedValue({ list: [], total: 0 });
+    const { wrapper } = await mountView();
+    expect(wrapper.text()).toContain('还没有民宿');
+  });
+
+  it('点击新增跳转到新建页', async () => {
+    const { wrapper, router } = await mountView();
+    await wrapper.find('.new-hotel').trigger('click');
+    await flushPromises();
+    expect(router.currentRoute.value.path).toBe('/merchant/hotels/new');
+  });
+
+  it('点击编辑进入编辑页', async () => {
+    const { wrapper, router } = await mountView();
+    await wrapper.findAll('.edit-hotel')[0].trigger('click');
+    await flushPromises();
+    expect(router.currentRoute.value.path).toBe('/merchant/hotels/1/edit');
+  });
+
+  it('点击房型进入房型管理页', async () => {
+    const { wrapper, router } = await mountView();
+    await wrapper.findAll('.manage-rooms')[0].trigger('click');
+    await flushPromises();
+    expect(router.currentRoute.value.path).toBe('/merchant/hotels/1/rooms');
+  });
+
+  it('下架：调用 setStatus 并刷新列表', async () => {
+    vi.mocked(merchantHotelPage)
+      .mockResolvedValueOnce({ list: [hotelOn, hotelOff], total: 2 })
+      .mockResolvedValueOnce({
+        list: [{ ...hotelOn, status: 0 }, hotelOff],
+        total: 2,
+      });
+    const { wrapper } = await mountView();
+    await wrapper.findAll('.toggle-status')[0].trigger('click');
+    await flushPromises();
+    expect(merchantHotelSetStatus).toHaveBeenCalledWith(1, 0);
+    expect(merchantHotelPage).toHaveBeenCalledTimes(2);
+  });
+
+  it('上架：已下架民宿调用 setStatus(id, 1)', async () => {
+    const { wrapper } = await mountView();
+    await wrapper.findAll('.toggle-status')[1].trigger('click');
+    await flushPromises();
+    expect(merchantHotelSetStatus).toHaveBeenCalledWith(2, 1);
+  });
+
+  it('删除需二次确认，确认后调用删除并刷新', async () => {
+    const { wrapper } = await mountView();
+    await wrapper.findAll('.delete-hotel')[0].trigger('click');
+    await flushPromises();
+
+    expect(merchantHotelDelete).not.toHaveBeenCalled();
+    expect(wrapper.text()).toContain('确认删除');
+
+    await wrapper.find('.confirm-delete').trigger('click');
+    await flushPromises();
+    expect(merchantHotelDelete).toHaveBeenCalledWith(1);
+    expect(merchantHotelPage).toHaveBeenCalledTimes(2);
+  });
+
+  it('删除失败展示后端 message（有房型时不可删）', async () => {
+    vi.mocked(merchantHotelDelete).mockRejectedValue(
+      new Error('请先删除该民宿下的房型')
+    );
+    const { wrapper } = await mountView();
+    await wrapper.findAll('.delete-hotel')[0].trigger('click');
+    await flushPromises();
+    await wrapper.find('.confirm-delete').trigger('click');
+    await flushPromises();
+    expect(wrapper.text()).toContain('请先删除该民宿下的房型');
+  });
+
+  it('查询失败展示错误', async () => {
+    vi.mocked(merchantHotelPage).mockRejectedValue(new Error('仅商家可访问'));
+    const { wrapper } = await mountView();
+    expect(wrapper.text()).toContain('仅商家可访问');
+  });
+});

@@ -129,6 +129,13 @@ export const mockHotelDelete = (id: number): true => {
   return true;
 };
 
+export const mockHotelSetStatus = (id: number, status: number): true => {
+  const index = hotels.findIndex((h) => h.id === Number(id));
+  if (index < 0) throw new Error('无权操作该资源');
+  hotels[index] = { ...hotels[index], status: Number(status) };
+  return true;
+};
+
 export const mockRoomTypePage = (hotelId: number): PageResult<MerchantRoomType> => {
   const list = roomTypes.filter((r) => r.hotelId === Number(hotelId));
   return { list, total: list.length };

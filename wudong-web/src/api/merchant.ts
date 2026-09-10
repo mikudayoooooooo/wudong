@@ -26,6 +26,7 @@ import {
   mockHotelInfo,
   mockHotelPage,
   mockHotelSave,
+  mockHotelSetStatus,
   mockMerchantApplication,
   mockMerchantApply,
   mockMerchantMy,
@@ -107,6 +108,15 @@ export const merchantHotelSave = async (form: HotelForm): Promise<MerchantHotel>
 export const merchantHotelDelete = async (id: number): Promise<true> => {
   if (USE_MOCK) return mockHotelDelete(id);
   return post<true>(`${BASE}/hotel/delete`, { id });
+};
+
+/** 上架 / 下架（P8 商家可自管状态） */
+export const merchantHotelSetStatus = async (
+  id: number,
+  status: number
+): Promise<true> => {
+  if (USE_MOCK) return mockHotelSetStatus(id, status);
+  return post<true>(`${BASE}/hotel/update`, { id, status });
 };
 
 /** 某民宿的房型列表 */

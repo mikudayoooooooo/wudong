@@ -102,6 +102,17 @@ describe('api/merchant', () => {
         JSON.stringify({ roomTypeId: 2, startDate: '2026-10-01', endDate: '2026-10-07', price: 480 })
       );
     });
+
+    it('上下架提交 id 与 status', async () => {
+      const { merchantHotelSetStatus } = await loadApi();
+      let body = '';
+      vi.stubGlobal('fetch', vi.fn((_u: string, i: any) => {
+        body = i.body;
+        return Promise.resolve(okJson(true));
+      }));
+      await merchantHotelSetStatus(3, 0);
+      expect(body).toBe(JSON.stringify({ id: 3, status: 0 }));
+    });
   });
 
   describe('mock 分支（内存态可增删改）', () => {
