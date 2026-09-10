@@ -180,7 +180,10 @@ assertRoomTypeOwned(roomTypeId, merchantId) → RoomTypeEntity
 | `/merchant/hotels/:id/rooms` | 房型管理 | 同上 |
 | `/merchant/rooms/:roomTypeId/calendar` | 房态日历（区间查看 + 批量设置） | 同上 |
 
-守卫行为：`requiresAuth && !isLoggedIn` → `/login?redirect=<fullPath>`；`requiresMerchant && !isMerchant` → `/merchant/status`。
+守卫行为：`requiresAuth && !isLoggedIn` → `/login?redirect=<fullPath>`。
+（**修正**：本条原还写了「`requiresMerchant && !isMerchant` → `/merchant/status`」。实施时未采用——`/merchant/status` 不是一条路由，
+非商家身份改由工作台首页 `merchant-home` 的三态渲染承担：已入驻 → 店铺概览；未入驻（待审核/被驳回/无申请）→ 展示申请进度并顺势引导申请，
+即本文 §6「非商家访问工作台 → 自动送申请进度页」那条。这样做少一条路由、少一个重定向环风险，且三态本来就要在同一页渲染。）
 
 顶栏新增入口：未登录显示「登录」；已登录显示店铺名 → `/merchant`。C 端既有页面与路由**不改动行为**。
 
@@ -190,7 +193,7 @@ assertRoomTypeOwned(roomTypeId, merchantId) → RoomTypeEntity
 |---|---|
 | `ImageUploader.vue` | 单图/多图上传（上传中/失败/移除/预览），供入驻材料与民宿图片使用 |
 | `TagInput.vue` | 风格/设施标签的增删（chips） |
-| `MerchantNav.vue` | 商家区侧栏导航（工作台 / 新增民宿 / 入驻进度） |
+| `MerchantNav.vue` | 商家区侧栏导航（工作台 / 新增民宿 / 入驻进度）。（**修正**：实施时未拆成独立组件，侧栏导航并入 `MerchantShell.vue` 内联实现——外壳与导航是同一件事，且没有第二个调用方。行为不变。） |
 
 视觉沿用 `styles/tokens.scss`（苗寨色板），**不引入 UI 组件库**。
 
