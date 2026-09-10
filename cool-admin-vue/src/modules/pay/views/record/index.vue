@@ -22,10 +22,42 @@ defineOptions({
 	name: 'pay-record'
 });
 
+import { ElMessage, ElMessageBox } from 'element-plus';
 import { useCrud, useTable } from '@cool-vue/crud';
 import { useCool } from '/@/cool';
 
 const { service } = useCool();
+
+// 退款审批：仅已支付可退，默认全额
+async function onRefund(row: any) {
+	if (row.payStatus !== 2) {
+		ElMessage.warning('仅已支付的流水可退款');
+		return;
+	}
+	try {
+		const { value } = await ElMessageBox.prompt(
+			`订单 ${row.orderId}，支付金额 ¥${row.payAmount}`,
+			'退款审批',
+			{
+				confirmButtonText: '确认退款',
+				cancelButtonText: '取消',
+				inputValue: String(row.payAmount ?? ''),
+				inputPattern: /^\d+(\.\d{1,2})?$/,
+				inputErrorMessage: '请输入正确的退款金额'
+			}
+		);
+		await service.request({
+			url: '/admin/pay/record/refund',
+			method: 'POST',
+			data: { id: row.id, amount: Number(value) }
+		});
+		ElMessage.success('退款成功');
+		Crud.value?.refresh();
+	} catch (err: any) {
+		if (err === 'cancel' || err?.message === 'cancel') return;
+		ElMessage.error(err.message || '退款失败');
+	}
+}
 
 // 支付渠道
 const channelDict = [
@@ -117,6 +149,16 @@ const Table = useTable({
 			label: '创建时间',
 			minWidth: 170,
 			sortable: 'desc'
+		},
+		{
+			type: 'op',
+			width: 100,
+			buttons: [
+				{
+					label: '退款',
+					onClick: (row: any) => onRefund(row)
+				}
+			]
 		}
 	]
 });
