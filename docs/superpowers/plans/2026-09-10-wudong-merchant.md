@@ -6294,7 +6294,7 @@ git commit -m "feat(merchant): 民宿新增/编辑表单"
 **Files:**
 - Create: `wudong-web/src/views/merchant/MerchantRoomTypeView.vue`
 - Create: `wudong-web/src/views/merchant/MerchantCalendarView.vue`（**空壳**，仅让路由指向真实存在的文件；Task 16 整文件替换为完整实现）
-- Modify: `wudong-web/src/router/index.ts`（追加一条子路由）
+- Modify: `wudong-web/src/router/index.ts`（追加**两条**子路由：`merchant-hotel-rooms` 与 `merchant-room-calendar`）
 - Test: `wudong-web/src/views/merchant/MerchantRoomTypeView.spec.ts`
 
 **Interfaces:**
@@ -6754,6 +6754,33 @@ onMounted(load);
     </div>
   </div>
 </template>
+
+<style scoped>
+/* 操作列与文字按钮。这几个类在 Task 13 的民宿列表里是 <style scoped> 的，
+   而 scoped CSS 到不了本组件 —— 所以这里必须自带一份定义，否则编辑/房态/删除
+   会退化成浏览器默认按钮、操作列也丢掉 flex 布局（测试只断言 .exists()，抓不到）。 */
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.link {
+  border: 0;
+  background: transparent;
+  color: var(--green-500);
+  font-size: 13px;
+  padding: 0;
+  text-decoration: underline;
+}
+.link.danger {
+  color: var(--gold-600);
+}
+.link:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+</style>
 ```
 
 - [ ] **Step 4: 在 `src/router/index.ts` 的 `/merchant` `children` 里追加两行**
