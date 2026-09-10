@@ -96,3 +96,104 @@ export interface Announcement {
   /** 是否置顶：1 是 0 否 */
   isTop: number;
 }
+
+/** 会员（C 端登录用户） */
+export interface MemberInfo {
+  id: number;
+  phone: string;
+  nickname?: string;
+  avatar?: string;
+  /** 1 游客 2 商家 */
+  role: number;
+}
+
+/** 登录结果 */
+export interface LoginResult {
+  token: string;
+  refreshToken?: string;
+}
+
+/** 商家（已入驻店铺） */
+export interface MerchantInfo {
+  id: number;
+  userId: number;
+  /** 商家账号，如 m12 */
+  username: string;
+  shopName: string;
+  /** 入驻模块 product/food/accommodation/travel */
+  module: string;
+  contactName: string;
+  contactPhone: string;
+  /** 1 正常 0 禁用 */
+  status: number;
+  joinedAt?: string;
+}
+
+/** 入驻申请进度（后端 dict：1 待审核 2 已通过 3 已驳回） */
+export interface MerchantApplication {
+  id: number;
+  shopName: string;
+  module: string;
+  contactName: string;
+  contactPhone: string;
+  idCard: string;
+  status: number;
+  /** 审核意见（驳回原因） */
+  auditResult?: string | null;
+}
+
+/** 商家视角的民宿（含 C 端不展示的字段） */
+export interface MerchantHotel extends Hotel {
+  merchantId: number;
+  longitude: number;
+  latitude: number;
+  deposit: number;
+  /** 1 正常 0 下架 */
+  status: number;
+}
+
+/** 商家视角的房型 */
+export interface MerchantRoomType extends RoomType {
+  facilities: string[];
+  status: number;
+}
+
+/** 民宿新增/编辑表单（有 id 即更新） */
+export type HotelForm = Omit<
+  MerchantHotel,
+  'id' | 'merchantId' | 'rating' | 'reviewCount' | 'minPrice'
+> & { id?: number };
+
+/** 房型新增/编辑表单（有 id 即更新） */
+export type RoomTypeForm = Omit<MerchantRoomType, 'id'> & { id?: number };
+
+/** 入驻申请表单（字段与后端 merchant.apply 必填校验一致） */
+export interface MerchantApplyForm {
+  shopName: string;
+  module: string;
+  contactName: string;
+  contactPhone: string;
+  idCard: string;
+  idCardFront: string;
+  idCardBack: string;
+  businessLicense: string;
+}
+
+/** 房态批量设置 */
+export interface CalendarBatchForm {
+  roomTypeId: number;
+  startDate: string;
+  endDate: string;
+  /** 限定星期几（0 周日 … 6 周六），不传表示区间内全部 */
+  weekDays?: number[];
+  price?: number;
+  availableStock?: number;
+  /** true 表示关房（不写价与库存） */
+  closed?: boolean;
+}
+
+/** 分页结果 */
+export interface PageResult<T> {
+  list: T[];
+  total: number;
+}

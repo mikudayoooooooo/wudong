@@ -2,6 +2,7 @@
 // mock 与 real 的返回结构都过同一归一（minPrice/rating/price Number()），页面只消费归一后类型。
 import { USE_MOCK } from '../env';
 import { request } from './http';
+import { normHotel, normRoomType, normRow, toNum } from './normalize';
 import type { CalendarRow, Hotel, HotelDetail, HotelQuery, RoomType } from './types';
 import {
   hotelById,
@@ -10,36 +11,6 @@ import {
   roomTypesOf,
 } from '../mocks';
 import { buildCalendar } from '../mocks/calendar';
-
-const toNum = (v: unknown): number => {
-  const n = Number(v);
-  return Number.isNaN(n) ? 0 : n;
-};
-
-/** 归一民宿：decimal 字段转 number；minPrice 空 → null */
-const normHotel = (h: Hotel): Hotel => ({
-  ...h,
-  rating: toNum(h.rating),
-  reviewCount: toNum(h.reviewCount),
-  hasBreakfast: toNum(h.hasBreakfast),
-  minPrice: h.minPrice == null ? null : toNum(h.minPrice),
-});
-
-/** 归一房型：decimal price 转 number */
-const normRoomType = (r: RoomType): RoomType => ({
-  ...r,
-  price: toNum(r.price),
-  stock: toNum(r.stock),
-  maxGuests: toNum(r.maxGuests),
-});
-
-/** 归一日历行：decimal price 转 number */
-const normRow = (r: CalendarRow): CalendarRow => ({
-  ...r,
-  price: toNum(r.price),
-  availableStock: toNum(r.availableStock),
-  status: toNum(r.status),
-});
 
 /** mock 搜索实现：keyword/styleTags/rating 过滤 + sort 排序 + 分页（与后端语义一致） */
 const mockSearchHotels = (q: HotelQuery): Hotel[] => {
