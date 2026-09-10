@@ -3061,6 +3061,235 @@ declare namespace Eps {
 
 	type Request = (options: RequestOptions) => Promise<any>;
 
+	interface OrderEntity {
+		id?: number;
+		createTime?: string;
+		updateTime?: string;
+		orderNo?: string;
+		userId?: number;
+		orderType?: number;
+		module?: string;
+		totalAmount?: number;
+		payAmount?: number;
+		discountAmount?: number;
+		status?: number;
+		payTime?: string;
+		completeTime?: string;
+		cancelTime?: string;
+		remark?: string;
+	}
+
+	interface Order {
+		delete(data?: any): Promise<any>;
+		update(data?: any): Promise<any>;
+		page(data?: any): Promise<any>;
+		list(data?: any): Promise<OrderEntity[]>;
+		info(data?: any): Promise<OrderEntity>;
+		add(data?: any): Promise<any>;
+		permission: {
+			delete: string;
+			update: string;
+			info: string;
+			list: string;
+			page: string;
+			add: string;
+		};
+		_permission: {
+			delete: boolean;
+			update: boolean;
+			info: boolean;
+			list: boolean;
+			page: boolean;
+			add: boolean;
+		};
+		request: Request;
+	}
+
+	interface PaymentRecordEntity {
+		id?: number;
+		createTime?: string;
+		updateTime?: string;
+		orderId?: number;
+		paymentNo?: string;
+		payChannel?: string;
+		payAmount?: number;
+		payStatus?: number;
+		transactionId?: string;
+		payTime?: string;
+		refundTime?: string;
+		refundAmount?: number;
+		callbackData?: any;
+	}
+
+	interface PaymentRecord {
+		page(data?: any): Promise<any>;
+		list(data?: any): Promise<PaymentRecordEntity[]>;
+		info(data?: any): Promise<PaymentRecordEntity>;
+		permission: {
+			info: string;
+			list: string;
+			page: string;
+		};
+		_permission: {
+			info: boolean;
+			list: boolean;
+			page: boolean;
+		};
+		request: Request;
+	}
+
+	interface MerchantEntity {
+		id?: number;
+		createTime?: string;
+		updateTime?: string;
+		userId?: number;
+		username?: string;
+		shopName?: string;
+		module?: string;
+		contactName?: string;
+		contactPhone?: string;
+		idCard?: string;
+		businessLicense?: string;
+		status?: number;
+		joinedAt?: string;
+	}
+
+	interface Merchant {
+		delete(data?: any): Promise<any>;
+		update(data?: any): Promise<any>;
+		page(data?: any): Promise<any>;
+		list(data?: any): Promise<MerchantEntity[]>;
+		info(data?: any): Promise<MerchantEntity>;
+		add(data?: any): Promise<any>;
+		permission: {
+			delete: string;
+			update: string;
+			info: string;
+			list: string;
+			page: string;
+			add: string;
+		};
+		_permission: {
+			delete: boolean;
+			update: boolean;
+			info: boolean;
+			list: boolean;
+			page: boolean;
+			add: boolean;
+		};
+		request: Request;
+	}
+
+	interface MerchantApplicationEntity {
+		id?: number;
+		createTime?: string;
+		updateTime?: string;
+		userId?: number;
+		shopName?: string;
+		module?: string;
+		contactName?: string;
+		contactPhone?: string;
+		idCard?: string;
+		idCardFront?: string;
+		idCardBack?: string;
+		businessLicense?: string;
+		otherMaterials?: any;
+		status?: number;
+		auditResult?: string;
+		auditBy?: number;
+		auditTime?: string;
+	}
+
+	interface MerchantApplication {
+		page(data?: any): Promise<any>;
+		list(data?: any): Promise<MerchantApplicationEntity[]>;
+		info(data?: any): Promise<MerchantApplicationEntity>;
+		permission: {
+			info: string;
+			list: string;
+			page: string;
+		};
+		_permission: {
+			info: boolean;
+			list: boolean;
+			page: boolean;
+		};
+		request: Request;
+	}
+
+	interface SystemMessageEntity {
+		id?: number;
+		createTime?: string;
+		updateTime?: string;
+		userId?: number;
+		type?: string;
+		title?: string;
+		content?: string;
+		linkType?: string;
+		linkValue?: string;
+		isRead?: number;
+	}
+
+	interface SystemMessage {
+		delete(data?: any): Promise<any>;
+		update(data?: any): Promise<any>;
+		page(data?: any): Promise<any>;
+		list(data?: any): Promise<SystemMessageEntity[]>;
+		info(data?: any): Promise<SystemMessageEntity>;
+		add(data?: any): Promise<any>;
+		permission: {
+			delete: string;
+			update: string;
+			info: string;
+			list: string;
+			page: string;
+			add: string;
+		};
+		_permission: {
+			delete: boolean;
+			update: boolean;
+			info: boolean;
+			list: boolean;
+			page: boolean;
+			add: boolean;
+		};
+		request: Request;
+	}
+
+	interface SensitiveWordEntity {
+		id?: number;
+		createTime?: string;
+		updateTime?: string;
+		word?: string;
+		status?: number;
+	}
+
+	interface SensitiveWord {
+		delete(data?: any): Promise<any>;
+		update(data?: any): Promise<any>;
+		page(data?: any): Promise<any>;
+		list(data?: any): Promise<SensitiveWordEntity[]>;
+		info(data?: any): Promise<SensitiveWordEntity>;
+		add(data?: any): Promise<any>;
+		permission: {
+			delete: string;
+			update: string;
+			info: string;
+			list: string;
+			page: string;
+			add: string;
+		};
+		_permission: {
+			delete: boolean;
+			update: boolean;
+			info: boolean;
+			list: boolean;
+			page: boolean;
+			add: boolean;
+		};
+		request: Request;
+	}
+
 	type DictKey = "brand" | "occupation";
 
 	type Service = {
@@ -3087,13 +3316,18 @@ declare namespace Eps {
 		demo: { goods: DemoGoods; tenant: DemoTenant };
 		dict: { info: DictInfo; type: DictType };
 		member: { user: MemberUser };
+		message: { message: SystemMessage };
+		merchant: Merchant & { application: MerchantApplication };
 		operate: {
 			announcement: OperateAnnouncement;
 			banner: OperateBanner;
 			financeRecord: OperateFinanceRecord;
 		};
+		order: Order;
+		pay: { record: PaymentRecord };
 		plugin: { info: PluginInfo };
 		recycle: { data: RecycleData };
+		sensitive: { word: SensitiveWord };
 		space: { info: SpaceInfo; type: SpaceType };
 		task: { info: TaskInfo };
 		user: { address: UserAddress; info: UserInfo };
