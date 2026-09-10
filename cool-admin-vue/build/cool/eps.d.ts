@@ -2961,6 +2961,7 @@ declare namespace Eps {
 		order: Order;
 		pay: { record: PayRecord };
 		merchant: Merchant;
+		merchantApplication: MerchantApplication;
 		message: Message;
 		sensitive: { word: SensitiveWord };
 		travel: {
