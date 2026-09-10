@@ -5,7 +5,7 @@
 -- 幂等：按 router 前缀清理后再插入
 -- 前置：请先执行 2026-09-09-accommodation-operate-menus.sql（operate/accommodation 菜单）
 -- ============================================================
-DELETE FROM base_sys_menu WHERE router LIKE '/order%' OR router LIKE '/pay-record%' OR router LIKE '/merchant%' OR router IN ('/message', '/sensitive-word', '交易中心', '商家管理');
+DELETE FROM base_sys_menu WHERE router LIKE '/order%' OR router LIKE '/pay-record%' OR router LIKE '/merchant%' OR router IN ('/message', '/sensitive-word') OR name IN ('交易中心', '商家管理');
 
 INSERT INTO base_sys_menu (createTime, updateTime, parentId, name, router, type, icon, orderNum, keepAlive, isShow) VALUES
 (NOW(), NOW(), NULL, '交易中心', NULL, 0, 'ShoppingCart', 14, 1, 1);
@@ -24,5 +24,5 @@ INSERT INTO base_sys_menu (createTime, updateTime, parentId, name, router, type,
 (NOW(), NOW(), @mch, '入驻审核',   '/merchant-application',  1, 'Stamp',          2, 'modules/merchant/views/application/index.vue', 1, 1);
 
 INSERT INTO base_sys_menu (createTime, updateTime, parentId, name, router, type, icon, orderNum, viewPath, keepAlive, isShow) VALUES
-(NOW(), NOW(), NULL, '消息管理', '/message',        1, 'Bell',       16, 1, 'modules/message/views/message/index.vue', 1, 1),
-(NOW(), NOW(), NULL, '敏感词',   '/sensitive-word', 1, 'Lock',       17, 1, 'modules/sensitive/views/word/index.vue',  1, 1);
+(NOW(), NOW(), NULL, '消息管理', '/message',        1, 'Bell',       16, 'modules/message/views/message/index.vue', 1, 1),
+(NOW(), NOW(), NULL, '敏感词',   '/sensitive-word', 1, 'Lock',       17, 'modules/sensitive/views/word/index.vue',  1, 1);

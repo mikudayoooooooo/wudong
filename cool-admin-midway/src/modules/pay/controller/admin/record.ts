@@ -12,20 +12,30 @@ import { PayService } from '../../service/pay';
   prefix: '/admin/pay/record',
   api: ['page', 'list', 'info'],
   entity: PaymentRecordEntity,
-  pageQueryOp: async (ctx, app) => ({
-    fieldEq: ['a.payStatus', 'a.payChannel'],
-    keyWordLikeFields: ['a.paymentNo'],
-    where: await app
-      .getApplicationContext()
+  // 注意：EPS 构建期会零参调用本函数，ctx 缺席时只返回静态配置（启动不崩）；请求期才注入商家 where
+  pageQueryOp: async (ctx?: any, app?: any) => {
+    const base = {
+      fieldEq: ['a.payStatus', 'a.payChannel'],
+      keyWordLikeFields: ['a.paymentNo'],
+    };
+    if (!ctx) {
+      return base;
+    }
+    const scope = await (ctx.requestContext ?? app.getApplicationContext())
       .getAsync(MerchantAdminScopeService)
-      .then(s => s.whereFor(ctx.admin?.userId)),
-  }),
-  listQueryOp: async (ctx, app) => ({
-    where: await app
-      .getApplicationContext()
-      .getAsync(MerchantAdminScopeService)
-      .then(s => s.whereFor(ctx.admin?.userId)),
-  }),
+      .then(s => s.whereFor(ctx.admin?.userId));
+    return { ...base, where: scope };
+  },
+  listQueryOp: async (ctx?: any, app?: any) => {
+    if (!ctx) {
+      return {};
+    }
+    return {
+      where: await (ctx.requestContext ?? app.getApplicationContext())
+        .getAsync(MerchantAdminScopeService)
+        .then(s => s.whereFor(ctx.admin?.userId)),
+    };
+  },
 })
 export class AdminPayRecordController extends BaseController {
   @Inject()

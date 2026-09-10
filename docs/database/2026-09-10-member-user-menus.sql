@@ -4,11 +4,11 @@
 -- 幂等：按 router / perms 清理后再插入
 -- 依赖：2026-09-09-base-admin-menus.sql、2026-09-10-travel-community-admin-menus.sql
 -- ============================================================
-DELETE FROM base_sys_menu WHERE router LIKE '/member-user%' OR router IN ('用户管理');
+DELETE FROM base_sys_menu WHERE router LIKE '/member-user%' OR name IN ('用户管理');
 DELETE FROM base_sys_menu WHERE perms IN ('community:post:audit', 'pay:record:refund');
 
 -- C端用户管理（封禁/解禁走编辑状态）
-INSERT INTO base_sys_menu (createTime, updateTime, parentId, name, router, type, icon, orderNum, viewPath, keepAlive, isShow) VALUES
+INSERT INTO base_sys_menu (createTime, updateTime, parentId, name, router, type, icon, orderNum, keepAlive, isShow) VALUES
 (NOW(), NOW(), NULL, '用户管理', NULL, 0, 'User', 22, 1, 1);
 SET @member = LAST_INSERT_ID();
 
