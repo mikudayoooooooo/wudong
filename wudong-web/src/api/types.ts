@@ -179,6 +179,10 @@ export interface FarmProduct {
   sales: number;
   categoryId?: number;
   category?: { name: string };
+  images?: string[];
+  stock: number;
+  detail?: string;
+  description?: string;
 }
 
 /** 农产品搜索条件 */

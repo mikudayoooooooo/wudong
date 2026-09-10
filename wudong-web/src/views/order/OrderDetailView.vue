@@ -72,11 +72,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { request } from '@/api/http';
+import { useRoute } from 'vue-router';
+import { http } from '@/lib/http';
 
 const route = useRoute();
-const router = useRouter();
 
 const loading = ref(false);
 const order = ref<any>(null);
@@ -97,7 +96,7 @@ const loadOrder = async () => {
   loading.value = true;
   try {
     const orderNo = route.params.orderNo as string;
-    order.value = await request('/app/order/detail', { orderNo });
+    order.value = await http.get('/app/order/detail', { orderNo });
   } catch (e: any) {
     console.error('加载订单失败', e);
     alert('加载订单失败：' + (e.message || '请稍后重试'));
@@ -110,13 +109,13 @@ const handlePay = async () => {
   paying.value = true;
   try {
     // 创建支付单
-    const payResult = await request('/app/pay/create', {
+    const payResult = await http.post('/app/pay/create', {
       orderNo: order.value.orderNo,
       channel: 'wechat',
     });
 
     // 模拟支付成功（真实环境需要调用微信支付SDK）
-    await request('/app/pay/mock', {
+    await http.post('/app/pay/mock', {
       paymentNo: payResult.paymentNo,
     });
 
@@ -135,7 +134,7 @@ const handleCancel = async () => {
   }
 
   try {
-    await request('/app/order/cancel', { orderNo: order.value.orderNo });
+    await http.post('/app/order/cancel', { orderNo: order.value.orderNo });
     alert('订单已取消');
     await loadOrder();
   } catch (e: any) {

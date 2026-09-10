@@ -132,8 +132,9 @@ const loadProduct = async () => {
   failed.value = false;
   try {
     const id = Number(route.params.id);
-    product.value = await farmProductDetail(id);
-    currentImage.value = product.value.coverImage;
+    const p = await farmProductDetail(id);
+    product.value = p;
+    currentImage.value = p.coverImage;
   } catch (e) {
     console.error('加载农产品失败', e);
     failed.value = true;

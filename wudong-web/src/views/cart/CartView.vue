@@ -238,7 +238,7 @@ import {
   clearCart,
   createOrderFromCart,
 } from '@/api/order';
-import { request } from '@/api/http';
+import { http } from '@/lib/http';
 
 const router = useRouter();
 
@@ -296,7 +296,7 @@ const loadCart = async () => {
 /** 加载地址列表 */
 const loadAddresses = async () => {
   try {
-    const result = await request('/app/user/address/list', {});
+    const result = await http.get('/app/user/address/list');
     addresses.value = result || [];
 
     // 自动选择默认地址
@@ -377,7 +377,7 @@ const handleClearCart = async () => {
 /** 提交地址 */
 const submitAddress = async () => {
   try {
-    const result = await request('/app/user/address/add', addressForm.value);
+    await http.post('/app/user/address/add', addressForm.value);
     alert('地址添加成功');
     showAddressForm.value = false;
 

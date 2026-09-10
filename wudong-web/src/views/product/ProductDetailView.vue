@@ -61,14 +61,17 @@ const handleBuyNow = async () => {
 
   purchasing.value = true;
   try {
-    const order = await createOrder([
-      {
-        type: 'product',
-        productId: product.value.id,
-        quantity: 1,
-        price: product.value.price
-      }
-    ]);
+    const order = await createOrder({
+      module: 'product',
+      orderType: 1,
+      items: [
+        {
+          productId: product.value.id,
+          quantity: 1,
+          price: product.value.price
+        }
+      ]
+    });
     alert('订单创建成功！订单号：' + order.orderNo);
     // 可以跳转到订单详情页
     // router.push({ name: 'order-detail', params: { orderNo: order.orderNo } });
