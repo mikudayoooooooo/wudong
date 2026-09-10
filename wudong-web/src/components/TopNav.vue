@@ -41,6 +41,20 @@ function onUserClick() {
   if (session.isLogged) router.push(`/user/${session.user!.id}`)
   else loginOpen.value = true
 }
+
+// 用户菜单（登录后）
+const userMenuOpen = ref(false)
+const userMenu = [
+  { label: '个人主页', path: () => `/user/${session.user!.id}` },
+  { label: '我的订单', path: () => '/my/orders' },
+  { label: '我的预订', path: () => '/my/reservations' },
+  { label: '我的票务', path: () => '/my/tickets' },
+  { label: '我的收藏', path: () => '/my/favorites' },
+]
+function goMenu(m: { label: string; path: () => string }) {
+  userMenuOpen.value = false
+  router.push(m.path())
+}
 </script>
 
 <template>
@@ -62,6 +76,11 @@ function onUserClick() {
       <span class="user" data-testid="nav-user" @click="onUserClick">
         {{ session.isLogged ? `${session.user!.avatar} ${session.user!.nickname}` : '登录' }}
       </span>
+      <span v-if="session.isLogged" class="user" @click="userMenuOpen = !userMenuOpen">▾</span>
+      <div v-if="session.isLogged && userMenuOpen" class="user-menu card" @mouseleave="userMenuOpen = false">
+        <a v-for="m in userMenu" :key="m.label" @click="goMenu(m)">{{ m.label }}</a>
+        <a class="logout" @click="userMenuOpen = false; session.logout()">退出</a>
+      </div>
       <span v-if="session.isLogged" class="logout" @click="session.logout()">退出</span>
     </div>
     <div v-if="searchOpen" class="search-panel card">
@@ -95,6 +114,10 @@ function onUserClick() {
 .spacer { flex: 1; }
 .search { background: #f2f2f2; border: none; border-radius: 14px; padding: 5px 14px; width: 240px; outline: none; }
 .user { font-size: 13px; cursor: pointer; }
+.user-menu { position: absolute; right: 24px; top: 48px; width: 130px; padding: 8px; display: flex; flex-direction: column; z-index: 30; }
+.user-menu a { cursor: pointer; color: var(--text-1); font-size: 13px; padding: 5px 8px; border-radius: 6px; }
+.user-menu a:hover { background: #f6f6f6; color: var(--orange-500); }
+.user-menu .logout { color: var(--text-3); }
 .logout { font-size: 12px; color: var(--text-3); cursor: pointer; }
 .publish { background: var(--green-600); color: #fff; border-radius: 14px; padding: 4px 12px; font-size: 13px; cursor: pointer; border: none; }
 .search-panel { position: absolute; right: 24px; top: 56px; width: 520px; padding: 14px; display: flex; gap: 14px; }
