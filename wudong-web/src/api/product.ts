@@ -1,5 +1,5 @@
-// 商品浏览数据层
-import { request } from './http';
+// 商品浏览数据层（统一走 lib/http）
+import { http } from '../lib/http';
 import type { Product, ProductQuery, ProductDetail } from './types';
 
 const toNum = (v: unknown): number => {
@@ -19,7 +19,7 @@ const normProduct = (p: Product): Product => ({
 /** 获取商品分类 */
 export const getProductCategories = async (): Promise<any[]> => {
   try {
-    return await request<any[]>('/app/product/categories');
+    return await http.get<any[]>('/app/product/categories');
   } catch (e) {
     console.error('获取分类失败', e);
     return [];
@@ -28,7 +28,7 @@ export const getProductCategories = async (): Promise<any[]> => {
 
 /** 搜索商品：按关键字/分类/排序 */
 export const searchProducts = async (q: ProductQuery = {}): Promise<Product[]> => {
-  const d = await request<{ list: Product[]; pagination: any }>(
+  const d = await http.get<{ list: Product[]; pagination: any }>(
     '/app/product/list',
     { ...q, page: q.page ?? 1, size: q.size ?? 20 }
   );
@@ -37,7 +37,7 @@ export const searchProducts = async (q: ProductQuery = {}): Promise<Product[]> =
 
 /** 商品详情 */
 export const productDetail = async (id: number): Promise<ProductDetail> => {
-  const d = await request<ProductDetail>('/app/product/detail', { id });
+  const d = await http.get<ProductDetail>(`/app/product/${id}`);
   return {
     ...d,
     price: toNum(d.price),
@@ -49,11 +49,21 @@ export const productDetail = async (id: number): Promise<ProductDetail> => {
 
 /** 获取商品评价 */
 export const getProductReviews = async (id: number, page: number = 1): Promise<any> => {
-  return await request<any>('/app/product/:id/reviews', { id, page, size: 10 });
+  return await http.get<any>(`/app/product/${id}/reviews`, { page, size: 10 });
 };
 
-/** 收藏商品 */
+/** 收藏商品（需登录） */
 export const toggleProductFavorite = async (id: number): Promise<any> => {
-  return await fetch(`/app/product/${id}/favorite`, { method: 'POST' })
-    .then(res => res.json());
+  return await http.post(`/app/product/${id}/favorite`);
+};
+
+/** 发布商品评价（需登录） */
+export const productReviewAdd = async (data: {
+  productId: number
+  orderId?: number
+  rating: number
+  content: string
+  images?: string[]
+}): Promise<any> => {
+  return await http.post('/app/product/review', data);
 };

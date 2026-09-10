@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useSession } from '../../stores/session'
 import { getMyOrders, cancelOrder } from '../../api/order'
 import { reviewAdd } from '../../api/personal'
+import { productReviewAdd } from '../../api/product'
 
 const router = useRouter()
 const session = useSession()
@@ -38,8 +39,9 @@ const MODULE_DICT: Record<string, string> = {
   travel: '行·票务',
 }
 
-// 仅行·票务（scenic/route）有 C 端评价接口；已完成才可评
-const reviewable = (o: any) => o.module === 'travel' && o.status === 3
+// 已完成才可评：行·票务（scenic/route）与商品有 C 端评价接口
+const reviewable = (o: any) =>
+  o.status === 3 && (o.module === 'travel' || o.module === 'product')
 
 async function load() {
   loading.value = true
@@ -85,13 +87,22 @@ async function submitReview() {
   const items = o.items || []
   const target = items[0] || {}
   try {
-    await reviewAdd({
-      targetType: target.ticketType === 2 ? 'route' : 'scenic',
-      targetId: target.targetId,
-      rating: review.value.rating,
-      content: review.value.content,
-      orderNo: o.orderNo,
-    })
+    if (o.module === 'product') {
+      await productReviewAdd({
+        productId: target.productId,
+        orderId: o.id,
+        rating: review.value.rating,
+        content: review.value.content,
+      })
+    } else {
+      await reviewAdd({
+        targetType: target.ticketType === 2 ? 'route' : 'scenic',
+        targetId: target.targetId,
+        rating: review.value.rating,
+        content: review.value.content,
+        orderNo: o.orderNo,
+      })
+    }
     alert('评价成功')
     review.value.open = false
   } catch (e: any) {

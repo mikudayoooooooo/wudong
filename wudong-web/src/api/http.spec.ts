@@ -18,6 +18,6 @@ describe('request', () => {
     let url = '';
     vi.stubGlobal('fetch', vi.fn((u: string) => { url = u; return { ok: true, json: async () => ({ code: 1000, data: 1 }) }; }));
     await request('/app/a', { page: 1, kw: '苗 寨' });
-    expect(url).toBe('/app/a?page=1&kw=%E8%8B%97%20%E5%AF%A8');
+    expect(url).toBe('/api/app/a?page=1&kw=%E8%8B%97%20%E5%AF%A8');
   });
 });
