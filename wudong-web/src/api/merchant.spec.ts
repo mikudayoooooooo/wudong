@@ -74,6 +74,64 @@ describe('api/merchant', () => {
       ]);
     });
 
+    it('更新后回读失败不致命：保存已成功就不抛（否则把成功报成失败）', async () => {
+      const { merchantHotelSave } = await loadApi();
+      const urls: string[] = [];
+      vi.stubGlobal('fetch', vi.fn((u: string, i: any) => {
+        urls.push(u);
+        // 写请求（update）成功返回 boolean
+        if (i?.method === 'POST') return Promise.resolve(okJson(true));
+        // 回读 GET /hotel/info 失败
+        return Promise.resolve({ ok: false, status: 500, json: async () => ({}) });
+      }));
+
+      await expect(
+        merchantHotelSave({
+          id: 5,
+          name: '苗寨一号院',
+          address: '雷山县',
+          longitude: 108,
+          latitude: 26,
+          styleTags: [],
+          facilityTags: [],
+          mainImage: '',
+          images: [],
+          intro: '',
+          checkInTime: '14:00',
+          checkOutTime: '12:00',
+          petPolicy: '',
+          hasBreakfast: 0,
+          deposit: 0,
+          status: 1,
+        })
+      ).resolves.toBeTruthy();
+      expect(urls).toContain('/app/accommodation/merchant/hotel/update');
+    });
+
+    it('房型更新后回读失败同样不致命', async () => {
+      const { merchantRoomTypeSave } = await loadApi();
+      vi.stubGlobal('fetch', vi.fn((_u: string, i: any) => {
+        if (i?.method === 'POST') return Promise.resolve(okJson(true));
+        return Promise.resolve({ ok: false, status: 500, json: async () => ({}) });
+      }));
+
+      await expect(
+        merchantRoomTypeSave({
+          id: 11,
+          hotelId: 7,
+          name: '苗寨大床房',
+          bedType: '大床',
+          area: 25,
+          maxGuests: 2,
+          facilities: ['WiFi'],
+          price: 380,
+          stock: 3,
+          images: [],
+          status: 1,
+        })
+      ).resolves.toBeTruthy();
+    });
+
     it('房态区间查询归一 decimal', async () => {
       const { merchantCalendarRange } = await loadApi();
       vi.stubGlobal('fetch', vi.fn().mockResolvedValue(okJson([
@@ -134,6 +192,39 @@ describe('api/merchant', () => {
       await merchantHotelPage();
       await merchantCalendarRange(11, '2026-10-01', '2026-10-03');
       expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it('mock 批量设置与真实后端同规则校验区间（逐字同文案）', async () => {
+      const { merchantCalendarBatch } = await loadApi();
+
+      // 与后端一致的顺序/文案：超过 32 天、区间无效
+      await expect(
+        merchantCalendarBatch({
+          roomTypeId: 11,
+          startDate: '2026-12-01',
+          endDate: '2027-01-05',
+          price: 100,
+        })
+      ).rejects.toThrow('日期区间最多32天');
+
+      await expect(
+        merchantCalendarBatch({
+          roomTypeId: 11,
+          startDate: '2026-10-05',
+          endDate: '2026-10-01',
+          price: 100,
+        })
+      ).rejects.toThrow('日期区间无效');
+
+      // 非法日期不得静默返回 count:0（那会显示「已更新 0 天房态」掩盖错误）
+      await expect(
+        merchantCalendarBatch({
+          roomTypeId: 11,
+          startDate: 'not-a-date',
+          endDate: '2026-10-01',
+          price: 100,
+        })
+      ).rejects.toThrow('日期区间无效');
     });
 
     it('mock 模式新增民宿后列表可见', async () => {

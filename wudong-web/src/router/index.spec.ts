@@ -1,4 +1,6 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+// 本文件不用 vi（原来的 vi.unstubAllGlobals() 没有 stub 过任何全局量，是惰性调用），
+// 未使用的 import 会被 noUnusedLocals 报 TS6133。
+import { beforeEach, describe, expect, it } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
 import router from './index';
 import { useAuthStore } from '../stores/auth';
@@ -7,7 +9,6 @@ describe('router 守卫', () => {
   beforeEach(async () => {
     setActivePinia(createPinia());
     localStorage.clear();
-    vi.unstubAllGlobals();
     await router.replace('/');
   });
 

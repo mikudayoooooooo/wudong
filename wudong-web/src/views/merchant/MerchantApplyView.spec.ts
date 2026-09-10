@@ -5,8 +5,8 @@ import { createPinia, setActivePinia } from 'pinia';
 import MerchantApplyView from './MerchantApplyView.vue';
 import ImageUploader from '@/components/ImageUploader.vue';
 import { merchantApplication, merchantApply, merchantMy } from '@/api/merchant';
+import { useAuthStore } from '@/stores/auth';
 
-// 注意：本文件不用 useAuthStore，故不 import（noUnusedLocals 会让未用的 import 报 TS6133）
 vi.mock('@/api/merchant', () => ({
   merchantApplication: vi.fn(),
   merchantApply: vi.fn(),
@@ -152,6 +152,26 @@ describe('MerchantApplyView', () => {
     expect(
       (wrapper.find('.field-shopName input').element as HTMLInputElement).value
     ).toBe('苗银世家'); // 用上次资料预填
+  });
+
+  it('刷新失败但 store 已有店铺：错误条与已入驻卡不得同屏', async () => {
+    // 两条独立 v-if（而不是互斥链）时，这里会同时渲染「加载失败」和「已入驻」两条互相矛盾的信息
+    useAuthStore().merchant = {
+      id: 1,
+      userId: 1,
+      username: 'm1',
+      shopName: '乌东苗寨木楼',
+      module: 'accommodation',
+      contactName: '杨阿妹',
+      contactPhone: '13300133001',
+      status: 1,
+    };
+    vi.mocked(merchantMy).mockRejectedValue(new Error('网络异常'));
+
+    const { wrapper } = await mountView();
+
+    expect(wrapper.text()).toContain('网络异常');
+    expect(wrapper.text()).not.toContain('已通过审核');
   });
 
   it('提交失败展示后端 message', async () => {

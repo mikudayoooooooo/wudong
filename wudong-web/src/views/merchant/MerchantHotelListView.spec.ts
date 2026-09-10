@@ -142,6 +142,28 @@ describe('MerchantHotelListView', () => {
     expect(merchantHotelPage).toHaveBeenCalledTimes(2);
   });
 
+  it('双击确认删除只调用一次删除（第二次命中 无权操作该资源 会报假错）', async () => {
+    let resolveDelete: (v: true) => void = () => {};
+    vi.mocked(merchantHotelDelete).mockReturnValue(
+      new Promise<true>((resolve) => {
+        resolveDelete = resolve;
+      })
+    );
+    const { wrapper } = await mountView();
+    await wrapper.findAll('.delete-hotel')[0].trigger('click');
+    await flushPromises();
+
+    // 直接派发 click：绕开 :disabled 的 DOM 层拦截，才能验到函数内的 busy 守卫
+    const confirm = wrapper.find('.confirm-delete').element as HTMLButtonElement;
+    confirm.dispatchEvent(new Event('click'));
+    confirm.dispatchEvent(new Event('click'));
+    await flushPromises();
+
+    expect(merchantHotelDelete).toHaveBeenCalledTimes(1);
+    resolveDelete(true);
+    await flushPromises();
+  });
+
   it('删除失败展示后端 message（有房型时不可删）', async () => {
     vi.mocked(merchantHotelDelete).mockRejectedValue(
       new Error('请先删除该民宿下的房型')

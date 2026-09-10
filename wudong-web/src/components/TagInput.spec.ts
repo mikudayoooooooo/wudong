@@ -40,6 +40,26 @@ describe('TagInput', () => {
     expect(wrapper.emitted('update:modelValue')).toBeUndefined();
   });
 
+  it('输入法组词中回车（isComposing）不添加标签，也不拦截默认行为', async () => {
+    const wrapper = mountInput();
+    const input = wrapper.find('input');
+    await input.setValue('miao');
+    // 不用 VTU 的 trigger：jsdom 的 KeyboardEvent.prototype.isComposing 只有 getter，
+    // trigger 的 options 写不进去；这里直接构造真实事件派发。
+    const event = new KeyboardEvent('keydown', {
+      key: 'Enter',
+      isComposing: true,
+      bubbles: true,
+      cancelable: true,
+    });
+    input.element.dispatchEvent(event);
+
+    expect(wrapper.emitted('update:modelValue')).toBeUndefined();
+    expect((input.element as HTMLInputElement).value).toBe('miao');
+    // 组词中不得 preventDefault（否则会打断输入法选词）
+    expect(event.defaultPrevented).toBe(false);
+  });
+
   it('点击 × 删除标签', async () => {
     const wrapper = mountInput(['苗寨', '江景']);
     const tags = wrapper.findAll('.tag-item');

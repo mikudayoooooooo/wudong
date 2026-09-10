@@ -117,6 +117,48 @@ describe('MerchantHomeView', () => {
     expect(wrapper.text()).toContain('银饰工坊');
   });
 
+  it('接口返回未入驻时清除 store 里陈旧的店铺身份', async () => {
+    // 陈旧的店铺身份（例如上一次会话残留）：必须被 merchantMy() 的 null 覆盖掉，
+    // 否则首页会一直显示旧店铺、并且不给出入住申请入口。
+    const auth = useAuthStore();
+    auth.merchant = {
+      id: 1,
+      userId: 1,
+      username: 'm1',
+      shopName: '早已不存在的店',
+      module: 'accommodation',
+      contactName: '杨阿妹',
+      contactPhone: '13300133001',
+      status: 1,
+    };
+    vi.mocked(merchantMy).mockResolvedValue(null);
+
+    const { wrapper } = await mountView();
+
+    expect(auth.merchant).toBeNull();
+    expect(wrapper.text()).toContain('尚未入驻');
+    expect(wrapper.find('.go-apply').exists()).toBe(true);
+    expect(wrapper.text()).not.toContain('早已不存在的店');
+  });
+
+  it('非住宿模块商家：只说明「新增民宿」受限，不劝退整块住宿管理', async () => {
+    vi.mocked(merchantMy).mockResolvedValue({
+      id: 3,
+      userId: 1,
+      username: 'm3',
+      shopName: '苗银世家',
+      module: 'product',
+      contactName: '杨阿妹',
+      contactPhone: '13300133001',
+      status: 1,
+    });
+    const { wrapper } = await mountView();
+
+    expect(wrapper.text()).toContain('新增民宿仅对住宿模块商家开放');
+    // 旧文案把「住宿管理」整块说成不可用，而列表/房型/房态对所有模块都是开放的
+    expect(wrapper.text()).not.toContain('住宿管理功能仅对住宿模块商家开放');
+  });
+
   it('接口失败展示错误提示', async () => {
     vi.mocked(merchantMy).mockRejectedValue(new Error('登录失效~'));
     const { wrapper } = await mountView();

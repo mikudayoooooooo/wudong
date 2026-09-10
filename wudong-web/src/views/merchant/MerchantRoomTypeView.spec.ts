@@ -126,6 +126,9 @@ describe('MerchantRoomTypeView', () => {
     await wrapper.find('.manage-calendar').trigger('click');
     await flushPromises();
     expect(router.currentRoute.value.path).toBe('/merchant/rooms/11/calendar');
+    // path 不含 query：只断 path 时删掉 query:{hotelId} 仍然绿，
+    // 而日历页要靠它取房型名（Number(undefined)||0 = 0）
+    expect(router.currentRoute.value.query.hotelId).toBe('7');
   });
 
   it('删除需二次确认，确认后调用删除并刷新', async () => {

@@ -3,7 +3,10 @@ import { mount, flushPromises } from '@vue/test-utils';
 import { createMemoryHistory, createRouter } from 'vue-router';
 import { createPinia, setActivePinia } from 'pinia';
 import MerchantHotelEditView from './MerchantHotelEditView.vue';
+import ImageUploader from '@/components/ImageUploader.vue';
+import TagInput from '@/components/TagInput.vue';
 import { merchantHotelInfo, merchantHotelSave } from '@/api/merchant';
+import type { MerchantHotel } from '@/api/types';
 
 vi.mock('@/api/merchant', () => ({
   merchantHotelInfo: vi.fn(),
@@ -148,6 +151,105 @@ describe('MerchantHotelEditView', () => {
     await wrapper.find('form').trigger('submit');
     await flushPromises();
     expect(wrapper.text()).toContain('您的入驻模块非住宿，无法新增民宿');
+  });
+
+  it('编辑保存：提交载荷整体塑形（trim + Number 强转 + id）', async () => {
+    const { wrapper } = await mountView('/merchant/hotels/7/edit');
+    await wrapper.find('.field-name input').setValue('  改后的名字  ');
+    await wrapper.find('.field-address input').setValue('  雷山县二组  ');
+    await wrapper.find('.field-deposit input').setValue('150');
+    await wrapper.find('.field-status select').setValue('0');
+    await wrapper.find('.field-hasBreakfast select').setValue('0');
+    await wrapper.find('form').trigger('submit');
+    await flushPromises();
+
+    expect(merchantHotelSave).toHaveBeenCalledTimes(1);
+    // 整对象断言（不是 objectContaining）：trim / 三处 Number() / 编辑态 id / 图片标签接线
+    // 任意一处被删掉，这里都必须变红
+    expect(vi.mocked(merchantHotelSave).mock.calls[0][0]).toEqual({
+      id: 7,
+      name: '改后的名字',
+      address: '雷山县二组',
+      longitude: 108.107,
+      latitude: 26.403,
+      styleTags: ['苗寨', '江景'],
+      facilityTags: ['WiFi'],
+      mainImage: '/a.jpg',
+      images: ['/a.jpg'],
+      intro: '梯田木楼',
+      checkInTime: '14:00',
+      checkOutTime: '12:00',
+      petPolicy: '可携带小型宠物',
+      hasBreakfast: 0,
+      deposit: 150,
+      status: 0,
+    });
+  });
+
+  it('新建保存：提交载荷不含 id', async () => {
+    const { wrapper } = await mountView('/merchant/hotels/new');
+    await wrapper.find('.field-name input').setValue('新院子');
+    await wrapper.find('.field-address input').setValue('雷山县六组');
+    await wrapper.find('.field-longitude input').setValue('108.2');
+    await wrapper.find('.field-latitude input').setValue('26.5');
+    await wrapper.find('form').trigger('submit');
+    await flushPromises();
+
+    const payload = vi.mocked(merchantHotelSave).mock.calls[0][0];
+    expect(payload.id).toBeUndefined();
+    // 新增态数字字段同样必须经过 Number()（字符串会落库成错的类型）
+    expect(payload.longitude).toBe(108.2);
+    expect(payload.latitude).toBe(26.5);
+    expect(payload.hasBreakfast).toBe(0);
+    expect(payload.status).toBe(1);
+  });
+
+  it('图片与标签经子组件回写后进入提交载荷', async () => {
+    const { wrapper } = await mountView('/merchant/hotels/new');
+    await wrapper.find('.field-name input').setValue('新院子');
+    await wrapper.find('.field-address input').setValue('雷山县六组');
+    await wrapper.find('.field-longitude input').setValue('108.2');
+    await wrapper.find('.field-latitude input').setValue('26.5');
+
+    const tagInputs = wrapper.findAllComponents(TagInput);
+    await tagInputs[0].vm.$emit('update:modelValue', ['苗寨', '观星']);
+    await tagInputs[1].vm.$emit('update:modelValue', ['WiFi']);
+    const uploaders = wrapper.findAllComponents(ImageUploader);
+    await uploaders[0].vm.$emit('update:modelValue', ['/m.png']);
+    await uploaders[1].vm.$emit('update:modelValue', ['/i1.png', '/i2.png']);
+    await flushPromises();
+
+    await wrapper.find('form').trigger('submit');
+    await flushPromises();
+
+    const payload = vi.mocked(merchantHotelSave).mock.calls[0][0];
+    expect(payload.styleTags).toEqual(['苗寨', '观星']);
+    expect(payload.facilityTags).toEqual(['WiFi']);
+    expect(payload.mainImage).toBe('/m.png');
+    expect(payload.images).toEqual(['/i1.png', '/i2.png']);
+  });
+
+  it('提交进行中再次提交被忽略（只调用一次保存）', async () => {
+    let resolveSave: (v: MerchantHotel) => void = () => {};
+    vi.mocked(merchantHotelSave).mockReturnValue(
+      new Promise<MerchantHotel>((resolve) => {
+        resolveSave = resolve;
+      })
+    );
+    const { wrapper } = await mountView('/merchant/hotels/new');
+    await wrapper.find('.field-name input').setValue('新院子');
+    await wrapper.find('.field-address input').setValue('雷山县六组');
+    await wrapper.find('.field-longitude input').setValue('108.2');
+    await wrapper.find('.field-latitude input').setValue('26.5');
+
+    // 直接对 form 触发两次 submit：不经过 :disabled 的按钮，才能验到函数内的重入守卫
+    const form = wrapper.find('form');
+    await form.trigger('submit');
+    await form.trigger('submit');
+
+    expect(merchantHotelSave).toHaveBeenCalledTimes(1);
+    resolveSave(hotelFixture);
+    await flushPromises();
   });
 
   it('详情加载失败展示错误', async () => {
