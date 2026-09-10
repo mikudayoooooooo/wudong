@@ -1,8 +1,19 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useAuthStore } from './stores/auth';
 
 const route = useRoute();
 const router = useRouter();
+const auth = useAuthStore();
+
+// spec §5.4：未登录显示「登录」；已登录显示店铺名。店铺信息只有进过商家区
+// （或刚登录）才有，此时回落到「商家中心」——不在这里额外拉接口，避免给 C 端
+// 游客页引入请求（token 过期时会被顺带踢到登录页）。
+const merchantLabel = computed(() => {
+  if (!auth.isLoggedIn) return '登录';
+  return auth.merchant?.shopName || '商家中心';
+});
 
 // 导航项（按钮式，router.push 切换）；民宿及其详情（/hotels*）同组高亮
 const navItems = [
@@ -35,7 +46,9 @@ function goMerchant(): void {
             {{ item.label }}
           </button>
         </nav>
-        <button type="button" class="merchant-entry" @click="goMerchant">商家中心</button>
+        <button type="button" class="merchant-entry" @click="goMerchant">
+          {{ merchantLabel }}
+        </button>
         <span class="badge-coming">在线预订 · 即将上线</span>
       </div>
     </header>

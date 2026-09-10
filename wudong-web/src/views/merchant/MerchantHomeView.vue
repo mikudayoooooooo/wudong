@@ -78,7 +78,7 @@ onMounted(async () => {
           我的民宿
         </button>
         <span v-else class="m-hint">
-          当前入驻模块为{{ moduleLabel(auth.merchant.module) }}，住宿管理功能仅对住宿模块商家开放。
+          当前入驻模块为{{ moduleLabel(auth.merchant.module) }}，新增民宿仅对住宿模块商家开放。
         </span>
       </div>
     </div>
