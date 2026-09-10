@@ -1,109 +1,247 @@
-import { Provide } from '@midwayjs/core';
+import { Inject, Provide } from '@midwayjs/core';
 import { BaseService, CoolCommException } from '@cool-midway/core';
 import { InjectEntityModel } from '@midwayjs/typeorm';
-import { Equal, In, Repository } from 'typeorm';
-import { CartEntity } from '../entity/cart';
+import { Repository } from 'typeorm';
+import { CartItemEntity } from '../entity/cart-item';
+import { ProductEntity } from '../../product/entity/product';
+import { FarmProductEntity } from '../../food/entity/farm-product';
 
 /**
- * 购物车
+ * 购物车服务
  */
 @Provide()
 export class CartService extends BaseService {
-  @InjectEntityModel(CartEntity)
-  cartEntity: Repository<CartEntity>;
+  @InjectEntityModel(CartItemEntity)
+  cartItemEntity: Repository<CartItemEntity>;
+
+  @InjectEntityModel(ProductEntity)
+  productEntity: Repository<ProductEntity>;
+
+  @InjectEntityModel(FarmProductEntity)
+  farmProductEntity: Repository<FarmProductEntity>;
 
   /**
-   * 加入购物车：同用户同 SKU 数量累加
+   * 添加商品到购物车
    */
   async addItem(
     userId: number,
-    productId: number,
-    skuId: number,
-    quantity = 1
+    itemType: number,
+    itemId: number,
+    quantity: number
   ) {
+    // 校验商品类型
+    if (![1, 2].includes(itemType)) {
+      throw new CoolCommException('商品类型不正确');
+    }
+
+    // 校验数量
     const qty = Number(quantity);
     if (!(qty >= 1)) {
-      throw new CoolCommException('数量不正确');
+      throw new CoolCommException('数量必须大于0');
     }
-    const exist = await this.cartEntity.findOneBy({
-      userId: Equal(userId),
-      skuId: Equal(skuId),
-    });
-    if (exist) {
-      await this.cartEntity.update(
-        { id: exist.id },
-        { quantity: exist.quantity + qty, checked: 1 }
-      );
-      return exist.id;
+
+    // 根据类型查询商品
+    let product: any;
+    if (itemType === 1) {
+      product = await this.productEntity.findOneBy({
+        id: itemId,
+        status: 1, // 必须上架
+      });
+    } else {
+      product = await this.farmProductEntity.findOneBy({
+        id: itemId,
+        status: 1,
+      });
     }
-    const inserted = await this.cartEntity.insert({
+
+    if (!product) {
+      throw new CoolCommException('商品不存在或已下架');
+    }
+
+    // 检查库存（软检查，允许加购）
+    if (product.stock < qty) {
+      throw new CoolCommException('商品库存不足');
+    }
+
+    // 查询是否已存在购物车项
+    const existing = await this.cartItemEntity.findOneBy({
       userId,
-      productId,
-      skuId,
-      quantity: qty,
-      checked: 1,
+      itemType,
+      itemId,
     });
-    return inserted.identifiers[0].id;
-  }
 
-  /**
-   * 修改数量/勾选（仅本人）
-   */
-  async updateItem(userId: number, id: number, param) {
-    const item = await this.cartEntity.findOneBy({
-      id: Equal(id),
-      userId: Equal(userId),
-    });
-    if (!item) {
-      throw new CoolCommException('购物车项不存在');
-    }
-    const data: Record<string, any> = {};
-    if (param.quantity !== undefined && param.quantity !== null) {
-      const qty = Number(param.quantity);
-      if (!(qty >= 1)) {
-        throw new CoolCommException('数量不正确');
+    if (existing) {
+      // 已存在，累加数量
+      const newQuantity = existing.quantity + qty;
+      if (product.stock < newQuantity) {
+        throw new CoolCommException('商品库存不足');
       }
-      data.quantity = qty;
+      await this.cartItemEntity.update(
+        { id: existing.id },
+        {
+          quantity: newQuantity,
+          // 更新快照（价格可能已变）
+          itemName: product.name,
+          price: Number(product.price),
+          coverImage: product.coverImage,
+        }
+      );
+      return this.cartItemEntity.findOneBy({ id: existing.id });
+    } else {
+      // 不存在，新增
+      const cartItem = await this.cartItemEntity.save({
+        userId,
+        itemType,
+        itemId,
+        quantity: qty,
+        itemName: product.name,
+        price: Number(product.price),
+        coverImage: product.coverImage,
+      });
+      return cartItem;
     }
-    if (param.checked !== undefined && param.checked !== null) {
-      data.checked = param.checked ? 1 : 0;
-    }
-    if (Object.keys(data).length === 0) {
-      throw new CoolCommException('无可更新的字段');
-    }
-    await this.cartEntity.update({ id: item.id }, data);
-    return true;
   }
 
   /**
-   * 删除（仅本人）
+   * 更新购物车数量
    */
-  async removeItem(userId: number, ids: number[]) {
-    if (!Array.isArray(ids) || ids.length === 0) {
-      throw new CoolCommException('请选择要删除的购物车项');
+  async updateQuantity(userId: number, cartItemId: number, quantity: number) {
+    const qty = Number(quantity);
+    if (!(qty >= 1)) {
+      throw new CoolCommException('数量必须大于0');
     }
-    const ret = await this.cartEntity.delete({
-      id: In(ids),
-      userId: Equal(userId),
+
+    // 查询购物车项
+    const cartItem = await this.cartItemEntity.findOneBy({
+      id: cartItemId,
+      userId,
     });
-    if (!ret.affected) {
+    if (!cartItem) {
       throw new CoolCommException('购物车项不存在');
     }
+
+    // 查询商品当前库存
+    let product: any;
+    if (cartItem.itemType === 1) {
+      product = await this.productEntity.findOneBy({ id: cartItem.itemId });
+    } else {
+      product = await this.farmProductEntity.findOneBy({
+        id: cartItem.itemId,
+      });
+    }
+
+    if (!product || product.status !== 1) {
+      throw new CoolCommException('商品不存在或已下架');
+    }
+
+    if (product.stock < qty) {
+      throw new CoolCommException('商品库存不足');
+    }
+
+    // 更新数量和快照
+    await this.cartItemEntity.update(
+      { id: cartItemId },
+      {
+        quantity: qty,
+        itemName: product.name,
+        price: Number(product.price),
+        coverImage: product.coverImage,
+      }
+    );
+
     return true;
   }
 
   /**
-   * 我的购物车分页
+   * 移除购物车项
    */
-  async pageList(userId: number, page = 1, size = 10) {
-    const qb = this.cartEntity
-      .createQueryBuilder('a')
-      .where('a.userId = :userId', { userId })
-      .orderBy('a.id', 'DESC');
-    const pageNo = Math.max(Number(page) || 1, 1);
-    const pageSize = Math.max(Number(size) || 10, 1);
-    qb.skip((pageNo - 1) * pageSize).take(pageSize);
-    const [list, total] = await qb.getManyAndCount();
-    return { list, total };
+  async removeItem(userId: number, cartItemId: number) {
+    const cartItem = await this.cartItemEntity.findOneBy({
+      id: cartItemId,
+      userId,
+    });
+    if (!cartItem) {
+      throw new CoolCommException('购物车项不存在');
+    }
+
+    await this.cartItemEntity.delete({ id: cartItemId });
+    return true;
+  }
+
+  /**
+   * 查看我的购物车
+   */
+  async getMyCart(userId: number) {
+    const cartItems = await this.cartItemEntity.find({
+      where: { userId },
+      order: { createTime: 'DESC' },
+    });
+
+    if (cartItems.length === 0) {
+      return {
+        items: [],
+        totalAmount: 0,
+        totalCount: 0,
+      };
+    }
+
+    // 重新查询商品最新信息
+    const items = [];
+    let totalAmount = 0;
+    let totalCount = 0;
+
+    for (const item of cartItems) {
+      let product: any;
+      if (item.itemType === 1) {
+        product = await this.productEntity.findOneBy({ id: item.itemId });
+      } else {
+        product = await this.farmProductEntity.findOneBy({ id: item.itemId });
+      }
+
+      const isAvailable = product && product.status === 1;
+      const currentStock = product ? product.stock : 0;
+      const currentPrice = product ? Number(product.price) : 0;
+
+      items.push({
+        id: item.id,
+        itemType: item.itemType,
+        itemId: item.itemId,
+        itemName: item.itemName,
+        price: Number(item.price), // 快照价格
+        quantity: item.quantity,
+        coverImage: item.coverImage,
+        currentPrice, // 实时价格
+        currentStock, // 实时库存
+        isAvailable, // 是否可购买
+      });
+
+      // 只计算可用商品的总价
+      if (isAvailable && currentStock >= item.quantity) {
+        totalAmount += Number(item.price) * item.quantity;
+        totalCount += item.quantity;
+      }
+    }
+
+    return {
+      items,
+      totalAmount: Number(totalAmount.toFixed(2)),
+      totalCount,
+    };
+  }
+
+  /**
+   * 清空购物车
+   */
+  async clearCart(userId: number) {
+    await this.cartItemEntity.delete({ userId });
+    return true;
+  }
+
+  /**
+   * 获取购物车商品数量（角标用）
+   */
+  async getCartCount(userId: number) {
+    const count = await this.cartItemEntity.count({ where: { userId } });
+    return count;
   }
 }

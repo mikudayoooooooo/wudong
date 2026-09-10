@@ -1,52 +1,102 @@
 import { CoolController, BaseController } from '@cool-midway/core';
-import { Body, Get, Inject, Post, Query } from '@midwayjs/core';
+import { Body, Get, Inject, Post } from '@midwayjs/core';
 import { CartService } from '../../service/cart';
+import { Context } from '@midwayjs/koa';
 
 /**
- * C端购物车（需登录）
- * 注意：BaseController 自带 add/update/delete/page/list/info 内置方法，
- * 自定义方法名须避开（TS2416），路由路径不受影响
+ * C端购物车控制器
  */
 @CoolController({ prefix: '/app/cart' })
 export class AppCartController extends BaseController {
   @Inject()
-  ctx;
+  ctx: Context;
 
   @Inject()
   cartService: CartService;
 
   @Post('/add', { summary: '加入购物车' })
-  async addItem(
-    @Body('productId') productId: number,
-    @Body('skuId') skuId: number,
-    @Body('quantity') quantity: number
-  ) {
-    return this.ok(
-      await this.cartService.addItem(
-        this.ctx.user.id,
-        productId,
-        skuId,
-        quantity
-      )
+  async addToCart(@Body() body: any) {
+    const userId = this.ctx.user?.id;
+    if (!userId) {
+      return this.fail('请先登录');
+    }
+
+    const { itemType, itemId, quantity } = body;
+    if (!itemType || !itemId) {
+      return this.fail('商品信息不完整');
+    }
+
+    const result = await this.cartService.addItem(
+      userId,
+      itemType,
+      itemId,
+      quantity || 1
     );
+    return this.ok(result);
   }
 
-  @Post('/update', { summary: '修改数量/勾选' })
-  async updateItem(@Body() body) {
-    return this.ok(
-      await this.cartService.updateItem(this.ctx.user.id, body.id, body)
-    );
+  @Post('/update', { summary: '更新购物车数量' })
+  async updateCart(@Body() body: any) {
+    const userId = this.ctx.user?.id;
+    if (!userId) {
+      return this.fail('请先登录');
+    }
+
+    const { cartItemId, quantity } = body;
+    if (!cartItemId || !quantity) {
+      return this.fail('参数不完整');
+    }
+
+    await this.cartService.updateQuantity(userId, cartItemId, quantity);
+    return this.ok(true);
   }
 
-  @Post('/delete', { summary: '删除购物车项' })
-  async removeItem(@Body('ids') ids: number[]) {
-    return this.ok(await this.cartService.removeItem(this.ctx.user.id, ids));
+  @Post('/remove', { summary: '移除购物车商品' })
+  async remove(@Body() body: any) {
+    const userId = this.ctx.user?.id;
+    if (!userId) {
+      return this.fail('请先登录');
+    }
+
+    const { cartItemId } = body;
+    if (!cartItemId) {
+      return this.fail('参数不完整');
+    }
+
+    await this.cartService.removeItem(userId, cartItemId);
+    return this.ok(true);
   }
 
-  @Get('/page', { summary: '我的购物车' })
-  async pageList(@Query('page') page: number, @Query('size') size: number) {
-    return this.ok(
-      await this.cartService.pageList(this.ctx.user.id, page, size)
-    );
+  @Get('/list', { summary: '查看购物车' })
+  async list() {
+    const userId = this.ctx.user?.id;
+    if (!userId) {
+      return this.fail('请先登录');
+    }
+
+    const result = await this.cartService.getMyCart(userId);
+    return this.ok(result);
+  }
+
+  @Post('/clear', { summary: '清空购物车' })
+  async clear() {
+    const userId = this.ctx.user?.id;
+    if (!userId) {
+      return this.fail('请先登录');
+    }
+
+    await this.cartService.clearCart(userId);
+    return this.ok(true);
+  }
+
+  @Get('/count', { summary: '获取购物车数量' })
+  async count() {
+    const userId = this.ctx.user?.id;
+    if (!userId) {
+      return this.ok(0);
+    }
+
+    const count = await this.cartService.getCartCount(userId);
+    return this.ok(count);
   }
 }

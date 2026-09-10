@@ -42,4 +42,24 @@ export class AppOrderController extends BaseController {
   async cancel(@Body('orderNo') orderNo: string) {
     return this.ok(await this.orderService.cancel(this.ctx.user.id, orderNo));
   }
+
+  @Post('/create-from-cart', { summary: '从购物车创建订单' })
+  async createFromCart(@Body() body: any) {
+    const userId = this.ctx.user?.id;
+    if (!userId) {
+      return this.fail('请先登录');
+    }
+
+    const { addressId, remark } = body;
+    if (!addressId) {
+      return this.fail('请选择收货地址');
+    }
+
+    const result = await this.orderService.createFromCart(
+      userId,
+      addressId,
+      remark
+    );
+    return this.ok(result);
+  }
 }

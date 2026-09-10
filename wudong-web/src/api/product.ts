@@ -37,7 +37,7 @@ export const searchProducts = async (q: ProductQuery = {}): Promise<Product[]> =
 
 /** 商品详情 */
 export const productDetail = async (id: number): Promise<ProductDetail> => {
-  const d = await request<ProductDetail>(`/app/product/${id}`);
+  const d = await request<ProductDetail>('/app/product/detail', { id });
   return {
     ...d,
     price: toNum(d.price),
@@ -49,7 +49,7 @@ export const productDetail = async (id: number): Promise<ProductDetail> => {
 
 /** 获取商品评价 */
 export const getProductReviews = async (id: number, page: number = 1): Promise<any> => {
-  return await request<any>(`/app/product/${id}/reviews`, { page, size: 10 });
+  return await request<any>('/app/product/:id/reviews', { id, page, size: 10 });
 };
 
 /** 收藏商品 */

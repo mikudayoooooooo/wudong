@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSession } from '../stores/session'
 import { communityApi } from '../api/community'
+import CartBadge from './CartBadge.vue'
 import LoginModal from './LoginModal.vue'
 
 const router = useRouter()
@@ -57,6 +58,7 @@ function onUserClick() {
         @keyup.enter="onSearch"
       />
       <button class="publish" @click="router.push('/publish')">＋ 发布</button>
+      <CartBadge v-if="session.isLogged" />
       <span class="user" data-testid="nav-user" @click="onUserClick">
         {{ session.isLogged ? `${session.user!.avatar} ${session.user!.nickname}` : '登录' }}
       </span>

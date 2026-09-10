@@ -128,7 +128,12 @@ onMounted(async () => {
         <button type="button" class="retry" @click="doSearch">重新加载</button>
       </div>
       <div v-else-if="list.length" class="product-grid">
-        <article v-for="p in list" :key="p.id" class="product-card">
+        <article
+          v-for="p in list"
+          :key="p.id"
+          class="product-card"
+          @click="router.push({ name: 'farm-product-detail', params: { id: p.id } })"
+        >
           <img :src="p.coverImage" :alt="p.name" class="product-img" />
           <div class="product-info">
             <h3 class="product-name">{{ p.name }}</h3>
@@ -137,8 +142,8 @@ onMounted(async () => {
               <span class="price">¥{{ p.price }}<span v-if="p.unit">/{{ p.unit }}</span></span>
               <span class="sales">已售 {{ p.sales }}</span>
             </div>
-            <button type="button" class="btn-buy" disabled>
-              购买（即将上线）
+            <button type="button" class="btn-buy" @click.stop>
+              查看详情
             </button>
           </div>
         </article>
@@ -242,6 +247,7 @@ onMounted(async () => {
   border-radius: 8px;
   overflow: hidden;
   transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
 }
 
 .product-card:hover {

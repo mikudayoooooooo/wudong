@@ -1,8 +1,9 @@
 <script setup lang="ts">
-// 商品详情页：展示商品信息、SKU、评价
+// 商品详情页：展示商品信息、SKU、评价，支持购买
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { productDetail, getProductReviews } from '@/api/product';
+import { addToCart, createOrder } from '@/api/order';
 import type { ProductDetail } from '@/api/types';
 
 const route = useRoute();
@@ -13,6 +14,7 @@ const reviews = ref<any[]>([]);
 const loading = ref(false);
 const failed = ref(false);
 const currentImage = ref('');
+const purchasing = ref(false);
 
 /** 加载商品详情 */
 const loadProduct = async () => {
@@ -31,6 +33,53 @@ const loadProduct = async () => {
     failed.value = true;
   } finally {
     loading.value = false;
+  }
+};
+
+/** 加入购物车 */
+const handleAddToCart = async () => {
+  if (!product.value) return;
+
+  purchasing.value = true;
+  try {
+    await addToCart(product.value.id, 1, 1); // itemId, itemType=1(非遗商品), quantity=1
+    alert('已加入购物车！');
+  } catch (e: any) {
+    if (e.message?.includes('登录')) {
+      alert('请先登录后再购买');
+    } else {
+      alert('加入购物车失败：' + (e.message || '请稍后重试'));
+    }
+  } finally {
+    purchasing.value = false;
+  }
+};
+
+/** 立即购买 */
+const handleBuyNow = async () => {
+  if (!product.value) return;
+
+  purchasing.value = true;
+  try {
+    const order = await createOrder([
+      {
+        type: 'product',
+        productId: product.value.id,
+        quantity: 1,
+        price: product.value.price
+      }
+    ]);
+    alert('订单创建成功！订单号：' + order.orderNo);
+    // 可以跳转到订单详情页
+    // router.push({ name: 'order-detail', params: { orderNo: order.orderNo } });
+  } catch (e: any) {
+    if (e.message?.includes('登录')) {
+      alert('请先登录后再购买');
+    } else {
+      alert('购买失败：' + (e.message || '请稍后重试'));
+    }
+  } finally {
+    purchasing.value = false;
   }
 };
 
@@ -98,9 +147,25 @@ onMounted(() => {
         </div>
 
         <div class="action-buttons">
-          <button type="button" class="btn-cart" disabled>加入购物车（即将上线）</button>
-          <button type="button" class="btn-buy" disabled>立即购买（即将上线）</button>
+          <button
+            type="button"
+            class="btn-cart"
+            :disabled="purchasing || product.stock <= 0"
+            @click="handleAddToCart"
+          >
+            {{ purchasing ? '处理中...' : '加入购物车' }}
+          </button>
+          <button
+            type="button"
+            class="btn-buy"
+            :disabled="purchasing || product.stock <= 0"
+            @click="handleBuyNow"
+          >
+            {{ purchasing ? '处理中...' : '立即购买' }}
+          </button>
         </div>
+
+        <p v-if="product.stock <= 0" class="out-of-stock">该商品暂时缺货</p>
       </section>
 
       <!-- 商品详情 -->
@@ -285,8 +350,13 @@ onMounted(() => {
   border: none;
   border-radius: 4px;
   font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.action-buttons button:disabled {
   cursor: not-allowed;
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
 .btn-cart {
@@ -295,9 +365,23 @@ onMounted(() => {
   border: 1px solid var(--green-600) !important;
 }
 
+.btn-cart:not(:disabled):hover {
+  background: var(--green-50);
+}
+
 .btn-buy {
   background: var(--green-600);
   color: white;
+}
+
+.btn-buy:not(:disabled):hover {
+  background: var(--green-700);
+}
+
+.out-of-stock {
+  margin-top: 10px;
+  color: #e74c3c;
+  text-align: center;
 }
 
 .description-section,

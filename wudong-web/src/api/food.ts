@@ -35,7 +35,7 @@ export const searchRestaurants = async (q: RestaurantQuery = {}): Promise<Restau
 
 /** 餐厅详情（基本信息 + 菜品） */
 export const restaurantDetail = async (id: number): Promise<RestaurantDetail> => {
-  const info = await request<Restaurant>(`/app/food/restaurant/${id}`);
+  const info = await request<Restaurant>(`/app/food/restaurant/detail`, { id });
   const dishes = await request<any[]>(`/app/food/restaurant/${id}/dishes`);
   return {
     info: normRestaurant(info),
@@ -68,7 +68,12 @@ export const searchFarmProducts = async (q: FarmProductQuery = {}): Promise<Farm
 
 /** 农产品详情 */
 export const farmProductDetail = async (id: number): Promise<any> => {
-  return await request<any>(`/app/food/farm-product/${id}`);
+  const d = await request<any>('/app/food/farm-product/detail', { id });
+  return {
+    ...d,
+    price: toNum(d.price),
+    stock: toNum(d.stock),
+  };
 };
 
 /** 获取农产品分类 */

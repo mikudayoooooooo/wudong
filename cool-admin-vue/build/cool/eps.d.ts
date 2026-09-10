@@ -295,6 +295,8 @@ declare namespace Eps {
 
 	type json = any;
 
+	type DictKey = "brand" | "occupation";
+
 	interface PagePagination {
 		size: number;
 		page: number;
