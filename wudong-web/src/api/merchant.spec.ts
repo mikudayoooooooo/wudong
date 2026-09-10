@@ -105,12 +105,19 @@ describe('api/merchant', () => {
 
     it('上下架提交 id 与 status', async () => {
       const { merchantHotelSetStatus } = await loadApi();
+      let url = '';
       let body = '';
+      let method = '';
       vi.stubGlobal('fetch', vi.fn((_u: string, i: any) => {
+        url = _u;
+        method = i.method;
         body = i.body;
         return Promise.resolve(okJson(true));
       }));
       await merchantHotelSetStatus(3, 0);
+      // 路径与 body 都要钉住：只断 body 时走错路由仍然会绿
+      expect(url).toBe('/app/accommodation/merchant/hotel/update');
+      expect(method).toBe('POST');
       expect(body).toBe(JSON.stringify({ id: 3, status: 0 }));
     });
   });

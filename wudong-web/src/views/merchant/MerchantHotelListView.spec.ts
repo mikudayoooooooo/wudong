@@ -73,7 +73,11 @@ describe('MerchantHotelListView', () => {
     expect(merchantHotelPage).toHaveBeenCalled();
     expect(wrapper.text()).toContain('乌东苗寨木楼');
     expect(wrapper.text()).toContain('已下架的院子');
-    expect(wrapper.text()).toContain('已下架');
+    // 状态列必须真的渲染：只看 wrapper.text() 会被筛选框里的 <option>已下架</option> 满足而变成空断言
+    expect(wrapper.findAll('tbody tr td:nth-child(3)').map((c) => c.text())).toEqual([
+      '已上架',
+      '已下架',
+    ]);
   });
 
   it('无民宿时展示空态与新增引导', async () => {
@@ -154,5 +158,28 @@ describe('MerchantHotelListView', () => {
     vi.mocked(merchantHotelPage).mockRejectedValue(new Error('仅商家可访问'));
     const { wrapper } = await mountView();
     expect(wrapper.text()).toContain('仅商家可访问');
+  });
+
+  it('慢响应乱序返回：过期响应不覆盖较新的结果', async () => {
+    let resolveSlow: (r: { list: typeof hotelOn[]; total: number }) => void = () => {};
+    const slow = new Promise<{ list: typeof hotelOn[]; total: number }>((resolve) => {
+      resolveSlow = resolve;
+    });
+    vi.mocked(merchantHotelPage)
+      .mockReset()
+      .mockReturnValueOnce(slow)
+      .mockResolvedValueOnce({ list: [hotelOn], total: 1 });
+
+    // 第 1 次请求（慢）挂在 pending；第 2 次请求先返回
+    const { wrapper } = await mountView();
+    await wrapper.find('.hotel-filters button').trigger('click');
+    await flushPromises();
+    expect(wrapper.text()).toContain('乌东苗寨木楼');
+
+    // 过期响应随后落地：不得覆盖第 2 次的结果
+    resolveSlow({ list: [{ ...hotelOn, id: 99, name: '过期结果' }], total: 1 });
+    await flushPromises();
+    expect(wrapper.text()).toContain('乌东苗寨木楼');
+    expect(wrapper.text()).not.toContain('过期结果');
   });
 });
