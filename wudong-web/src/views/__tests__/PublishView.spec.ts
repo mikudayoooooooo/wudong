@@ -10,7 +10,7 @@ const postAdd = vi.fn(async () => ({ id: 605, status: 'normal' }))
 vi.mock('../../api/community', () => ({
   communityApi: {
     topicList: vi.fn(async () => [{ id: 501, name: '#苗寨风光' }]),
-    postAdd: (...a: any[]) => postAdd(...(a as any)),
+    postAdd: (...a: any[]) => (postAdd as any)(...a),
   },
 }))
 

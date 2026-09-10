@@ -31,7 +31,7 @@ export interface RecommendSlot {
   sort: number; rotationGroup: number; intervalSeconds: number
 }
 export interface FootprintStopView {
-  spotId: number; name: string; icon: string
+  spotId: number; name?: string; icon?: string
   lit: boolean; locked: boolean
   lightCount?: number; dayNo?: number; memo?: string; verifyDate?: string
 }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { computed, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import HeroCarousel from '../components/HeroCarousel.vue'
 import FootprintMap from '../components/FootprintMap.vue'
 import SectionHeader from '../components/SectionHeader.vue'

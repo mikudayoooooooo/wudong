@@ -35,17 +35,29 @@ export function onUnauthorized(fn: Listener) {
   unauthorizedListeners.push(fn);
 }
 
+/** 拼接 query string：跳过 null/undefined/''，值经 encodeURIComponent（空格 → %20） */
+export function buildQuery(query?: Record<string, unknown>): string {
+  if (!query) return '';
+  const parts: string[] = [];
+  for (const [k, v] of Object.entries(query)) {
+    if (v === '' || v == null) continue;
+    parts.push(`${k}=${encodeURIComponent(String(v))}`);
+  }
+  return parts.length ? `?${parts.join('&')}` : '';
+}
+
 async function request<T = any>(
   method: 'GET' | 'POST',
   url: string,
-  data?: any
+  data?: any,
+  query?: Record<string, unknown>
 ): Promise<T> {
   const headers: Record<string, string> = {};
   if (data !== undefined) headers['Content-Type'] = 'application/json';
   const token = getToken();
   if (token) headers['Authorization'] = token; // 裸 token，无 Bearer
 
-  const res = await fetch(`/api${url}`, {
+  const res = await fetch(`/api${url}${method === 'GET' ? buildQuery(query) : ''}`, {
     method,
     headers,
     body: data === undefined ? undefined : JSON.stringify(data),
@@ -61,6 +73,6 @@ async function request<T = any>(
 }
 
 export const http = {
-  get: <T = any>(url: string) => request<T>('GET', url),
+  get: <T = any>(url: string, query?: Record<string, unknown>) => request<T>('GET', url, undefined, query),
   post: <T = any>(url: string, data?: any) => request<T>('POST', url, data),
 };

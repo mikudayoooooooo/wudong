@@ -13,13 +13,13 @@ const payCreate = vi.fn(async () => ({ paymentNo: 'PAY1' }))
 const payMock = vi.fn(async () => true)
 
 vi.mock('../../api/travel', () => ({
-  travelApi: { inventoryList: (...a: any[]) => inventoryList(...(a as any)), bookingCreate: (...a: any[]) => bookingCreate(...(a as any)) },
+  travelApi: { inventoryList: (...a: any[]) => (inventoryList as any)(...a), bookingCreate: (...a: any[]) => (bookingCreate as any)(...a) },
 }))
 vi.mock('../../api/operate', () => ({
   operateApi: {},
   orderApi: {
-    payCreate: (...a: any[]) => payCreate(...(a as any)),
-    payMock: (...a: any[]) => payMock(...(a as any)),
+    payCreate: (...a: any[]) => (payCreate as any)(...a),
+    payMock: (...a: any[]) => (payMock as any)(...a),
   },
 }))
 

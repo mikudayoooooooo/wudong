@@ -36,8 +36,8 @@ const route = computed(() =>
 const expanded = ref(false)
 const quickRouteId = ref<number | null>(null)
 const view = computed(() => post.value?.footprint || { mode: 'auto', stops: [] })
-const litCount = computed(() => view.value.stops.filter((s) => s.lit).length)
-const lockedCount = computed(() => view.value.stops.filter((s) => s.locked).length)
+const litCount = computed(() => view.value.stops.filter((s: any) => s.lit).length)
+const lockedCount = computed(() => view.value.stops.filter((s: any) => s.locked).length)
 
 function onChip(spotId: number): void {
   // demo：chips 一律跳景区详情

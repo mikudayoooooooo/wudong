@@ -10,6 +10,7 @@ const session = useSession()
 const items = [
   { path: '/', label: '首页' },
   { path: '/route', label: '行·订票' },
+  { path: '/hotels', label: '住宿' },
   { path: '/community', label: '社区' },
   { path: '/guide', label: '交通攻略' },
   { path: '/my/tickets', label: '我的票务' },

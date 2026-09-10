@@ -11,6 +11,8 @@ export function createAppRouter(): Router {
       { path: '/scenic/:id', component: () => import('../views/ScenicDetailView.vue') },
       { path: '/guide', component: () => import('../views/GuideView.vue') },
       { path: '/community', component: () => import('../views/CommunityView.vue') },
+      { path: '/hotels', component: () => import('../views/accommodation/HotelListView.vue') },
+      { path: '/hotels/:id', component: () => import('../views/accommodation/HotelDetailView.vue') },
       { path: '/post/:id', component: () => import('../views/PostDetailView.vue') },
       { path: '/my/tickets', component: () => import('../views/TicketsView.vue') },
       { path: '/publish', component: () => import('../views/PublishView.vue') },

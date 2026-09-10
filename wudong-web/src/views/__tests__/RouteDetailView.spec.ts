@@ -35,10 +35,10 @@ const feed = vi.fn(async () => ({
 }))
 
 vi.mock('../../api/travel', () => ({
-  travelApi: { routeDetail: (...a: any[]) => routeDetail(...(a as any)) },
+  travelApi: { routeDetail: (...a: any[]) => (routeDetail as any)(...a) },
 }))
 vi.mock('../../api/community', () => ({
-  communityApi: { feed: (...a: any[]) => feed(...(a as any)) },
+  communityApi: { feed: (...a: any[]) => (feed as any)(...a) },
 }))
 
 const router = createRouter({

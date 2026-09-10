@@ -29,10 +29,10 @@ const postDetail = vi.fn(async () => ({
 const routeDetail = vi.fn(async () => ({ id: 1, title: '苗寨深度两日游', price: 899 }))
 
 vi.mock('../../api/community', () => ({
-  communityApi: { postDetail: (...a: any[]) => postDetail(...(a as any)) },
+  communityApi: { postDetail: (...a: any[]) => (postDetail as any)(...a) },
 }))
 vi.mock('../../api/travel', () => ({
-  travelApi: { routeDetail: (...a: any[]) => routeDetail(...(a as any)) },
+  travelApi: { routeDetail: (...a: any[]) => (routeDetail as any)(...a) },
 }))
 
 const router = createRouter({
@@ -82,7 +82,7 @@ describe('PostDetailView', () => {
       linkedRouteId: null, author: { id: 3, nickname: '快门手', avatar: '📷', bio: '' },
       topics: [],
       footprint: { mode: 'auto', routeId: null, stops: [{ spotId: 1, lit: true, locked: false }, { spotId: 6, lit: true, locked: false }] },
-    })
+    } as any)
     const w = await mountAt(604)
     await w.find('.teaser').trigger('click')
     expect(w.findAll('.chip').length).toBeGreaterThan(0)
