@@ -7,6 +7,7 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { mount, flushPromises } from '@vue/test-utils';
 import { createMemoryHistory, createRouter } from 'vue-router';
+import { createPinia } from 'pinia';
 import HotelDetailView from './HotelDetailView.vue';
 import { addDaysISO, todayISO } from '@/utils/date';
 import { hotelDetail, roomCalendar } from '@/api/accommodation';
@@ -61,7 +62,7 @@ async function mountView(query: Record<string, string> = {}) {
   });
   await router.push({ path: '/hotels/9', query });
   await router.isReady();
-  const wrapper = mount(HotelDetailView, { global: { plugins: [router] } });
+  const wrapper = mount(HotelDetailView, { global: { plugins: [router, createPinia()] } });
   await flushPromises();
   return { wrapper, router };
 }
@@ -75,17 +76,17 @@ function viewCalendarBtn(wrapper: ReturnType<typeof mount>, idx: number) {
 }
 
 describe('HotelDetailView', () => {
-  it('渲染民宿名与两房型，预订禁用且含即将上线；返回列表按钮回 /hotels', async () => {
+  it('渲染民宿名与两房型，预订可点（已落地）；返回列表按钮回 /hotels', async () => {
     const { wrapper } = await mountView();
     expect(hotelDetail).toHaveBeenCalledWith(9);
     expect(wrapper.text()).toContain('乌东苗寨木楼');
     expect(wrapper.text()).toContain('苗族木屋大床房');
     expect(wrapper.text()).toContain('吊脚楼双床房');
     expect(wrapper.findAll('.room-card').length).toBe(2);
-    // 预订按钮 disabled + 即将上线占位
+    // 预订已落地：按钮可点、无「即将上线」占位
     const bookBtn = wrapper.get('.room-card .btn-primary');
-    expect((bookBtn.element as HTMLButtonElement).disabled).toBe(true);
-    expect(wrapper.text()).toContain('即将上线');
+    expect((bookBtn.element as HTMLButtonElement).disabled).toBe(false);
+    expect(wrapper.text()).not.toContain('即将上线');
   });
 
   it('渲染入住信息行：含早餐 + 宠物政策（fixture hasBreakfast=1/petPolicy 有值）', async () => {

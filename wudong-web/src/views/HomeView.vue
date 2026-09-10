@@ -17,10 +17,12 @@ const bookPeople = ref(2)
 const kingkong = [
   { icon: '🎫', label: '景区门票', to: '/scenic', disabled: false },
   { icon: '🗺️', label: '路线套餐', to: '/route', disabled: false },
+  { icon: '🏨', label: '住宿民宿', to: '/hotels', disabled: false },
+  { icon: '🛍️', label: '非遗好物', to: '/products', disabled: false },
+  { icon: '🍜', label: '特色餐厅', to: '/restaurants', disabled: false },
+  { icon: '🌾', label: '新鲜农产品', to: '/farm-products', disabled: false },
   { icon: '📷', label: '社区游记', to: '/community', disabled: false },
   { icon: '🧭', label: '交通攻略', to: '/guide', disabled: false },
-  { icon: '🏨', label: '民宿', to: '', disabled: true },
-  { icon: '🛍️', label: '非遗好物', to: '', disabled: true },
 ]
 
 // —— 异步数据 ——
