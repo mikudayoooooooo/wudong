@@ -46,4 +46,8 @@ export class ReservationEntity extends BaseEntity {
 
   @Column({ type: 'datetime', comment: '取消时间', nullable: true })
   cancelTime: Date;
+
+  @Index()
+  @Column({ comment: '关联公共订单号（order 模块）', length: 32, nullable: true })
+  orderNo: string;
 }
