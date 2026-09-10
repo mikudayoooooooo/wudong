@@ -30,9 +30,9 @@ function onEnter(event?: KeyboardEvent): void {
 }
 
 function onKeydown(event: KeyboardEvent): void {
+  // 逗号同样交给 onEnter：组词态要一并忽略，且不得 preventDefault（会打断输入法选词）
   if (event.key === ',' || event.key === '，') {
-    event.preventDefault();
-    onEnter();
+    onEnter(event);
   }
 }
 

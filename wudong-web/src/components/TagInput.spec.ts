@@ -60,6 +60,25 @@ describe('TagInput', () => {
     expect(event.defaultPrevented).toBe(false);
   });
 
+  it('输入法组词中逗号（isComposing）不添加标签，也不拦截默认行为', async () => {
+    const wrapper = mountInput();
+    const input = wrapper.find('input');
+    await input.setValue('jiang');
+    // 同上一例：isComposing 写不进 VTU trigger 的 options，直接构造真实事件派发。
+    // 用中文全角逗号，走 onKeydown 里与回车并列的那条分支。
+    const event = new KeyboardEvent('keydown', {
+      key: '，',
+      isComposing: true,
+      bubbles: true,
+      cancelable: true,
+    });
+    input.element.dispatchEvent(event);
+
+    expect(wrapper.emitted('update:modelValue')).toBeUndefined();
+    expect((input.element as HTMLInputElement).value).toBe('jiang');
+    expect(event.defaultPrevented).toBe(false);
+  });
+
   it('点击 × 删除标签', async () => {
     const wrapper = mountInput(['苗寨', '江景']);
     const tags = wrapper.findAll('.tag-item');
