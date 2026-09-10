@@ -43,6 +43,9 @@ export class CommunityPostEntity extends BaseEntity {
   @Column({ comment: '收藏数', default: 0 })
   favoriteCount: number;
 
+  @Column({ comment: '足迹总站数（发布/关联时定格）', default: 0 })
+  footprintTotal: number;
+
   @Column({
     comment: '状态 pending审核中 normal正常 offline已下架',
     dict: ['审核中', '正常', '已下架'],

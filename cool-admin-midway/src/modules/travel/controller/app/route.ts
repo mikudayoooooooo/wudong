@@ -14,6 +14,7 @@ import { TravelScenicSpotEntity } from '../../entity/scenic-spot';
 import { TravelInventoryEntity } from '../../entity/inventory';
 import { TravelReviewEntity } from '../../entity/review';
 import { TravelFootprintService } from '../../service/footprint';
+import { MemberUserEntity } from '../../../member/entity/user';
 
 /**
  * C端路线（匿名可浏览；detail 附行程点亮/库存/评价）
@@ -35,6 +36,9 @@ export class AppTravelRouteController extends BaseController {
 
   @InjectEntityModel(TravelReviewEntity)
   reviewEntity: Repository<TravelReviewEntity>;
+
+  @InjectEntityModel(MemberUserEntity)
+  memberUserEntity: Repository<MemberUserEntity>;
 
   @Inject()
   footprintService: TravelFootprintService;
@@ -89,6 +93,20 @@ export class AppTravelRouteController extends BaseController {
       where: { targetType: 'route', targetId: route.id, status: 1 },
       order: { id: 'DESC' },
     });
-    return this.ok({ ...route, stops: stopsView, inventories, reviews });
+    // 评价附用户摘要
+    const ruids = [...new Set(reviews.map((r) => r.userId))];
+    const users = ruids.length
+      ? await this.memberUserEntity
+          .createQueryBuilder()
+          .where('id IN (:...ids)', { ids: ruids })
+          .getMany()
+      : [];
+    const umap = new Map(users.map((u) => [u.id, u]));
+    const reviewsView = reviews.map((r) => ({
+      ...r,
+      nickname: umap.get(r.userId)?.nickname || '游客',
+      avatar: umap.get(r.userId)?.avatar || '👤',
+    }));
+    return this.ok({ ...route, stops: stopsView, inventories, reviews: reviewsView });
   }
 }

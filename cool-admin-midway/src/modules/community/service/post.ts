@@ -42,10 +42,20 @@ export class CommunityPostService extends BaseService {
   /**
    * 信息流：recommend 热度排序（like*2 + view/10）/ latest 最新 / follow 关注的人
    */
-  async feed(userId: number | undefined, tab: string, page: number, size: number) {
+  async feed(
+    userId: number | undefined,
+    tab: string,
+    page: number,
+    size: number,
+    linkedRouteId?: number
+  ) {
     const qb = this.postEntity
       .createQueryBuilder('p')
       .where('p.status = :status', { status: 'normal' });
+
+    if (linkedRouteId) {
+      qb.andWhere('p.linkedRouteId = :rid', { rid: Number(linkedRouteId) });
+    }
 
     if (tab === 'follow') {
       if (!userId) throw new CoolCommException('请先登录');
@@ -72,7 +82,7 @@ export class CommunityPostService extends BaseService {
     return { list: await this.withAuthors(rows), total };
   }
 
-  /** 补作者简要信息 */
+  /** 补作者简要信息 + 卡片足迹统计（lit/total） */
   private async withAuthors(posts: CommunityPostEntity[]) {
     const uids = [...new Set(posts.map((p) => p.userId))];
     const users = uids.length
@@ -82,6 +92,13 @@ export class CommunityPostService extends BaseService {
           .getMany()
       : [];
     const umap = new Map(users.map((u) => [u.id, u]));
+    const ids = posts.map((p) => p.id);
+    const snaps = ids.length
+      ? await this.postFootprintEntity
+          .createQueryBuilder()
+          .where('postId IN (:...ids)', { ids })
+          .getMany()
+      : [];
     return posts.map((p) => {
       const u = umap.get(p.userId);
       return {
@@ -89,6 +106,9 @@ export class CommunityPostService extends BaseService {
         author: u
           ? { id: u.id, nickname: u.nickname, avatar: u.avatar, bio: u.bio }
           : { id: p.userId, nickname: '已注销', avatar: '👤', bio: '' },
+        footprintLit: snaps.filter(
+          (s) => s.postId === p.id && s.status === 'normal'
+        ).length,
       };
     });
   }
@@ -205,6 +225,8 @@ export class CommunityPostService extends BaseService {
     const litIds = await this.travelFootprintService.userLitSpotIds(userId, {
       withinDays: 30,
     });
+    // 卡片迷你足迹链需要的总站数（auto 模式全部为点亮站）
+    await this.postEntity.update({ id: postId }, { footprintTotal: litIds.size });
     if (litIds.size) {
       await this.postFootprintEntity.insert(
         [...litIds].map((spotId) => ({
@@ -250,6 +272,11 @@ export class CommunityPostService extends BaseService {
       );
     }
     await this.postEntity.update({ id: postId }, { linkedRouteId: routeId || null });
+    // 卡片迷你足迹链总站数 = 路线行程站数
+    if (routeId) {
+      const stops = await this.travelFootprintService.routeStopsView(routeId);
+      await this.postEntity.update({ id: postId }, { footprintTotal: stops.length });
+    }
     return { id: postId, linkedRouteId: routeId };
   }
 

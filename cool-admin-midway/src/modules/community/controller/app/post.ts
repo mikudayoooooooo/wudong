@@ -25,14 +25,16 @@ export class AppCommunityPostController extends BaseController {
   async feed(
     @Query('tab') tab: string,
     @Query('page') page: number,
-    @Query('size') size: number
+    @Query('size') size: number,
+    @Query('linkedRouteId') linkedRouteId: number
   ) {
     return this.ok(
       await this.postService.feed(
         this.ctx.user?.id,
         tab || 'recommend',
         Number(page) || 1,
-        Math.min(Number(size) || 10, 50)
+        Math.min(Number(size) || 10, 50),
+        linkedRouteId ? Number(linkedRouteId) : undefined
       )
     );
   }

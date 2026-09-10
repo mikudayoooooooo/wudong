@@ -12,6 +12,8 @@ import { TravelScenicSpotEntity } from '../../entity/scenic-spot';
 import { TravelTicketTypeEntity } from '../../entity/ticket-type';
 import { TravelRouteItineraryEntity } from '../../entity/route-itinerary';
 import { TravelRoutePackageEntity } from '../../entity/route-package';
+import { TravelReviewEntity } from '../../entity/review';
+import { MemberUserEntity } from '../../../member/entity/user';
 
 /**
  * C端景区（匿名可浏览；detail 附票种与相关路线）
@@ -30,6 +32,12 @@ export class AppTravelScenicController extends BaseController {
 
   @InjectEntityModel(TravelRoutePackageEntity)
   routePackageEntity: Repository<TravelRoutePackageEntity>;
+
+  @InjectEntityModel(TravelReviewEntity)
+  reviewEntity: Repository<TravelReviewEntity>;
+
+  @InjectEntityModel(MemberUserEntity)
+  memberUserEntity: Repository<MemberUserEntity>;
 
   @CoolTag(TagTypes.IGNORE_TOKEN)
   @Get('/list', { summary: '景区列表' })
@@ -64,6 +72,23 @@ export class AppTravelScenicController extends BaseController {
           where: routeIds.map((routeId) => ({ id: routeId, status: 1 })) as any,
         })
       : [];
-    return this.ok({ ...spot, tickets, relatedRoutes: routes });
+    const reviews = await this.reviewEntity.find({
+      where: { targetType: 'scenic', targetId: spot.id, status: 1 },
+      order: { id: 'DESC' },
+    });
+    const ruids = [...new Set(reviews.map((r) => r.userId))];
+    const users = ruids.length
+      ? await this.memberUserEntity
+          .createQueryBuilder()
+          .where('id IN (:...ids)', { ids: ruids })
+          .getMany()
+      : [];
+    const umap = new Map(users.map((u) => [u.id, u]));
+    const reviewsView = reviews.map((r) => ({
+      ...r,
+      nickname: umap.get(r.userId)?.nickname || '游客',
+      avatar: umap.get(r.userId)?.avatar || '👤',
+    }));
+    return this.ok({ ...spot, tickets, relatedRoutes: routes, reviews: reviewsView });
   }
 }

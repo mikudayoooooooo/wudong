@@ -179,13 +179,13 @@ async function main() {
 
   // ---- 游记 ----
   await ins('community_post',
-    ['id', 'userId', 'title', 'content', 'images', 'topicIds', 'linkedRouteId', 'viewCount', 'likeCount', 'commentCount', 'favoriteCount', 'status', 'createTime', 'updateTime'],
+    ['id', 'userId', 'title', 'content', 'images', 'topicIds', 'linkedRouteId', 'viewCount', 'likeCount', 'commentCount', 'favoriteCount', 'footprintTotal', 'status', 'createTime', 'updateTime'],
     [
       [601, U(1), '晨雾还没散，就到了观景台', '五点半摸黑上山，六点十分雾从谷底漫上来，梯田一层层亮起来。银饰工坊的老师傅手真稳，吊脚楼夜里能听见虫鸣。',
-       JSON.stringify([1, 2, 3]), JSON.stringify([501, 502]), 1, 1204, 328, 41, 96, 'normal', '2026-09-02 08:30:00', now],
-      [602, U(2), '带娃做蜡染的一下午', '蜡染坊的阿婆教得耐心，小朋友的蓝白世界。', JSON.stringify([4]), JSON.stringify([504]), 1, 892, 189, 22, 45, 'normal', '2026-09-03 14:10:00', now],
-      [603, U(3), '长桌宴扫街指南', '酸汤鱼、糯米饭、米豆腐，一碗接一碗。', JSON.stringify([5, 6, 1]), JSON.stringify([503]), null, 640, 256, 38, 30, 'normal', '2026-09-04 12:00:00', now],
-      [604, U(3), '雨后的吊脚楼', '屋檐滴水，青石板发亮。', JSON.stringify([2]), JSON.stringify([501]), null, 455, 87, 12, 18, 'normal', '2026-09-05 17:40:00', now],
+       JSON.stringify([1, 2, 3]), JSON.stringify([501, 502]), 1, 1204, 328, 41, 96, 5, 'normal', '2026-09-02 08:30:00', now],
+      [602, U(2), '带娃做蜡染的一下午', '蜡染坊的阿婆教得耐心，小朋友的蓝白世界。', JSON.stringify([4]), JSON.stringify([504]), 1, 892, 189, 22, 45, 5, 'normal', '2026-09-03 14:10:00', now],
+      [603, U(3), '长桌宴扫街指南', '酸汤鱼、糯米饭、米豆腐，一碗接一碗。', JSON.stringify([5, 6, 1]), JSON.stringify([503]), null, 640, 256, 38, 30, 0, 'normal', '2026-09-04 12:00:00', now],
+      [604, U(3), '雨后的吊脚楼', '屋檐滴水，青石板发亮。', JSON.stringify([2]), JSON.stringify([501]), null, 455, 87, 12, 18, 0, 'normal', '2026-09-05 17:40:00', now],
     ]);
 
   // ---- 足迹快照（601 模式B：4/5 站 memo；602 模式B 2/5；其余 auto）----
