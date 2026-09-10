@@ -5,10 +5,10 @@
 -- 幂等：按 router 前缀清理后再插入
 -- 前置：2026-09-09-base-admin-menus.sql（orderNum 衔接）
 -- ============================================================
-DELETE FROM base_sys_menu WHERE router LIKE '/food/%' OR router LIKE '/product/%' OR router IN ('食·餐饮管理', '衣·商品管理');
+DELETE FROM base_sys_menu WHERE router LIKE '/food/%' OR router LIKE '/product/%' OR name IN ('食·餐饮管理', '衣·商品管理');
 
 -- 食·餐饮管理
-INSERT INTO base_sys_menu (createTime, updateTime, parentId, name, router, type, icon, orderNum, viewPath, keepAlive, isShow) VALUES
+INSERT INTO base_sys_menu (createTime, updateTime, parentId, name, router, type, icon, orderNum, keepAlive, isShow) VALUES
 (NOW(), NOW(), NULL, '食·餐饮管理', NULL, 0, 'Dish', 20, 1, 1);
 SET @food = LAST_INSERT_ID();
 
@@ -17,7 +17,7 @@ INSERT INTO base_sys_menu (createTime, updateTime, parentId, name, router, type,
 (NOW(), NOW(), @food, '农产品管理', '/food/farm-product', 1, 'Apple',        2, 'modules/food/views/farm-product.vue', 1, 1);
 
 -- 衣·商品管理
-INSERT INTO base_sys_menu (createTime, updateTime, parentId, name, router, type, icon, orderNum, viewPath, keepAlive, isShow) VALUES
+INSERT INTO base_sys_menu (createTime, updateTime, parentId, name, router, type, icon, orderNum, keepAlive, isShow) VALUES
 (NOW(), NOW(), NULL, '衣·商品管理', NULL, 0, 'Goods', 21, 1, 1);
 SET @product = LAST_INSERT_ID();
 

@@ -5,7 +5,7 @@
 -- 幂等：按 router 前缀清理后再插入
 -- 前置：2026-09-09-accommodation-operate-menus.sql / 2026-09-09-base-admin-menus.sql
 -- ============================================================
-DELETE FROM base_sys_menu WHERE router LIKE '/route-package%' OR router LIKE '/scenic%' OR router LIKE '/ticket-type%' OR router LIKE '/travel-inventory%' OR router LIKE '/itinerary%' OR router LIKE '/e-ticket%' OR router LIKE '/recommend-slot%' OR router LIKE '/traffic-guide%' OR router LIKE '/travel-review%' OR router LIKE '/community-%' OR router IN ('行·旅游管理', '社区管理');
+DELETE FROM base_sys_menu WHERE router LIKE '/route-package%' OR router LIKE '/scenic%' OR router LIKE '/ticket-type%' OR router LIKE '/travel-inventory%' OR router LIKE '/itinerary%' OR router LIKE '/e-ticket%' OR router LIKE '/recommend-slot%' OR router LIKE '/traffic-guide%' OR router LIKE '/travel-review%' OR router LIKE '/community-%' OR name IN ('行·旅游管理', '社区管理');
 
 -- 行·旅游管理
 INSERT INTO base_sys_menu (createTime, updateTime, parentId, name, router, type, icon, orderNum, keepAlive, isShow) VALUES

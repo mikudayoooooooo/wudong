@@ -10,19 +10,19 @@ import { MerchantAdminScopeService } from '../../../merchant/service/admin-scope
   prefix: '/admin/order',
   api: ['page', 'list', 'info', 'update', 'delete'],
   entity: OrderEntity,
-  pageQueryOp: async (ctx, app) => ({
-    fieldEq: ['a.status', 'a.orderType', 'a.module'],
-    keyWordLikeFields: ['a.orderNo'],
-    where: await app
-      .getApplicationContext()
+  // 注意：EPS 构建期会零参调用本函数，ctx 缺席时只返回静态配置（启动不崩）；请求期才注入商家 where
+  pageQueryOp: async (ctx?: any, app?: any) => {
+    const base = {
+      fieldEq: ['a.status', 'a.orderType', 'a.module'],
+      keyWordLikeFields: ['a.orderNo'],
+    };
+    if (!ctx) {
+      return base;
+    }
+    const scope = await (ctx.requestContext ?? app.getApplicationContext())
       .getAsync(MerchantAdminScopeService)
-      .then(s => s.whereFor(ctx.admin?.userId)),
-  }),
-  listQueryOp: async (ctx, app) => ({
-    where: await app
-      .getApplicationContext()
-      .getAsync(MerchantAdminScopeService)
-      .then(s => s.whereFor(ctx.admin?.userId)),
-  }),
+      .then(s => s.whereFor(ctx.admin?.userId));
+    return { ...base, where: scope };
+  },
 })
 export class AdminOrderController extends BaseController {}
