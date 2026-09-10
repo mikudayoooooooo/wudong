@@ -6,7 +6,7 @@ import { ModuleConfig } from '@cool-midway/core';
 export default () => {
   return {
     name: '购物车模块',
-    description: 'cart：衣模块商品购物车（全平台统一服务）',
+    description: 'cart：购物车管理（非遗商品+农产品）',
     middlewares: [],
     globalMiddlewares: [],
     order: 0,

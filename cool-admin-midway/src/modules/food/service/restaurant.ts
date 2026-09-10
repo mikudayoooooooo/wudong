@@ -167,9 +167,6 @@ export class RestaurantService extends BaseService {
       return null;
     }
 
-    // 增加浏览量
-    await this.restaurantEntity.increment({ id }, 'views', 1);
-
     return restaurant;
   }
 
