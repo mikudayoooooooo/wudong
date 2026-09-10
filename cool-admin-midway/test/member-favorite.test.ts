@@ -71,11 +71,11 @@ describe('member 收藏', () => {
     expect(no.body.data).toBe(false);
   });
 
-  it('非法 targetType 被拒绝', async () => {
+  it('非法 targetType 被拒绝（hotel 已随白名单并集扩容合法，改用 ticket）', async () => {
     const res = await createHttpRequest(app)
       .post('/app/member/favorite/toggle')
       .set(auth(tokenA))
-      .send({ targetType: 'hotel', targetId: 1 });
+      .send({ targetType: 'ticket', targetId: 1 });
     expect(res.body.code).toBe(1001);
     expect(res.body.message).toBe('收藏类型不正确');
   });
