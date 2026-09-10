@@ -125,4 +125,51 @@ describe('AiButler', () => {
     await settle(w, 3)
     expect(w.text()).toContain('快捷提问')
   })
+
+  it('预订进行中重复触发 → 门卫拦截，接口只调一次', async () => {
+    const session = useSession()
+    session.applyLogin({ token: 't', refreshToken: 'r' })
+    ;(session as any).user = { id: 1, nickname: '山野小鱼', avatar: '', bio: '' }
+    let resolveAcc!: (v: any) => void
+    accBooking.mockImplementationOnce(() => new Promise((r) => { resolveAcc = r }))
+    const w = await openButler()
+    await w.findAll('.chip').find((c) => c.text().includes('带爸妈'))!.trigger('click')
+    await settle(w)
+    for (const label of ['预算一千五', '想要安静', '想吃长桌宴']) {
+      await w.findAll('.chip').find((c) => c.text().includes(label))!.trigger('click')
+      await settle(w)
+    }
+    await w.findAll('.chip').find((c) => c.text().includes('就按 A 方案订'))!.trigger('click')
+    // 等 doBook 真正进入进行中（accBooking 已调、尚未 resolve）
+    for (let i = 0; i < 60 && !accBooking.mock.calls.length; i++) { await flushPromises(); await tick() }
+    expect(accBooking).toHaveBeenCalledTimes(1)
+    // 一键预订按钮仍可见（尚无 booked 结果），再点一次 → 应被门卫拦下
+    await w.find('.book').trigger('click')
+    resolveAcc({ orderNo: 'WD-ACC-1', payAmount: 632, nights: ['2026-10-01', '2026-10-02'] })
+    await settle(w)
+    expect(accBooking).toHaveBeenCalledTimes(1)
+    expect(w.findAll('.mini.on')).toHaveLength(3)
+  })
+
+  it('主线播放被打断 → 不误置 PLANS、清 thinking/busy 孤儿', async () => {
+    const w = await openButler()
+    for (const label of ['带爸妈', '预算一千五', '想要安静']) {
+      await w.findAll('.chip').find((c) => c.text().includes(label))!.trigger('click')
+      await settle(w)
+    }
+    await w.findAll('.chip').find((c) => c.text().includes('想吃长桌宴'))!.trigger('click')
+    // 4 个宏任务：第 3 个前缀确认播完 + 主线恰好播到「正在检索」thinking 挂起
+    for (let i = 0; i < 4; i++) await tick()
+    await w.find('input').setValue('乌东有什么好吃的')
+    await w.find('input').trigger('keyup', { key: 'Enter' })
+    await settle(w)
+    expect(w.find('.think').exists()).toBe(false) // thinking 孤儿被清
+    expect(w.find('.node.running').exists()).toBe(false) // busy 孤儿被清
+    expect(w.text()).toContain('酸汤鱼') // 打断后走完的是吃支线
+    // stage 未被误置 PLANS：随后点「帮我一起安排」不应出现「回到正题」死胡同
+    await w.findAll('.chip').find((c) => c.text().includes('帮我一起安排'))!.trigger('click')
+    await settle(w)
+    expect(w.text()).not.toContain('回到正题')
+    expect(w.find('.pcard').exists()).toBe(false)
+  })
 })

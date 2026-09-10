@@ -36,6 +36,7 @@ const booked = ref<{ hotel: 'ok' | 'demo' | null; meal: 'ok' | 'demo' | null; ti
 const showCross = ref(false)
 const bodyEl = ref<HTMLElement | null>(null)
 let playSeq = 0 // 播放序号防竞态：新播放开始后旧的自动作废
+const bookingBusy = ref(false) // 预订重入门卫：进行中忽略再次触发，防重复真实下单
 
 const showFab = computed(() => route.path === '/')
 
@@ -43,13 +44,14 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, Math.round(ms * p
 async function scrollBottom() { await nextTick(); bodyEl.value?.scrollTo?.({ top: bodyEl.value.scrollHeight }) }
 function push(role: 'user' | 'ai', text: string, thinking = false) { msgs.value.push({ role, text, thinking }); scrollBottom() }
 
-async function play(beats: Beat[]): Promise<void> {
+async function play(beats: Beat[]): Promise<boolean> {
   const seq = ++playSeq
   for (const b of beats) {
     await sleep(b.delayMs)
-    if (seq !== playSeq) return
+    if (seq !== playSeq) { removeThinking(); busy.value = null; return false }
     for (const a of b.actions) await apply(a)
   }
+  return true
 }
 
 async function apply(a: Action): Promise<void> {
@@ -92,8 +94,7 @@ async function onIntent(intent: Intent): Promise<void> {
       stage.value = SCRIPT_STAGE.MAIN
       removeThinking()
       push('ai', '我听明白了：两位老人 + 两晚 + 长桌宴 + 预算 ¥1500 + 要安静——看我的 👀')
-      await play(MAIN_BEATS)
-      stage.value = SCRIPT_STAGE.PLANS
+      if (await play(MAIN_BEATS)) stage.value = SCRIPT_STAGE.PLANS
     } else {
       chips.value = 'r2'
     }
@@ -101,7 +102,7 @@ async function onIntent(intent: Intent): Promise<void> {
   }
   if (intent === 'foodSide') { push('user', '乌东有什么好吃的'); await play(FOOD_SIDE_BEATS); chips.value = 'foodEnd'; return }
   if (intent === 'staySide') { push('user', '住哪里比较安静'); await play(STAY_SIDE_BEATS); chips.value = 'stayEnd'; return }
-  if (intent === 'bookA') { stage.value = SCRIPT_STAGE.BOOKED; await play(BOOK_BEATS); return }
+  if (intent === 'bookA') { if (bookingBusy.value) return; stage.value = SCRIPT_STAGE.BOOKED; await play(BOOK_BEATS); return }
   if (intent === 'reorder') { push('user', '换个离梯田更近的'); await play(REORDER_BEATS); return }
   if (intent === 'more') { await play(MORE_BEATS); chips.value = 'r4'; return }
   if (intent === 'thanks') { await play(THANKS_BEATS); stage.value = SCRIPT_STAGE.DONE; chips.value = 'r1'; return }
@@ -118,7 +119,7 @@ function onEnter(e: KeyboardEvent): void {
     stage.value = SCRIPT_STAGE.MAIN
     push('user', text)
     push('ai', '我听明白了：两位老人 + 两晚 + 长桌宴 + 预算 ¥1500 + 要安静——看我的 👀')
-    play(MAIN_BEATS).then(() => { stage.value = SCRIPT_STAGE.PLANS })
+    play(MAIN_BEATS).then((ok) => { if (ok) stage.value = SCRIPT_STAGE.PLANS })
     return
   }
   onIntent(it as Intent)
@@ -130,19 +131,23 @@ const withTimeout = async <T,>(p: Promise<T>, ms = 5000): Promise<T> => {
   try { return await Promise.race([p, timer]) } finally { clearTimeout(t!) }
 }
 
-/** 三连真实预订（拍5）；任一失败降级 demo */
+/** 三连真实预订（拍5）；任一失败降级 demo。重入门卫：进行中再次触发直接忽略 */
 async function doBook(): Promise<void> {
+  if (bookingBusy.value) return
   if (!session.isLogged) { loginHint.value = true; return }
   const nick = session.user?.nickname || '演示游客'
   const phone = '13800000001'
-  try { const r = await withTimeout(accBookingCreate({ roomTypeId: DEMO.roomTypeId, checkInDate: DEMO.checkIn, checkOutDate: DEMO.checkOut, rooms: 1, guestName: nick, guestPhone: '' })); booked.value.hotel = 'ok'; booked.value.orderNo = r.orderNo } catch { booked.value.hotel = 'demo' }
-  try { await withTimeout(createReservation({ restaurantId: DEMO.restaurantId, timeSlotId: DEMO.timeSlotId, reservationDate: DEMO.useDate, peopleCount: 2, contactName: nick, contactPhone: phone })) ; booked.value.meal = 'ok' } catch { booked.value.meal = 'demo' }
+  bookingBusy.value = true
   try {
-    const r = await withTimeout(travelApi.bookingCreate({ itemType: 'route', itemId: DEMO.routeItemId, useDate: DEMO.useDate, quantity: 2 }))
-    const p = await withTimeout(orderApi.payCreate(r.orderNo))
-    await withTimeout(orderApi.payMock(p.paymentNo))
-    booked.value.ticket = 'ok'; booked.value.orderNo = booked.value.orderNo || r.orderNo
-  } catch { booked.value.ticket = 'demo' }
+    try { const r = await withTimeout(accBookingCreate({ roomTypeId: DEMO.roomTypeId, checkInDate: DEMO.checkIn, checkOutDate: DEMO.checkOut, rooms: 1, guestName: nick, guestPhone: '' })); booked.value.hotel = 'ok'; booked.value.orderNo = r.orderNo } catch { booked.value.hotel = 'demo' }
+    try { await withTimeout(createReservation({ restaurantId: DEMO.restaurantId, timeSlotId: DEMO.timeSlotId, reservationDate: DEMO.useDate, peopleCount: 2, contactName: nick, contactPhone: phone })) ; booked.value.meal = 'ok' } catch { booked.value.meal = 'demo' }
+    try {
+      const r = await withTimeout(travelApi.bookingCreate({ itemType: 'route', itemId: DEMO.routeItemId, useDate: DEMO.useDate, quantity: 2 }))
+      const p = await withTimeout(orderApi.payCreate(r.orderNo))
+      await withTimeout(orderApi.payMock(p.paymentNo))
+      booked.value.ticket = 'ok'; booked.value.orderNo = booked.value.orderNo || r.orderNo
+    } catch { booked.value.ticket = 'demo' }
+  } finally { bookingBusy.value = false }
 }
 function goto(key: 'hotel' | 'meal' | 'ticket' | 'all'): void {
   if (key === 'hotel') router.push(booked.value.orderNo ? `/order/${booked.value.orderNo}` : '/my/orders')
@@ -158,7 +163,7 @@ function goto(key: 'hotel' | 'meal' | 'ticket' | 'all'): void {
       <span v-if="!open">🤖</span><span v-else>✕</span>
     </button>
 
-    <div v-if="open" class="drawer card">
+    <div v-if="open" class="drawer card" :class="{ booking: bookingBusy }">
       <div class="hd"><b>🤖 AI 管家</b><span>衣食住行，一句话</span></div>
       <RelayPanel :lit="lit" :busy="busy" />
 
@@ -237,6 +242,7 @@ function goto(key: 'hotel' | 'meal' | 'ticket' | 'all'): void {
 .chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 12px 0; }
 .chip { font-size: 12px; border: 1px solid var(--green-600); color: var(--green-600); background: #fff; border-radius: 14px; padding: 4px 10px; cursor: pointer; }
 .chip:hover { background: var(--ok-bg); }
+.drawer.booking .chips, .drawer.booking :deep(.book) { pointer-events: none; opacity: .55; }
 .input-row { padding: 8px 12px 12px; }
 .input-row input { width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font-size: 13px; box-sizing: border-box; }
 </style>
