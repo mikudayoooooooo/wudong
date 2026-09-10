@@ -6,7 +6,7 @@ import { ProductEntity } from '../entity/product';
 import { ProductSkuEntity } from '../entity/sku';
 import { ProductImageEntity } from '../entity/image';
 import { ReviewEntity } from '../entity/review';
-import { FavoriteEntity } from '../entity/favorite';
+import { MemberFavoriteService } from '../../member/service/favorite';
 import { MerchantService } from '../../merchant/service/merchant';
 import { MemberUserEntity } from '../../member/entity/user';
 
@@ -27,14 +27,15 @@ export class ProductService extends BaseService {
   @InjectEntityModel(ReviewEntity)
   reviewEntity: Repository<ReviewEntity>;
 
-  @InjectEntityModel(FavoriteEntity)
-  favoriteEntity: Repository<FavoriteEntity>;
 
   @InjectEntityModel(MemberUserEntity)
   memberUserEntity: Repository<MemberUserEntity>;
 
   @Inject()
   merchantService: MerchantService;
+
+  @Inject()
+  memberFavoriteService: MemberFavoriteService;
 
   /**
    * 创建商品（带SKU和图片）
@@ -232,22 +233,10 @@ export class ProductService extends BaseService {
   }
 
   /**
-   * C端：收藏/取消收藏
+   * C端：收藏/取消收藏（复用 base member 收藏，targetType='product'）
    */
   async toggleFavorite(userId: number, productId: number) {
-    const favorite = await this.favoriteEntity.findOne({
-      where: { userId, productId },
-    });
-
-    if (favorite) {
-      // 已收藏，取消收藏
-      await this.favoriteEntity.delete({ id: favorite.id });
-      return { action: 'unfavorite' };
-    } else {
-      // 未收藏，添加收藏
-      await this.favoriteEntity.save({ userId, productId });
-      return { action: 'favorite' };
-    }
+    return this.memberFavoriteService.toggle(userId, 'product', productId);
   }
 
   /**
