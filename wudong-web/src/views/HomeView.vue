@@ -41,7 +41,15 @@ const gradOf = (i: number): string =>
   ['linear-gradient(120deg,#7fae8e,#33523e)', 'linear-gradient(120deg,#c9a06b,#8a5f2e)', 'linear-gradient(120deg,#8e7fae,#4a3a6a)'][i % 3]
 
 onMounted(async () => {
-  const [routes, scenicList] = await Promise.all([travelApi.routeList(), travelApi.scenicList()])
+  // 第一波：全部独立请求并行
+  const [routes, scenicList, feed, topicList, guideList, annList] = await Promise.all([
+    travelApi.routeList(),
+    travelApi.scenicList(),
+    communityApi.feed('recommend', 1, 30),
+    communityApi.topicList(),
+    travelApi.guideList(),
+    operateApi.announcements(),
+  ])
   routeTitleMap.value = new Map(routes.map((r) => [r.id, r.title]))
   const spotMap = new Map(scenicList.map((s) => [s.id, s]))
 
@@ -71,7 +79,6 @@ onMounted(async () => {
     .slice(0, 5)
 
   // 区块5/6：信息流
-  const feed = await communityApi.feed('recommend', 1, 30)
   feedPosts.value = feed.list.map((p) => ({
     ...p,
     routeTitle: p.linkedRouteId ? routeTitleMap.value.get(p.linkedRouteId) : undefined,
@@ -79,12 +86,13 @@ onMounted(async () => {
   highlightPosts.value = feedPosts.value.filter((p) => p.linkedRouteId).slice(0, 3)
 
   // 侧栏
-  topicRank.value = (await communityApi.topicList()).sort((a, b) => b.viewCount - a.viewCount)
+  topicRank.value = [...topicList].sort((a, b) => b.viewCount - a.viewCount)
   const authors: any[] = []
   for (const p of feedPosts.value) {
     if (!authors.find((u) => u.id === p.author.id)) authors.push(p.author)
     if (authors.length >= 3) break
   }
+  // 第三波：活跃旅人档案并行
   activeUsers.value = await Promise.all(
     authors.map(async (u) => {
       const prof = await communityApi.userProfile(u.id)
@@ -92,9 +100,9 @@ onMounted(async () => {
     })
   )
 
-  // 区块4 公告 + 区块7 攻略
-  guides.value = await travelApi.guideList()
-  announcements.value = (await operateApi.announcements()).slice(0, 3)
+  // 区块7 攻略 + 公告
+  guides.value = guideList
+  announcements.value = annList.slice(0, 3)
 })
 
 const barWidth = (i: number): string =>

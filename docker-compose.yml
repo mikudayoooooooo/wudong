@@ -19,7 +19,16 @@ services:
     build: ./cool-admin-vue
     container_name: cool-admin-web
     ports:
-      - "8000:80" # 浏览器入口 http://localhost:8000
+      - "8000:80" # 管理后台入口
+    depends_on:
+      - midway
+    networks: [wudong-net]
+
+  web:
+    build: ./wudong-web
+    container_name: wudong-web
+    ports:
+      - "8080:80" # C 端入口 http://localhost:8080
     depends_on:
       - midway
     networks: [wudong-net]
