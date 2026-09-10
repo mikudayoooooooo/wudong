@@ -103,6 +103,7 @@ describe('MerchantCalendarView', () => {
       })
     );
     expect(merchantCalendarRange).toHaveBeenCalledTimes(2);
+    expect(wrapper.text()).toContain('已更新 7 天房态');
   });
 
   it('关房勾选后提交 closed=true', async () => {
@@ -135,6 +136,58 @@ describe('MerchantCalendarView', () => {
     expect(merchantCalendarBatch).toHaveBeenCalledWith(
       expect.objectContaining({ weekDays: [1] })
     );
+  });
+
+  it('房态表逐行渲染星期列与可售间数列', async () => {
+    const { wrapper } = await mountView();
+    const weekdayCells = wrapper
+      .findAll('tbody tr td:nth-child(2)')
+      .map((c) => c.text());
+    expect(weekdayCells).toHaveLength(rowsFixture.length);
+    expect(weekdayCells.every((t) => t.startsWith('周'))).toBe(true);
+    expect(
+      wrapper.findAll('tbody tr td:nth-child(4)').map((c) => c.text())
+    ).toEqual(rowsFixture.map((r) => String(r.availableStock)));
+  });
+
+  it('下一周按新窗口重新查询', async () => {
+    const { wrapper } = await mountView();
+    const nextWeek = wrapper
+      .findAll('button')
+      .find((b) => b.text() === '下一周');
+    await nextWeek!.trigger('click');
+    await flushPromises();
+    expect(merchantCalendarRange).toHaveBeenLastCalledWith(
+      11,
+      addDaysISO(TODAY, 7),
+      addDaysISO(TODAY, 13)
+    );
+  });
+
+  it('切换窗口会同步批量表单窗口并据此提交', async () => {
+    const { wrapper } = await mountView();
+    const tab30 = wrapper.findAll('.range-tab').find((b) => b.text().includes('30'));
+    await tab30!.trigger('click');
+    await flushPromises();
+    await wrapper.find('.batch-price input').setValue('480');
+    await wrapper.find('.batch-form').trigger('submit');
+    await flushPromises();
+    expect(merchantCalendarBatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        startDate: TODAY,
+        endDate: addDaysISO(TODAY, 29),
+      })
+    );
+  });
+
+  it('同一 tick 连提两次只提交一次（不依赖 :disabled 刷新时机）', async () => {
+    const { wrapper } = await mountView();
+    await wrapper.find('.batch-price input').setValue('480');
+    const form = wrapper.find('.batch-form');
+    form.trigger('submit');
+    form.trigger('submit');
+    await flushPromises();
+    expect(merchantCalendarBatch).toHaveBeenCalledTimes(1);
   });
 
   it('查询失败展示错误', async () => {

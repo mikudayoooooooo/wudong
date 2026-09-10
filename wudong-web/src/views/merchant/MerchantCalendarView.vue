@@ -56,11 +56,15 @@ async function load(): Promise<void> {
   const seq = ++reqSeq;
   loading.value = true;
   error.value = '';
+  notice.value = '';
   try {
     const [page, list] = await Promise.all([
       roomType.value
         ? Promise.resolve({ list: [roomType.value], total: 1 })
-        : merchantRoomTypePage(Number(route.query.hotelId) || 0, { size: 50 }),
+        : // 只为取标题：拿不到（无 hotelId / 接口报错）不该影响房态表，故这里兜底
+          merchantRoomTypePage(Number(route.query.hotelId) || 0, { size: 50 }).catch(
+            () => ({ list: [], total: 0 })
+          ),
       merchantCalendarRange(roomTypeId.value, startDate.value, endDate.value),
     ]);
     if (seq !== reqSeq) return; // 已发新请求，本响应过期，丢弃（不改 rows / roomType）
@@ -96,6 +100,7 @@ function toggleWeekday(value: number): void {
 }
 
 async function submitBatch(): Promise<void> {
+  if (submitting.value) return; // 双击保护不依赖 :disabled 的刷新时机
   error.value = '';
   notice.value = '';
 
@@ -122,8 +127,8 @@ async function submitBatch(): Promise<void> {
           : Number(batch.availableStock),
       closed: batch.closed,
     });
-    notice.value = `已更新 ${result.count} 天房态`;
     await load();
+    notice.value = `已更新 ${result.count} 天房态`;
   } catch (e) {
     error.value = e instanceof Error ? e.message : '设置失败，请稍后重试';
   } finally {
@@ -163,10 +168,14 @@ onMounted(load);
         </button>
       </div>
 
-      <p v-if="error" class="m-state m-error">{{ error }}</p>
       <p v-if="notice" class="m-hint">{{ notice }}</p>
 
-      <div v-if="loading" class="m-state">正在加载房态…</div>
+      <!-- 错误 / 加载中 / 空态 / 表格互斥：失败时 rows 也被清空，若空态与错误同级会同时出现 -->
+      <p v-if="error" class="m-state m-error">{{ error }}</p>
+
+      <div v-else-if="loading" class="m-state">正在加载房态…</div>
+
+      <p v-else-if="!rows.length" class="m-state">该区间暂无房态数据。</p>
 
       <table v-else class="m-table">
         <thead>
