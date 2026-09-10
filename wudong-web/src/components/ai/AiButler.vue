@@ -29,10 +29,10 @@ const showExtract = ref(false)
 const plansOn = ref(false)
 const aFirst = ref(true)
 const chips = ref<ChipsKey | null>('r1')
-const prefixDone = ref(0)
+const prefixDone = ref(new Set<Intent>()) // 去重计数：同一偏好点多次只算一次
 const loginHint = ref(false)
-// 预订结果：null=未订 ok=真实 demo=降级
-const booked = ref<{ hotel: 'ok' | 'demo' | null; meal: 'ok' | 'demo' | null; ticket: 'ok' | 'demo' | null; orderNo: string }>({ hotel: null, meal: null, ticket: null, orderNo: '' })
+// 预订结果：null=未订 ok=真实 demo=降级；orderNo 按业务拆分，防 goto 串单
+const booked = ref<{ hotel: 'ok' | 'demo' | null; meal: 'ok' | 'demo' | null; ticket: 'ok' | 'demo' | null; hotelOrderNo: string; ticketOrderNo: string }>({ hotel: null, meal: null, ticket: null, hotelOrderNo: '', ticketOrderNo: '' })
 const showCross = ref(false)
 const bodyEl = ref<HTMLElement | null>(null)
 let playSeq = 0 // 播放序号防竞态：新播放开始后旧的自动作废
@@ -69,6 +69,20 @@ async function apply(a: Action): Promise<void> {
 }
 function removeThinking() { const i = msgs.value.findIndex((m) => m.thinking); if (i >= 0) msgs.value.splice(i, 1) }
 
+/** 彩排捷径：双击悬浮圈直达预订拍（方案卡已出、三节点全亮、r3 可点）；已在 PLANS/BOOKED 则 no-op */
+function onFabDblClick(): void {
+  if (stage.value === SCRIPT_STAGE.PLANS || stage.value === SCRIPT_STAGE.BOOKED) return
+  open.value = true
+  ++playSeq // 作废进行中的播放，防止旧拍回来改写状态
+  lit.value = 2
+  busy.value = null
+  removeThinking()
+  showExtract.value = true
+  plansOn.value = true
+  stage.value = SCRIPT_STAGE.PLANS
+  chips.value = 'r3'
+}
+
 /** chips/输入 → intent → 分发 */
 async function onIntent(intent: Intent): Promise<void> {
   chips.value = null
@@ -88,8 +102,8 @@ async function onIntent(intent: Intent): Promise<void> {
     push('user', intent === 'budget' ? '预算一千五' : intent === 'quiet' ? '想要安静' : '想吃长桌宴')
     const beat = PREFIX_CONFIRM[intent]
     await play(beat)
-    prefixDone.value++
-    if (prefixDone.value >= 3) {
+    prefixDone.value.add(intent)
+    if (prefixDone.value.size >= 3) {
       chips.value = null
       stage.value = SCRIPT_STAGE.MAIN
       removeThinking()
@@ -103,7 +117,7 @@ async function onIntent(intent: Intent): Promise<void> {
   if (intent === 'foodSide') { push('user', '乌东有什么好吃的'); await play(FOOD_SIDE_BEATS); chips.value = 'foodEnd'; return }
   if (intent === 'staySide') { push('user', '住哪里比较安静'); await play(STAY_SIDE_BEATS); chips.value = 'stayEnd'; return }
   if (intent === 'bookA') { if (bookingBusy.value) return; stage.value = SCRIPT_STAGE.BOOKED; await play(BOOK_BEATS); return }
-  if (intent === 'reorder') { push('user', '换个离梯田更近的'); await play(REORDER_BEATS); return }
+  if (intent === 'reorder') { push('user', '换个离梯田更近的'); if (await play(REORDER_BEATS)) chips.value = 'r3'; return }
   if (intent === 'more') { await play(MORE_BEATS); chips.value = 'r4'; return }
   if (intent === 'thanks') { await play(THANKS_BEATS); stage.value = SCRIPT_STAGE.DONE; chips.value = 'r1'; return }
 }
@@ -139,18 +153,20 @@ async function doBook(): Promise<void> {
   const phone = '13800000001'
   bookingBusy.value = true
   try {
-    try { const r = await withTimeout(accBookingCreate({ roomTypeId: DEMO.roomTypeId, checkInDate: DEMO.checkIn, checkOutDate: DEMO.checkOut, rooms: 1, guestName: nick, guestPhone: '' })); booked.value.hotel = 'ok'; booked.value.orderNo = r.orderNo } catch { booked.value.hotel = 'demo' }
+    try { const r = await withTimeout(accBookingCreate({ roomTypeId: DEMO.roomTypeId, checkInDate: DEMO.checkIn, checkOutDate: DEMO.checkOut, rooms: 1, guestName: nick, guestPhone: '' })); booked.value.hotel = 'ok'; booked.value.hotelOrderNo = r.orderNo } catch { booked.value.hotel = 'demo' }
     try { await withTimeout(createReservation({ restaurantId: DEMO.restaurantId, timeSlotId: DEMO.timeSlotId, reservationDate: DEMO.useDate, peopleCount: 2, contactName: nick, contactPhone: phone })) ; booked.value.meal = 'ok' } catch { booked.value.meal = 'demo' }
     try {
       const r = await withTimeout(travelApi.bookingCreate({ itemType: 'route', itemId: DEMO.routeItemId, useDate: DEMO.useDate, quantity: 2 }))
       const p = await withTimeout(orderApi.payCreate(r.orderNo))
       await withTimeout(orderApi.payMock(p.paymentNo))
-      booked.value.ticket = 'ok'; booked.value.orderNo = booked.value.orderNo || r.orderNo
+      booked.value.ticket = 'ok'; booked.value.ticketOrderNo = r.orderNo
     } catch { booked.value.ticket = 'demo' }
   } finally { bookingBusy.value = false }
 }
+/** A 卡「已预订」徽章：真实住宿单优先，降级时展示票单号 */
+const bookedLabel = computed(() => booked.value.hotelOrderNo || booked.value.ticketOrderNo)
 function goto(key: 'hotel' | 'meal' | 'ticket' | 'all'): void {
-  if (key === 'hotel') router.push(booked.value.orderNo ? `/order/${booked.value.orderNo}` : '/my/orders')
+  if (key === 'hotel') router.push(booked.value.hotelOrderNo ? `/order/${booked.value.hotelOrderNo}` : '/my/orders')
   else if (key === 'meal') router.push('/my/reservations')
   else if (key === 'ticket') router.push('/my/tickets')
   else router.push('/my/orders')
@@ -159,7 +175,7 @@ function goto(key: 'hotel' | 'meal' | 'ticket' | 'all'): void {
 
 <template>
   <div v-if="showFab" class="ai-wrap">
-    <button class="fab" :class="{ open }" @click="open = !open" :title="open ? '收起' : 'AI 管家'">
+    <button class="fab" :class="{ open }" @click="open = !open" @dblclick="onFabDblClick" :title="open ? '收起' : 'AI 管家'">
       <span v-if="!open">🤖</span><span v-else>✕</span>
     </button>
 
@@ -180,10 +196,14 @@ function goto(key: 'hotel' | 'meal' | 'ticket' | 'all'): void {
         </div>
 
         <template v-if="plansOn">
-          <PlanCard :plan="aFirst ? PLAN_A : PLAN_B" :highlight="aFirst" :booked="!!booked.hotel || !!booked.meal || !!booked.ticket"
-            :booked-label="booked.orderNo" :demo="booked.hotel === 'demo' || booked.meal === 'demo' || booked.ticket === 'demo'"
-            @book="onIntent('bookA')" />
-          <PlanCard :plan="aFirst ? PLAN_B : PLAN_A" :highlight="!aFirst" />
+          <!-- 绑定跟 plan.id 走：预订/徽章/降级只属于 A 方案，重排后不串卡 -->
+          <template v-for="p in (aFirst ? [PLAN_A, PLAN_B] : [PLAN_B, PLAN_A])" :key="p.id">
+            <PlanCard :plan="p" :highlight="p.id === 'A'"
+              :booked="p.id === 'A' && !!(booked.hotel || booked.meal || booked.ticket)"
+              :booked-label="bookedLabel"
+              :demo="p.id === 'A' && (booked.hotel === 'demo' || booked.meal === 'demo' || booked.ticket === 'demo')"
+              @book="onIntent('bookA')" />
+          </template>
         </template>
 
         <template v-if="showCross">

@@ -107,3 +107,7 @@ npm test
 4. 台词金额台账：632+168+598=1398，预算剩 102
 5. 彩排后清理脏订单：`cool-admin-midway/scripts/cleanup-demo-orders.sql`
 6. 现场保险：后端/数据异常时对应项自动降级「演示数据」，戏不断
+
+**演示硬过期**：预订接口要求日期晚于今天——2026-10-01 之后住宿/路线两项会永远降级「演示数据」。路演若改期，同步改 `src/components/ai/script.ts` 的 `DEMO` 日期与 `cool-admin-midway/scripts/seed.js` 的 `travel_inventory`/`time_slot` 日期。
+
+**复位顺序**：先跑 `cool-admin-midway/scripts/cleanup-demo-orders.sql`，再 `node scripts/seed.js` 重灌（顺序反了脏单会被重新灌回）。

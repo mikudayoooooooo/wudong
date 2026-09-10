@@ -172,4 +172,60 @@ describe('AiButler', () => {
     expect(w.text()).not.toContain('回到正题')
     expect(w.find('.pcard').exists()).toBe(false)
   })
+
+  it('双击悬浮圈 → 直达预订拍（方案卡 + 三节点全亮 + r3 chips），再双击 no-op', async () => {
+    const w = await openButler()
+    await w.find('.fab').trigger('dblclick')
+    await settle(w, 3)
+    expect(w.findAll('.pcard')).toHaveLength(2)
+    expect(w.findAll('.node.on')).toHaveLength(3)
+    expect(w.text()).toContain('就按 A 方案订') // r3 chips 就位，可直接点预订
+    // 已在 PLANS 态：再双击 no-op，不报错、状态不回退
+    await w.find('.fab').trigger('dblclick')
+    await settle(w, 3)
+    expect(w.findAll('.pcard')).toHaveLength(2)
+    expect(w.findAll('.node.on')).toHaveLength(3)
+  })
+
+  it('重排后绑定跟 A 走：A 卡（沉底）仍带 ⚡ 按钮，B 卡（顶上）裸展示；点 A 卡按钮走预订门卫', async () => {
+    const w = await openButler()
+    await w.findAll('.chip').find((c) => c.text().includes('带爸妈'))!.trigger('click')
+    await settle(w)
+    for (const label of ['预算一千五', '想要安静', '想吃长桌宴']) {
+      await w.findAll('.chip').find((c) => c.text().includes(label))!.trigger('click')
+      await settle(w)
+    }
+    await w.findAll('.chip').find((c) => c.text().includes('换个离梯田更近的'))!.trigger('click')
+    await settle(w)
+    const pcards = w.findAll('.pcard')
+    expect(pcards).toHaveLength(2)
+    expect(pcards[0].text()).toContain('云雾观星客栈') // B 顶上
+    expect(pcards[1].text()).toContain('云上人家') // A 沉底
+    expect(pcards[0].find('.book').exists()).toBe(false) // B 裸展示
+    expect(pcards[1].find('.book').exists()).toBe(true) // A 无论位置都带按钮
+    // 重排后 r3 chips 恢复，可继续点
+    expect(w.text()).toContain('就按 A 方案订')
+    // A 卡按钮是活的：未登录点击 → bookA → 门卫提示登录，不调接口
+    await pcards[1].find('.book').trigger('click')
+    await settle(w)
+    expect(w.text()).toContain('请先在右上角登录')
+    expect(accBooking).not.toHaveBeenCalled()
+  })
+
+  it('同一偏好 chip 重复点击只计一次（不重复计数提前进主线）', async () => {
+    const w = await openButler()
+    await w.findAll('.chip').find((c) => c.text().includes('带爸妈'))!.trigger('click')
+    await settle(w)
+    await w.findAll('.chip').find((c) => c.text().includes('预算一千五'))!.trigger('click')
+    await settle(w)
+    await w.findAll('.chip').find((c) => c.text().includes('预算一千五'))!.trigger('click')
+    await settle(w)
+    expect(w.find('.pcard').exists()).toBe(false) // 仍在前缀段，未误进主线
+    expect(w.text()).toContain('想吃长桌宴') // r2 chips 仍在等剩余偏好
+    for (const label of ['想要安静', '想吃长桌宴']) {
+      await w.findAll('.chip').find((c) => c.text().includes(label))!.trigger('click')
+      await settle(w)
+    }
+    expect(w.findAll('.pcard')).toHaveLength(2) // 3 个不同偏好集齐 → 主线出方案
+  })
 })
