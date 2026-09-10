@@ -190,10 +190,38 @@ describe('MerchantCalendarView', () => {
     expect(merchantCalendarBatch).toHaveBeenCalledTimes(1);
   });
 
+  it('切窗口会清掉上一轮的批量提示', async () => {
+    const { wrapper } = await mountView();
+    await wrapper.find('.batch-price input').setValue('480');
+    await wrapper.find('.batch-form').trigger('submit');
+    await flushPromises();
+    expect(wrapper.text()).toContain('已更新 7 天房态');
+
+    const tab30 = wrapper.findAll('.range-tab').find((b) => b.text().includes('30'));
+    await tab30!.trigger('click');
+    await flushPromises();
+    expect(wrapper.text()).not.toContain('已更新 7 天房态');
+  });
+
   it('查询失败展示错误', async () => {
     vi.mocked(merchantCalendarRange).mockRejectedValue(new Error('无权操作该资源'));
     const { wrapper } = await mountView();
     expect(wrapper.text()).toContain('无权操作该资源');
+    expect(wrapper.text()).not.toContain('该区间暂无房态数据');
+  });
+
+  it('空态：区间无房态数据时展示空态', async () => {
+    vi.mocked(merchantCalendarRange).mockResolvedValue([]);
+    const { wrapper } = await mountView();
+    expect(wrapper.text()).toContain('该区间暂无房态数据');
+  });
+
+  it('房型查询失败（直链无 hotelId）不影响房态表', async () => {
+    vi.mocked(merchantRoomTypePage).mockRejectedValue(new Error('请指定民宿'));
+    const { wrapper } = await mountView();
+    expect(wrapper.text()).not.toContain('请指定民宿');
+    expect(wrapper.text()).toContain('380.00');
+    expect(wrapper.text()).toContain('可订');
   });
 
   it('切窗慢响应乱序返回：过期响应不覆盖较新的结果', async () => {
