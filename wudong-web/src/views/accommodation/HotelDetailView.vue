@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // 民宿详情页 + 房态日历面板（7/30 天切换）。
 // 数据只读 api/accommodation（USE_MOCK 切换在 api 层）：路由 params.id → hotelDetail(id) → info + roomTypes；
-// 每张房型卡 RoomCard（预订禁用占位 ComingSoonTag）；点「查看房态日历」选中房型 → roomCalendar(roomTypeId, today, today+range-1)。
+// 每张房型卡 RoomCard（预订 → 预订弹窗，走公共订单 orderType=3）；点「查看房态日历」选中房型 → roomCalendar(roomTypeId, today, today+range-1)。
 // range 档位以 ?range=7|30 驱动（缺席/非法默认 30，URL 可分享/刷新恢复）：头按钮点击 router.replace 写回 ?range，
 // watch(() => route.query.range) 归一档位并重拉所选房型日历 —— 外部导航/历史前进后退同样生效。
 // 注意：真实 /detail 的 info.minPrice 恒为 null（携带无关），详情页按房型卡价格展示，绝不读 info.minPrice。
@@ -10,12 +10,14 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import RoomCard from '@/components/RoomCard.vue';
 import CalendarTable from '@/components/CalendarTable.vue';
-import { hotelDetail, roomCalendar } from '@/api/accommodation';
+import { hotelDetail, roomCalendar, bookingCreate } from '@/api/accommodation';
 import { addDaysISO, todayISO } from '@/utils/date';
+import { useSession } from '../../stores/session';
 import type { CalendarRow, Hotel, RoomType } from '@/api/types';
 
 const route = useRoute();
 const router = useRouter();
+const session = useSession();
 
 const RANGE_OPTIONS: Array<7 | 30> = [7, 30];
 
@@ -105,6 +107,69 @@ function selectRoomType(id: number): void {
   void loadCalendar();
 }
 
+// ---------- 预订（公共订单 orderType=3，最少提前 1 天） ----------
+const booking = ref({
+  open: false,
+  submitting: false,
+  roomType: null as RoomType | null,
+  checkIn: addDaysISO(todayISO(), 1),
+  checkOut: addDaysISO(todayISO(), 2),
+  rooms: 1,
+  guestName: '',
+  guestPhone: '',
+});
+
+const nights = computed<number>(() => {
+  const ms = new Date(booking.value.checkOut).getTime() - new Date(booking.value.checkIn).getTime();
+  const n = Math.round(ms / 86400000);
+  return Number.isFinite(n) && n > 0 ? n : 0;
+});
+
+const estimate = computed<string>(() => {
+  const rt = booking.value.roomType;
+  if (!rt || !nights.value) return '-';
+  return (Number(rt.price) * nights.value * booking.value.rooms).toFixed(2);
+});
+
+function openBooking(rt: RoomType): void {
+  if (!session.isLogged) {
+    alert('请先在右上角登录后再预订');
+    return;
+  }
+  booking.value.roomType = rt;
+  booking.value.checkIn = addDaysISO(todayISO(), 1);
+  booking.value.checkOut = addDaysISO(todayISO(), 2);
+  booking.value.rooms = 1;
+  booking.value.open = true;
+}
+
+async function submitBooking(): Promise<void> {
+  const rt = booking.value.roomType;
+  if (!rt) return;
+  if (!nights.value) {
+    alert('离店日期需晚于入住日期');
+    return;
+  }
+  booking.value.submitting = true;
+  try {
+    const r = await bookingCreate({
+      roomTypeId: rt.id,
+      checkInDate: booking.value.checkIn,
+      checkOutDate: booking.value.checkOut,
+      rooms: booking.value.rooms,
+      guestName: session.user?.nickname || '',
+      guestPhone: '',
+    });
+    alert(`预订成功！订单号 ${r.orderNo}，应付 ¥${r.payAmount}`);
+    booking.value.open = false;
+    void router.push('/my/orders');
+  } catch (e: any) {
+    alert(e?.message || '预订失败');
+  } finally {
+    booking.value.submitting = false;
+  }
+}
+
 /** 7/30 天切换：写回 ?range（URL 可分享，刷新/转发保持档位）；实际重拉由下方 query watch 统一驱动 */
 function changeRange(n: 7 | 30): void {
   if (range.value === n) return; // 已在该档：无需导航/重拉
@@ -166,7 +231,7 @@ watch(
         </p>
       </section>
 
-      <!-- 房型列表：预订统一禁用占位；点查看房态 → 日历 -->
+      <!-- 房型列表：预订 → 弹窗走公共订单；点查看房态 → 日历 -->
       <section class="section">
         <div class="section-title"><h2>房型与房态</h2></div>
         <div v-if="roomTypes.length" class="room-grid">
@@ -174,7 +239,7 @@ watch(
             v-for="rt in roomTypes"
             :key="rt.id"
             :room="rt"
-            disabled
+            @book="openBooking(rt)"
             @viewCalendar="selectRoomType(rt.id)"
           />
         </div>
@@ -206,6 +271,36 @@ watch(
         </div>
       </section>
     </template>
+
+    <!-- 预订弹窗 -->
+    <div v-if="booking.open" class="bk-mask" @click.self="booking.open = false">
+      <div class="bk card">
+        <h3>预订 · {{ booking.roomType?.name }}</h3>
+        <label class="bk-f">
+          <span>入住</span>
+          <input type="date" v-model="booking.checkIn" :min="addDaysISO(todayISO(), 1)" />
+        </label>
+        <label class="bk-f">
+          <span>离店</span>
+          <input type="date" v-model="booking.checkOut" :min="addDaysISO(booking.checkIn, 1)" />
+        </label>
+        <label class="bk-f">
+          <span>间数</span>
+          <input type="number" v-model.number="booking.rooms" min="1" max="5" />
+        </label>
+        <p class="bk-est">
+          {{ nights }} 晚 × {{ booking.rooms }} 间 · 预估
+          <b>¥{{ estimate }}</b>
+          <span class="bk-tip">（库存/价格以下单时房态校验为准）</span>
+        </p>
+        <div class="bk-acts">
+          <button type="button" class="bk-cancel" @click="booking.open = false">取消</button>
+          <button type="button" class="bk-ok" :disabled="booking.submitting" @click="submitBooking">
+            {{ booking.submitting ? '提交中…' : '提交预订' }}
+          </button>
+        </div>
+      </div>
+    </div>
   </main>
 </template>
 
@@ -362,5 +457,78 @@ watch(
   background: var(--green-700);
   color: #fff;
   border-color: var(--green-700);
+}
+
+.bk-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+.bk {
+  width: 420px;
+  max-width: 92vw;
+  padding: 18px;
+}
+.bk h3 {
+  margin: 0 0 12px;
+  color: var(--green-900);
+}
+.bk-f {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.bk-f span {
+  width: 40px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.bk-f input {
+  flex: 1;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 7px 10px;
+}
+.bk-est {
+  font-size: 13px;
+  color: var(--text-2);
+}
+.bk-est b {
+  color: var(--gold-600);
+}
+.bk-tip {
+  color: var(--muted);
+  font-size: 12px;
+}
+.bk-acts {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 12px;
+}
+.bk-cancel {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 10px;
+  padding: 7px 16px;
+  cursor: pointer;
+}
+.bk-ok {
+  background: var(--gold-500);
+  color: #fff;
+  border: 0;
+  border-radius: 10px;
+  padding: 7px 18px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.bk-ok:disabled {
+  background: #d8c4ac;
+  cursor: not-allowed;
 }
 </style>

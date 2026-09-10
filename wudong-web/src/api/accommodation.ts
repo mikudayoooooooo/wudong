@@ -108,3 +108,18 @@ export const roomCalendar = async (
   });
   return (rows || []).map(normRow);
 };
+
+/** 创建住宿预订（需登录；写操作仅走真实后端，不做 mock） */
+export const bookingCreate = async (data: {
+  roomTypeId: number
+  checkInDate: string
+  checkOutDate: string
+  rooms?: number
+  guestName?: string
+  guestPhone?: string
+  guestCount?: number
+  specialRequest?: string
+  remark?: string
+}): Promise<{ orderNo: string; payAmount: number; nights: string[] }> => {
+  return http.post('/app/accommodation/booking/create', data)
+}
