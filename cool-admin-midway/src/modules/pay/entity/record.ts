@@ -9,6 +9,10 @@ export class PaymentRecordEntity extends BaseEntity {
   @Column({ comment: '订单ID' })
   orderId: number;
 
+  @Index()
+  @Column({ comment: '商家ID（归属标识，冗余自主单，无商家归属为空）', nullable: true })
+  merchantId: number;
+
   @Index({ unique: true })
   @Column({ comment: '支付流水号', length: 32 })
   paymentNo: string;

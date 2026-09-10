@@ -8,6 +8,10 @@ import { OrderEntity } from '../entity/order';
 import { OrderProductEntity } from '../entity/order-product';
 import { OrderReservationEntity } from '../entity/order-reservation';
 import { OrderTicketEntity } from '../entity/order-ticket';
+import { CartItemEntity } from '../../cart/entity/cart-item';
+import { ProductEntity } from '../../product/entity/product';
+import { FarmProductEntity } from '../../food/entity/farm-product';
+import { UserAddressEntity } from '../../user/entity/address';
 
 /** 模块与订单类型白名单：模块 → 允许的 orderType */
 const MODULE_TYPES = {
@@ -85,13 +89,27 @@ export class OrderService extends BaseService {
   @InjectEntityModel(OrderTicketEntity)
   orderTicketEntity: Repository<OrderTicketEntity>;
 
+  @InjectEntityModel(CartItemEntity)
+  cartItemEntity: Repository<CartItemEntity>;
+
+  @InjectEntityModel(ProductEntity)
+  productEntity: Repository<ProductEntity>;
+
+  @InjectEntityModel(FarmProductEntity)
+  farmProductEntity: Repository<FarmProductEntity>;
+
+  @InjectEntityModel(UserAddressEntity)
+  userAddressEntity: Repository<UserAddressEntity>;
+
   @InjectDataSource()
   dataSource: DataSource;
 
   /**
    * 创建订单：主单 + 按 orderType 落对应明细，金额服务端汇总
+   * merchantId 为可信归属参数：仅限业务模块服务端调用时传入（通用 C 端入口不得透传），
+   * 归属正确性由调用模块自行解析，本服务不反查业务表（单向依赖）
    */
-  async create(userId: number, param) {
+  async create(userId: number, param, merchantId?: number) {
     const { module, orderType, remark, items } = param || {};
     if (!MODULE_TYPES[module]) {
       throw new CoolCommException('订单模块不正确');
@@ -103,6 +121,9 @@ export class OrderService extends BaseService {
     if (!Array.isArray(items) || items.length === 0) {
       throw new CoolCommException('订单明细不能为空');
     }
+    const mid = Number(merchantId);
+    const ownerMerchantId =
+      Number.isInteger(mid) && mid > 0 ? mid : null;
 
     let sum = 0;
     const details = [];
@@ -134,6 +155,7 @@ export class OrderService extends BaseService {
       const inserted = await manager.insert(OrderEntity, {
         orderNo,
         userId,
+        merchantId: ownerMerchantId,
         orderType: type,
         module,
         totalAmount: payAmount,
@@ -242,5 +264,164 @@ export class OrderService extends BaseService {
       throw new CoolCommException('订单不存在或状态已变化');
     }
     return true;
+  }
+
+  /**
+   * 从购物车创建订单
+   */
+  async createFromCart(userId: number, addressId: number, remark?: string) {
+    // 1. 查询购物车
+    const cartItems = await this.cartItemEntity.find({
+      where: { userId },
+    });
+
+    if (cartItems.length === 0) {
+      throw new CoolCommException('购物车为空');
+    }
+
+    // 2. 校验收货地址
+    const address = await this.userAddressEntity.findOneBy({
+      id: addressId,
+      userId,
+    });
+    if (!address) {
+      throw new CoolCommException('收货地址不存在');
+    }
+
+    // 3. 开启事务
+    return await this.dataSource.transaction(async manager => {
+      const orderItems = [];
+      let totalAmount = 0;
+      // 商家归属：购物车项全部同一商家则带归属，混合商家置空（平台视角）
+      let ownerMerchantId: number | null = null;
+
+      // 4. 逐项校验商品和库存
+      for (const cartItem of cartItems) {
+        let product: any;
+        let tableName: string;
+
+        if (cartItem.itemType === 1) {
+          // 非遗商品
+          product = await manager.findOneBy(ProductEntity, {
+            id: cartItem.itemId,
+          });
+          tableName = 'product';
+        } else if (cartItem.itemType === 2) {
+          // 农产品
+          product = await manager.findOneBy(FarmProductEntity, {
+            id: cartItem.itemId,
+          });
+          tableName = 'farm_product';
+        } else {
+          throw new CoolCommException('购物车数据异常');
+        }
+
+        // 校验商品存在且上架
+        if (!product || product.status !== 1) {
+          throw new CoolCommException(`商品【${cartItem.itemName}】已下架`);
+        }
+
+        // 归属一致性：混合商家订单不带归属（null=平台视角）
+        const itemMerchantId = Number(product.merchantId) || null;
+        if (ownerMerchantId === null) {
+          ownerMerchantId = itemMerchantId;
+        } else if (
+          itemMerchantId !== null &&
+          itemMerchantId !== ownerMerchantId
+        ) {
+          ownerMerchantId = null;
+        }
+
+        // 校验库存
+        if (product.stock < cartItem.quantity) {
+          throw new CoolCommException(`商品【${cartItem.itemName}】库存不足`);
+        }
+
+        // 获取当前价格
+        const currentPrice = Number(product.price);
+        const snapshotPrice = Number(cartItem.price);
+
+        // 检查价格变动（超过10%则提示）
+        const priceChangePercent =
+          Math.abs(currentPrice - snapshotPrice) / snapshotPrice;
+        if (priceChangePercent > 0.1) {
+          throw new CoolCommException(
+            `商品【${cartItem.itemName}】价格变动较大，请重新确认`
+          );
+        }
+
+        // 使用实时价格计算
+        const itemTotal = currentPrice * cartItem.quantity;
+        totalAmount += itemTotal;
+
+        // 准备订单明细数据
+        orderItems.push({
+          productId: cartItem.itemId,
+          skuId: 0, // 暂不支持SKU
+          productName: product.name,
+          skuName: null,
+          productImage: product.coverImage,
+          price: currentPrice,
+          quantity: cartItem.quantity,
+          totalAmount: Number(itemTotal.toFixed(2)),
+          addressId: addressId,
+          tableName, // 用于后续扣库存
+        });
+      }
+
+      // 5. 创建订单主记录
+      const orderNo = this.genOrderNo();
+      const payAmount = Number(totalAmount.toFixed(2));
+
+      const orderResult = await manager.insert(OrderEntity, {
+        orderNo,
+        userId,
+        merchantId: ownerMerchantId,
+        orderType: 1, // 商品订单
+        module: 'product',
+        totalAmount: payAmount,
+        payAmount,
+        discountAmount: 0,
+        status: 1, // 待支付
+        remark,
+      });
+
+      const orderId = orderResult.identifiers[0].id;
+
+      // 6. 创建订单明细并扣减库存
+      for (const item of orderItems) {
+        const { tableName, ...orderItemData } = item;
+
+        // 插入订单明细
+        await manager.insert(OrderProductEntity, {
+          orderId,
+          ...orderItemData,
+        });
+
+        // 扣减库存（使用行锁防止超卖）
+        const EntityClass =
+          tableName === 'product' ? ProductEntity : FarmProductEntity;
+        const updateResult = await manager
+          .createQueryBuilder()
+          .update(EntityClass)
+          .set({ stock: () => `stock - ${item.quantity}` })
+          .where('id = :id AND stock >= :quantity', {
+            id: item.productId,
+            quantity: item.quantity,
+          })
+          .execute();
+
+        if (updateResult.affected === 0) {
+          throw new CoolCommException(
+            `商品【${item.productName}】库存不足或已下架`
+          );
+        }
+      }
+
+      // 7. 清空购物车
+      await manager.delete(CartItemEntity, { userId });
+
+      return { orderNo, payAmount };
+    });
   }
 }

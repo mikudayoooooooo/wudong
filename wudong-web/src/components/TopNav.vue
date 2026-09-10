@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSession } from '../stores/session'
 import { communityApi } from '../api/community'
+import CartBadge from './CartBadge.vue'
 import LoginModal from './LoginModal.vue'
 
 const router = useRouter()
@@ -11,6 +12,9 @@ const items = [
   { path: '/', label: '首页' },
   { path: '/route', label: '行·订票' },
   { path: '/hotels', label: '住宿' },
+  { path: '/products', label: '非遗商品' },
+  { path: '/restaurants', label: '特色餐厅' },
+  { path: '/farm-products', label: '新鲜农产品' },
   { path: '/community', label: '社区' },
   { path: '/guide', label: '交通攻略' },
   { path: '/my/tickets', label: '我的票务' },
@@ -54,6 +58,7 @@ function onUserClick() {
         @keyup.enter="onSearch"
       />
       <button class="publish" @click="router.push('/publish')">＋ 发布</button>
+      <CartBadge v-if="session.isLogged" />
       <span class="user" data-testid="nav-user" @click="onUserClick">
         {{ session.isLogged ? `${session.user!.avatar} ${session.user!.nickname}` : '登录' }}
       </span>

@@ -125,24 +125,28 @@ export class ReservationService extends BaseService {
     let orderNo: string;
     let payAmount: number;
     try {
-      const r = await this.orderService.create(userId, {
-        module: 'food',
-        orderType: 2,
-        items: [
-          {
-            targetId: restaurant.id,
-            targetName: restaurant.name,
-            checkInDate: reservationDate,
-            guestName: contactName,
-            guestPhone: contactPhone,
-            guestCount: guests,
-            timeSlot: `${timeSlot.timePeriod} ${timeSlot.startTime}-${timeSlot.endTime}`,
-            price: Number(restaurant.avgPrice),
-            quantity: guests,
-          },
-        ],
-        remark,
-      });
+      const r = await this.orderService.create(
+        userId,
+        {
+          module: 'food',
+          orderType: 2,
+          items: [
+            {
+              targetId: restaurant.id,
+              targetName: restaurant.name,
+              checkInDate: reservationDate,
+              guestName: contactName,
+              guestPhone: contactPhone,
+              guestCount: guests,
+              timeSlot: `${timeSlot.timePeriod} ${timeSlot.startTime}-${timeSlot.endTime}`,
+              price: Number(restaurant.avgPrice),
+              quantity: guests,
+            },
+          ],
+          remark,
+        },
+        restaurant.merchantId
+      );
       orderNo = r.orderNo;
       payAmount = r.payAmount;
     } catch (err) {

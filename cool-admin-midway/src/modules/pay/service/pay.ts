@@ -53,6 +53,7 @@ export class PayService extends BaseService {
     const paymentNo = this.genPaymentNo();
     await this.paymentRecordEntity.insert({
       orderId: order.id,
+      merchantId: order.merchantId ?? null,
       paymentNo,
       payChannel: channel,
       payAmount: Number(order.payAmount),

@@ -217,15 +217,38 @@ export class ProductService extends BaseService {
    * C端：获取商品详情
    */
   async getDetail(id: number) {
+<<<<<<< HEAD
+    const product = await this.productEntity.findOne({
+      where: { id, status: 1 },
+    });
+
+=======
     const product = await this.productEntity.findOneBy({ id, status: 1 });
+>>>>>>> origin/main
     if (!product) {
       return null;
     }
 
+<<<<<<< HEAD
+    // 获取商品图片
+=======
+>>>>>>> origin/main
     const images = await this.productImageEntity.find({
       where: { productId: id },
       order: { sort: 'ASC' },
     });
+<<<<<<< HEAD
+
+    // 获取SKU列表
+    const skus = await this.productSkuEntity.find({
+      where: { productId: id },
+    });
+
+    return {
+      ...product,
+      images,
+      skus,
+=======
     const skus = await this.productSkuEntity.find({
       where: { productId: id },
     });
@@ -238,6 +261,7 @@ export class ProductService extends BaseService {
       images: images.map((i) => i.imageUrl),
       skus,
       categoryName: cat?.name,
+>>>>>>> origin/main
     };
   }
 
