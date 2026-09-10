@@ -6963,6 +6963,7 @@ describe('MerchantCalendarView', () => {
       })
     );
     expect(merchantCalendarRange).toHaveBeenCalledTimes(2);
+    expect(wrapper.text()).toContain('已更新 7 天房态');
   });
 
   it('关房勾选后提交 closed=true', async () => {
@@ -6997,10 +6998,116 @@ describe('MerchantCalendarView', () => {
     );
   });
 
+  it('房态表逐行渲染星期列与可售间数列', async () => {
+    const { wrapper } = await mountView();
+    const weekdayCells = wrapper
+      .findAll('tbody tr td:nth-child(2)')
+      .map((c) => c.text());
+    expect(weekdayCells).toHaveLength(rowsFixture.length);
+    expect(weekdayCells.every((t) => t.startsWith('周'))).toBe(true);
+    expect(
+      wrapper.findAll('tbody tr td:nth-child(4)').map((c) => c.text())
+    ).toEqual(rowsFixture.map((r) => String(r.availableStock)));
+  });
+
+  it('下一周按新窗口重新查询', async () => {
+    const { wrapper } = await mountView();
+    const nextWeek = wrapper
+      .findAll('button')
+      .find((b) => b.text() === '下一周');
+    await nextWeek!.trigger('click');
+    await flushPromises();
+    expect(merchantCalendarRange).toHaveBeenLastCalledWith(
+      11,
+      addDaysISO(TODAY, 7),
+      addDaysISO(TODAY, 13)
+    );
+  });
+
+  it('切换窗口会同步批量表单窗口并据此提交', async () => {
+    const { wrapper } = await mountView();
+    const tab30 = wrapper.findAll('.range-tab').find((b) => b.text().includes('30'));
+    await tab30!.trigger('click');
+    await flushPromises();
+    await wrapper.find('.batch-price input').setValue('480');
+    await wrapper.find('.batch-form').trigger('submit');
+    await flushPromises();
+    expect(merchantCalendarBatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        startDate: TODAY,
+        endDate: addDaysISO(TODAY, 29),
+      })
+    );
+  });
+
+  it('同一 tick 连提两次只提交一次（不依赖 :disabled 刷新时机）', async () => {
+    const { wrapper } = await mountView();
+    await wrapper.find('.batch-price input').setValue('480');
+    const form = wrapper.find('.batch-form');
+    form.trigger('submit');
+    form.trigger('submit');
+    await flushPromises();
+    expect(merchantCalendarBatch).toHaveBeenCalledTimes(1);
+  });
+
+  it('切窗口会清掉上一轮的批量提示', async () => {
+    const { wrapper } = await mountView();
+    await wrapper.find('.batch-price input').setValue('480');
+    await wrapper.find('.batch-form').trigger('submit');
+    await flushPromises();
+    expect(wrapper.text()).toContain('已更新 7 天房态');
+
+    const tab30 = wrapper.findAll('.range-tab').find((b) => b.text().includes('30'));
+    await tab30!.trigger('click');
+    await flushPromises();
+    expect(wrapper.text()).not.toContain('已更新 7 天房态');
+  });
+
   it('查询失败展示错误', async () => {
     vi.mocked(merchantCalendarRange).mockRejectedValue(new Error('无权操作该资源'));
     const { wrapper } = await mountView();
     expect(wrapper.text()).toContain('无权操作该资源');
+    expect(wrapper.text()).not.toContain('该区间暂无房态数据');
+  });
+
+  it('空态：区间无房态数据时展示空态', async () => {
+    vi.mocked(merchantCalendarRange).mockResolvedValue([]);
+    const { wrapper } = await mountView();
+    expect(wrapper.text()).toContain('该区间暂无房态数据');
+  });
+
+  it('房型查询失败（直链无 hotelId）不影响房态表', async () => {
+    vi.mocked(merchantRoomTypePage).mockRejectedValue(new Error('请指定民宿'));
+    const { wrapper } = await mountView();
+    expect(wrapper.text()).not.toContain('请指定民宿');
+    expect(wrapper.text()).toContain('380.00');
+    expect(wrapper.text()).toContain('可订');
+  });
+
+  it('切窗慢响应乱序返回：过期响应不覆盖较新的结果', async () => {
+    let resolveSlow: (r: typeof rowsFixture) => void = () => {};
+    const slow = new Promise<typeof rowsFixture>((resolve) => {
+      resolveSlow = resolve;
+    });
+    vi.mocked(merchantCalendarRange)
+      .mockReset()
+      .mockReturnValueOnce(slow)
+      .mockResolvedValueOnce([
+        { date: TODAY, price: 999, availableStock: 1, status: 1 },
+      ]);
+
+    // 第 1 次请求（onMounted 那次，慢）挂在 pending；切到 30 天触发的第 2 次先返回
+    const { wrapper } = await mountView();
+    const tab30 = wrapper.findAll('.range-tab').find((b) => b.text().includes('30'));
+    await tab30!.trigger('click');
+    await flushPromises();
+    expect(wrapper.text()).toContain('999.00');
+
+    // 过期响应随后落地：不得覆盖第 2 次的结果
+    resolveSlow([{ date: TODAY, price: 777, availableStock: 1, status: 1 }]);
+    await flushPromises();
+    expect(wrapper.text()).toContain('999.00');
+    expect(wrapper.text()).not.toContain('777.00');
   });
 
   it('批量设置失败展示后端 message', async () => {
@@ -7043,12 +7150,14 @@ const route = useRoute();
 const roomTypeId = computed(() => Number(route.params.id));
 const roomType = ref<MerchantRoomType | null>(null);
 
-const rangeDays = ref<7>(7);
+const rangeDays = ref(7);
 const startDate = ref(todayISO());
 const rows = ref<CalendarRow[]>([]);
 const loading = ref(true);
 const error = ref('');
 const notice = ref('');
+/** 请求序号：每次 load 自增；响应回来仅当仍是最新请求才写回（防切窗/刷新时慢响应乱序覆盖） */
+let reqSeq = 0;
 
 const endDate = computed(() => addDaysISO(startDate.value, rangeDays.value - 1));
 
@@ -7077,22 +7186,29 @@ const weekdayOptions = [1, 2, 3, 4, 5, 6, 0].map((value) => ({
 }));
 
 async function load(): Promise<void> {
+  const seq = ++reqSeq;
   loading.value = true;
   error.value = '';
+  notice.value = '';
   try {
     const [page, list] = await Promise.all([
       roomType.value
         ? Promise.resolve({ list: [roomType.value], total: 1 })
-        : merchantRoomTypePage(Number(route.query.hotelId) || 0, { size: 50 }),
+        : // 只为取标题：拿不到（无 hotelId / 接口报错）不该影响房态表，故这里兜底
+          merchantRoomTypePage(Number(route.query.hotelId) || 0, { size: 50 }).catch(
+            () => ({ list: [], total: 0 })
+          ),
       merchantCalendarRange(roomTypeId.value, startDate.value, endDate.value),
     ]);
+    if (seq !== reqSeq) return; // 已发新请求，本响应过期，丢弃（不改 rows / roomType）
     roomType.value = page.list.find((r) => r.id === roomTypeId.value) ?? null;
     rows.value = list;
   } catch (e) {
+    if (seq !== reqSeq) return; // 过期请求的错误同样丢弃
     error.value = e instanceof Error ? e.message : '房态加载失败';
     rows.value = [];
   } finally {
-    loading.value = false;
+    if (seq === reqSeq) loading.value = false; // 仅最新请求控制 loading
   }
 }
 
@@ -7117,6 +7233,7 @@ function toggleWeekday(value: number): void {
 }
 
 async function submitBatch(): Promise<void> {
+  if (submitting.value) return; // 双击保护不依赖 :disabled 的刷新时机
   error.value = '';
   notice.value = '';
 
@@ -7143,8 +7260,8 @@ async function submitBatch(): Promise<void> {
           : Number(batch.availableStock),
       closed: batch.closed,
     });
-    notice.value = `已更新 ${result.count} 天房态`;
     await load();
+    notice.value = `已更新 ${result.count} 天房态`;
   } catch (e) {
     error.value = e instanceof Error ? e.message : '设置失败，请稍后重试';
   } finally {
@@ -7184,10 +7301,14 @@ onMounted(load);
         </button>
       </div>
 
-      <p v-if="error" class="m-state m-error">{{ error }}</p>
       <p v-if="notice" class="m-hint">{{ notice }}</p>
 
-      <div v-if="loading" class="m-state">正在加载房态…</div>
+      <!-- 错误 / 加载中 / 空态 / 表格互斥：失败时 rows 也被清空，若空态与错误同级会同时出现 -->
+      <p v-if="error" class="m-state m-error">{{ error }}</p>
+
+      <div v-else-if="loading" class="m-state">正在加载房态…</div>
+
+      <p v-else-if="!rows.length" class="m-state">该区间暂无房态数据。</p>
 
       <table v-else class="m-table">
         <thead>
