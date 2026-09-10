@@ -2023,9 +2023,11 @@ describe('api/merchant 真实后端分支', () => {
   });
 
   it('merchantHotelSave 无 id 走 add，有 id 走 update', async () => {
+    // update 的后端只返回 boolean，故保存后必须 GET /hotel/info 回读完整行：
+    // 这个回读本身就是被断言的行为之一（少了它，用例必须变红）
     const calls: string[] = [];
-    vi.stubGlobal('fetch', vi.fn((u: string) => {
-      calls.push(u);
+    vi.stubGlobal('fetch', vi.fn((u: string, i: any) => {
+      calls.push(`${i?.method ?? 'GET'} ${u}`);
       return Promise.resolve(okJson({ id: 1, name: 'x' }));
     }));
     const base = {
@@ -2048,8 +2050,9 @@ describe('api/merchant 真实后端分支', () => {
     await merchantHotelSave(base);
     await merchantHotelSave({ ...base, id: 5 });
     expect(calls).toEqual([
-      '/app/accommodation/merchant/hotel/add',
-      '/app/accommodation/merchant/hotel/update',
+      'POST /app/accommodation/merchant/hotel/add',
+      'POST /app/accommodation/merchant/hotel/update',
+      'GET /app/accommodation/merchant/hotel/info?id=5',
     ]);
   });
 
@@ -2174,9 +2177,11 @@ describe('api/merchant', () => {
 
     it('merchantHotelSave 无 id 走 add，有 id 走 update', async () => {
       const { merchantHotelSave } = await loadApi();
+      // update 的后端只返回 boolean，故保存后必须 GET /hotel/info 回读完整行：
+      // 这个回读本身就是被断言的行为之一（少了它，用例必须变红）
       const calls: string[] = [];
-      vi.stubGlobal('fetch', vi.fn((u: string) => {
-        calls.push(u);
+      vi.stubGlobal('fetch', vi.fn((u: string, i: any) => {
+        calls.push(`${i?.method ?? 'GET'} ${u}`);
         return Promise.resolve(okJson({ id: 1, name: 'x' }));
       }));
       const base = {
@@ -2199,8 +2204,9 @@ describe('api/merchant', () => {
       await merchantHotelSave(base);
       await merchantHotelSave({ ...base, id: 5 });
       expect(calls).toEqual([
-        '/app/accommodation/merchant/hotel/add',
-        '/app/accommodation/merchant/hotel/update',
+        'POST /app/accommodation/merchant/hotel/add',
+        'POST /app/accommodation/merchant/hotel/update',
+        'GET /app/accommodation/merchant/hotel/info?id=5',
       ]);
     });
 
@@ -3005,7 +3011,8 @@ describe('auth store', () => {
     stubRoutes({
       '/app/member/login/password': { token: 'jwt-2' },
       '/app/member/info/person': { id: 8, phone: '13800000001', role: 1 },
-      // /app/merchant/my 返回无 data
+      // 未入驻：后端不输出 data 键 → request 得到 undefined → merchantMy 归 null
+      '/app/merchant/my': undefined,
     });
     const auth = useAuthStore();
     await auth.login('13800000001', 'abc123456');
@@ -3029,6 +3036,8 @@ describe('auth store', () => {
       '/app/member/login/smsCode': { code: '123456' },
       '/app/member/login/register': { token: 'jwt-reg' },
       '/app/member/info/person': { id: 10, phone: '13800000003', role: 1 },
+      // 注册后尚未入驻：仍需给出该路由，否则 stubRoutes 会以 unexpected url 抛错
+      '/app/merchant/my': undefined,
     });
     const auth = useAuthStore();
     await auth.registerAndLogin({
@@ -3601,6 +3610,7 @@ const router = createRouter({
     { path: '/login', name: 'login', component: () => import('../views/LoginView.vue') },
     {
       path: '/merchant',
+      name: 'merchant',
       component: MerchantShell,
       meta: { requiresAuth: true },
       children: [
