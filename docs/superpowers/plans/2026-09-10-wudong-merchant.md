@@ -547,7 +547,38 @@ git commit -m "feat(merchant): B 端住宿归属校验基座 + 我的民宿分�
       .post('/app/accommodation/merchant/hotel/update')
       .set(auth(tokenA))
       .send({ id: hotelIdA, styleTags: '苗寨' });
+    expect(res.body.code).toBe(1001);
     expect(res.body.message).toBe('标签格式不正确');
+  });
+
+  it('标签元素不是字符串被拒绝', async () => {
+    const res = await createHttpRequest(app)
+      .post('/app/accommodation/merchant/hotel/update')
+      .set(auth(tokenA))
+      .send({ id: hotelIdA, images: [{ url: 'a.jpg' }] });
+    expect(res.body.code).toBe(1001);
+    expect(res.body.message).toBe('标签格式不正确');
+  });
+
+  it('经纬度传空串被拒绝，且不落库（Number(\'\') 不是 0）', async () => {
+    const res = await createHttpRequest(app)
+      .post('/app/accommodation/merchant/hotel/add')
+      .set(auth(tokenA))
+      .send({
+        name: '空坐标院',
+        address: '雷山县',
+        longitude: '',
+        latitude: '',
+      });
+    expect(res.body.code).toBe(1001);
+    expect(res.body.message).toBe('民宿信息格式不正确');
+
+    const list = await createHttpRequest(app)
+      .get('/app/accommodation/merchant/hotel/page?page=1&size=50')
+      .set(auth(tokenA));
+    expect(
+      list.body.data.list.some((h: any) => h.name === '空坐标院')
+    ).toBe(false);
   });
 
   it('删除有房型的民宿被拒绝（P6）', async () => {
@@ -647,16 +678,24 @@ import { MerchantScopeService } from './merchant-scope';
       const value = body?.[key];
       if (value === undefined || value === null) continue;
       if (NUMERIC_FIELDS.includes(key)) {
+        // 空串/空数组是「没填」而不是 0：Number('') === 0 会让必填校验形同虚设
+        if (value === '' || (Array.isArray(value) && value.length === 0)) {
+          throw new CoolCommException('民宿信息格式不正确');
+        }
         const num = Number(value);
         if (Number.isNaN(num)) {
           throw new CoolCommException('民宿信息格式不正确');
         }
         out[key] = num;
       } else if (JSON_FIELDS.includes(key)) {
-        if (!Array.isArray(value)) {
+        // 元素必须是字符串：String({url:'a.jpg'}) 会静默存成 '[object Object]'
+        if (
+          !Array.isArray(value) ||
+          value.some((v: unknown) => typeof v !== 'string' || !v.trim())
+        ) {
           throw new CoolCommException('标签格式不正确');
         }
-        out[key] = value.map((v: unknown) => String(v));
+        out[key] = value.map((v: string) => v.trim());
       } else {
         out[key] = typeof value === 'string' ? value.trim() : value;
       }
@@ -5807,6 +5846,25 @@ describe('MerchantHotelEditView', () => {
     expect(wrapper.text()).toContain('请填写民宿名称与地址');
   });
 
+  it('经纬度为空或 0 时提示且不提交', async () => {
+    const { wrapper } = await mountView('/merchant/hotels/new');
+    await wrapper.find('.field-name input').setValue('新院子');
+    await wrapper.find('.field-address input').setValue('雷山县六组');
+    await wrapper.find('.field-longitude input').setValue('');
+    await wrapper.find('.field-latitude input').setValue('');
+    await wrapper.find('form').trigger('submit');
+    await flushPromises();
+    expect(merchantHotelSave).not.toHaveBeenCalled();
+    expect(wrapper.text()).toContain('请填写经纬度');
+
+    // 0 同样视为未填写（未动过的默认值不能让民宿落在 (0, 0)）
+    await wrapper.find('.field-longitude input').setValue('0');
+    await wrapper.find('.field-latitude input').setValue('0');
+    await wrapper.find('form').trigger('submit');
+    await flushPromises();
+    expect(merchantHotelSave).not.toHaveBeenCalled();
+  });
+
   it('新建保存：提交不含 id 并返回列表', async () => {
     const { wrapper, router } = await mountView('/merchant/hotels/new');
     await wrapper.find('.field-name input').setValue('新院子');
@@ -5877,6 +5935,10 @@ import type { HotelForm } from '@/api/types';
 
 const route = useRoute();
 const router = useRouter();
+
+/** 数字输入框被清空时 v-model.number 会留下 ''：空/无法解析一律算未填 */
+const isUnfilledNumber = (v: unknown): boolean =>
+  v === '' || v == null || Number.isNaN(Number(v));
 
 const STYLE_SUGGESTIONS = ['苗寨', '江景', '山景', '观星', '家庭', '经济'];
 const FACILITY_SUGGESTIONS = ['WiFi', '空调', '独立卫浴', '电热毯', '儿童设施', '停车位'];
@@ -5955,8 +6017,14 @@ async function submit(): Promise<void> {
     error.value = '请填写民宿名称与地址';
     return;
   }
-  if (!Number.isFinite(Number(form.longitude)) || !Number.isFinite(Number(form.latitude))) {
-    error.value = '请填写正确的经纬度';
+  // 数字输入框被清空时 v-model.number 会留下 ''，而 Number('') === 0：
+  // 只看 isFinite 会把空输入当成合法坐标，落库成 (0, 0)。0 在这里一律视为未填写。
+  if (
+    isUnfilledNumber(form.longitude) ||
+    isUnfilledNumber(form.latitude) ||
+    (Number(form.longitude) === 0 && Number(form.latitude) === 0)
+  ) {
+    error.value = '请填写经纬度（不能为空或 0）';
     return;
   }
 
