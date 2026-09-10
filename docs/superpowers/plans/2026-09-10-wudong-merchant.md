@@ -2924,6 +2924,7 @@ git commit -m "feat(merchant): 商家区数据层（类型/归一抽取/api/mock
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
 import { useAuthStore } from './auth';
+import { setAuthToken } from '../api/http';
 
 const okJson = (data: unknown) => ({
   ok: true,
@@ -2946,6 +2947,9 @@ describe('auth store', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     localStorage.clear();
+    // http 层的 authToken 是模块级变量，会在**同一文件的用例之间**留存：
+    // 上一个用例登录留下的 token 会让下一个用例的登录请求带上 Authorization 头。
+    setAuthToken(null);
     vi.unstubAllEnvs();
   });
 
@@ -3219,6 +3223,7 @@ git commit -m "feat(merchant): 认证 api 与 auth store（token 持久化 + 店
 **Files:**
 - Modify: `wudong-web/src/router/index.ts`
 - Create: `wudong-web/src/views/merchant/MerchantShell.vue`
+- Create: `wudong-web/src/views/LoginView.vue`（本 Task 只做最小可用版；Task 10 整文件替换）
 - Create: `wudong-web/src/styles/merchant.scss`
 - Modify: `wudong-web/src/main.ts`
 - Modify: `wudong-web/src/App.vue`
@@ -5370,6 +5375,7 @@ git commit -m "feat(merchant): 商家首页与入驻申请三态"
 - Modify: `wudong-web/src/api/merchant.ts`（新增 `merchantHotelSetStatus`）
 - Modify: `wudong-web/src/mocks/merchant.ts`（新增 `mockHotelSetStatus`）
 - Create: `wudong-web/src/views/merchant/MerchantHotelListView.vue`
+- Create: `wudong-web/src/views/merchant/MerchantHotelEditView.vue`（**空壳**，仅让路由指向真实存在的文件；Task 14 整文件替换为完整实现）
 - Modify: `wudong-web/src/router/index.ts`（追加两条子路由）
 - Test: `wudong-web/src/api/merchant.spec.ts`（追加 1 个用例）
 - Test: `wudong-web/src/views/merchant/MerchantHotelListView.spec.ts`
@@ -6283,6 +6289,7 @@ git commit -m "feat(merchant): 民宿新增/编辑表单"
 
 **Files:**
 - Create: `wudong-web/src/views/merchant/MerchantRoomTypeView.vue`
+- Create: `wudong-web/src/views/merchant/MerchantCalendarView.vue`（**空壳**，仅让路由指向真实存在的文件；Task 16 整文件替换为完整实现）
 - Modify: `wudong-web/src/router/index.ts`（追加一条子路由）
 - Test: `wudong-web/src/views/merchant/MerchantRoomTypeView.spec.ts`
 
