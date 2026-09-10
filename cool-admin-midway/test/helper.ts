@@ -1,5 +1,6 @@
 import { createApp, close, createHttpRequest } from '@midwayjs/mock';
 import { Framework } from '@midwayjs/koa';
+import { MerchantService } from '../src/modules/merchant/service/merchant';
 
 export { close, createHttpRequest };
 
@@ -29,4 +30,57 @@ export async function registerAndLogin(
     .send({ phone, smsCode: sms.body.data.code, password });
   expect(register.body.code).toBe(1000);
   return register.body.data.token as string;
+}
+
+/** 入驻申请固定材料（与 base merchant.apply 的必填校验一致） */
+export const APPLY_OK = {
+  shopName: '测试店铺',
+  module: 'product',
+  contactName: '张三',
+  contactPhone: '13200132001',
+  idCard: '522301199001010011',
+  idCardFront: 'http://img/id-front.png',
+  idCardBack: 'http://img/id-back.png',
+  businessLicense: 'http://img/license.png',
+};
+
+/**
+ * 注册会员 → 提交入驻申请 → 审核通过，返回 { token, userId, merchantId }。
+ * module 传 'accommodation' 得到可管理民宿的商家；传 'product' 得到非住宿模块商家（P4 测试用）
+ */
+export async function registerMerchant(
+  app,
+  phone: string,
+  module = 'accommodation'
+) {
+  const token = await registerAndLogin(app, phone);
+  const me = await createHttpRequest(app)
+    .get('/app/member/info/person')
+    .set(auth(token));
+  const userId = me.body.data.id;
+
+  const apply = await createHttpRequest(app)
+    .post('/app/merchant/apply')
+    .set(auth(token))
+    .send({
+      ...APPLY_OK,
+      module,
+      contactPhone: phone,
+      shopName: `测试店铺${phone}`,
+    });
+  expect(apply.body.code).toBe(1000);
+
+  const progress = await createHttpRequest(app)
+    .get('/app/merchant/application')
+    .set(auth(token));
+  const merchantService: MerchantService = await app
+    .getApplicationContext()
+    .getAsync(MerchantService);
+  await merchantService.audit(progress.body.data.id, true, '材料齐全', 1);
+
+  const my = await createHttpRequest(app)
+    .get('/app/merchant/my')
+    .set(auth(token));
+  expect(my.body.code).toBe(1000);
+  return { token, userId, merchantId: my.body.data.id as number };
 }
