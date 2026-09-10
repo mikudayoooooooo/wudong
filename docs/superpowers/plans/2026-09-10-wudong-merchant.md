@@ -1768,7 +1768,7 @@ describe('post 与鉴权', () => {
 
   it('POST 发送 JSON body 且不带 token 时不加 Authorization 头', async () => {
     let init: any = null;
-    vi.stubGlobal('fetch', vi.fn((u: string, i: any) => {
+    vi.stubGlobal('fetch', vi.fn((_u: string, i: any) => {
       init = i;
       return { ok: true, json: async () => ({ code: 1000, data: { id: 1 } }) };
     }));
@@ -1781,7 +1781,7 @@ describe('post 与鉴权', () => {
 
   it('设置 token 后 POST 与 GET 都带裸 token', async () => {
     const headers: any[] = [];
-    vi.stubGlobal('fetch', vi.fn((u: string, i: any) => {
+    vi.stubGlobal('fetch', vi.fn((_u: string, i: any) => {
       headers.push(i ? i.headers : {});
       return { ok: true, json: async () => ({ code: 1000, data: 1 }) };
     }));
@@ -2068,7 +2068,7 @@ describe('api/merchant 真实后端分支', () => {
 
   it('批量设置提交 JSON body', async () => {
     let body = '';
-    vi.stubGlobal('fetch', vi.fn((u: string, i: any) => {
+    vi.stubGlobal('fetch', vi.fn((_u: string, i: any) => {
       body = i.body;
       return Promise.resolve(okJson({ count: 7 }));
     }));
@@ -2224,7 +2224,7 @@ describe('api/merchant', () => {
     it('批量设置提交 JSON body', async () => {
       const { merchantCalendarBatch } = await loadApi();
       let body = '';
-      vi.stubGlobal('fetch', vi.fn((u: string, i: any) => {
+      vi.stubGlobal('fetch', vi.fn((_u: string, i: any) => {
         body = i.body;
         return Promise.resolve(okJson({ count: 7 }));
       }));
@@ -5396,7 +5396,7 @@ git commit -m "feat(merchant): 商家首页与入驻申请三态"
     it('上下架提交 id 与 status', async () => {
       const { merchantHotelSetStatus } = await loadApi();
       let body = '';
-      vi.stubGlobal('fetch', vi.fn((u: string, i: any) => {
+      vi.stubGlobal('fetch', vi.fn((_u: string, i: any) => {
         body = i.body;
         return Promise.resolve(okJson(true));
       }));
