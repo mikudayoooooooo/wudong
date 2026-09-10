@@ -11,7 +11,9 @@ services:
     volumes:
       - cool-admin-data:/root/.cool-admin # 上传文件/缓存持久化
     networks: [wudong-net]
-    expose: ["8001"] # 仅容器网络内部可见，不占宿主机端口
+    expose: ["8001"] # 仅容器网络内部可见（nginx 走内网）
+    ports:
+      - "8001:8001" # 宿主机调试/冒烟用：C端 vite 代理与 curl 直连
 
   admin:
     build: ./cool-admin-vue
