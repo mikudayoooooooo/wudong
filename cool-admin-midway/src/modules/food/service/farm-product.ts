@@ -149,18 +149,13 @@ export class FarmProductService extends BaseService {
    * C端：获取农产品详情
    */
   async getDetail(id: number) {
-    const product = await this.farmProductEntity
-      .createQueryBuilder('product')
-      .where('product.id = :id', { id })
-      .andWhere('product.status = :status', { status: 1 })
-      .getOne();
+    const product = await this.farmProductEntity.findOne({
+      where: { id, status: 1 },
+    });
 
     if (!product) {
       return null;
     }
-
-    // 增加浏览量
-    await this.farmProductEntity.increment({ id }, 'views', 1);
 
     return product;
   }
