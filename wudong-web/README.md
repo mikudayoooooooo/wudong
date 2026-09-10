@@ -90,7 +90,8 @@ wudong-web/
 | `/merchant/hotels/:id/rooms` | 房型管理 | 房型增删改、房态入口 |
 | `/merchant/rooms/:id/calendar` | 房态日历 | 7/30 天窗口，按区间批量设价/设可售间数/关房，可限定星期几 |
 
-后端接口一律挂在 `/app/accommodation/merchant/**`（前缀显式声明），归属校验集中在
+民宿 / 房型 / 房态这 11 个接口挂在 `/app/accommodation/merchant/**`（前缀显式声明）；
+登录 / 注册 / 验证码在 `/app/member/login/*`，入驻申请 / 我的店铺 / 申请进度在 `/app/merchant/*`。归属校验集中在
 `accommodation/service/merchant-scope.ts`：非正常状态商家 → `仅商家可访问`；非本人民宿/房型 →
 `无权操作该资源`（不区分“不存在”与“非本人”，避免探测）。
 
