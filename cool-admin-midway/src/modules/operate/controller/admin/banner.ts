@@ -10,7 +10,6 @@ import { BannerEntity } from '../../entity/banner';
   entity: BannerEntity,
   pageQueryOp: {
     fieldEq: ['a.status', 'a.position'],
-    keyWordLikeFields: ['a.title'],
   },
 })
 export class AdminOperateBannerController extends BaseController {}
