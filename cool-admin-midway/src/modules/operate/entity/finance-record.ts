@@ -1,6 +1,5 @@
 import { BaseEntity, transformerTime } from '../../base/entity/base';
 import { Column, Entity, Index } from 'typeorm';
-
 /**
  * 财务记录（本期只建表，结算逻辑 Phase 4）
  */
@@ -9,7 +8,6 @@ export class FinanceRecordEntity extends BaseEntity {
   @Index()
   @Column({ comment: '订单ID' })
   orderId: number;
-
   @Index()
   @Column({ comment: '商家ID' })
   merchantId: number;
@@ -22,7 +20,6 @@ export class FinanceRecordEntity extends BaseEntity {
     default: 0,
   })
   orderAmount: number;
-
   @Column({
     comment: '抽佣比例（%）',
     type: 'decimal',
@@ -31,7 +28,6 @@ export class FinanceRecordEntity extends BaseEntity {
     default: 0,
   })
   commissionRate: number;
-
   @Column({
     comment: '平台抽佣',
     type: 'decimal',
@@ -40,7 +36,6 @@ export class FinanceRecordEntity extends BaseEntity {
     default: 0,
   })
   commissionAmount: number;
-
   @Column({
     comment: '商家收入',
     type: 'decimal',
