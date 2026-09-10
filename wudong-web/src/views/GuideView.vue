@@ -1,8 +1,14 @@
 <script setup lang="ts">
-import { getGuides } from '../data/mock'
+import { ref, onMounted } from 'vue'
+import { travelApi } from '../api/travel'
 
-const guides = getGuides()
-const maxCost = Math.max(...guides.map((g) => g.cost))
+const guides = ref<any[]>([])
+const maxCost = ref(1)
+
+onMounted(async () => {
+  guides.value = await travelApi.guideList()
+  maxCost.value = Math.max(...guides.value.map((g) => Number(g.cost)), 1)
+})
 </script>
 
 <template>

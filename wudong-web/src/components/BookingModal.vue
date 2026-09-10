@@ -1,35 +1,54 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useSession } from '../stores/session'
-import { useBooking } from '../stores/booking'
-import { getInventories } from '../data/mock'
+import { travelApi } from '../api/travel'
+import { orderApi } from '../api/operate'
 
 const props = defineProps<{ open: boolean; itemType: 'ticket' | 'route'; itemId: number }>()
 const emit = defineEmits<{ close: []; success: [orderNo: string] }>()
 
 const session = useSession()
-const booking = useBooking()
-const dates = computed(() => getInventories(props.itemType, props.itemId))
+const dates = ref<{ itemType: string; itemId: number; useDate: string; total: number; sold: number }[]>([])
 const chosenDate = ref('')
 const people = ref(1)
 const paying = ref(false)
 const done = ref(false)
 const orderNo = ref('')
 
-const stockText = (inv: { sold: number; total: number }): string => (inv.sold >= inv.total ? '满' : `余${inv.total - inv.sold}`)
-const canConfirm = computed(() => session.isLogged && !!chosenDate.value && !paying.value && !done.value)
+watch(
+  () => [props.open, props.itemType, props.itemId],
+  async () => {
+    if (!props.open) return
+    chosenDate.value = ''
+    dates.value = await travelApi.inventoryList(props.itemType, props.itemId)
+  },
+  { immediate: true }
+)
+
+const stockText = (inv: { sold: number; total: number }): string =>
+  inv.sold >= inv.total ? '满' : `余${inv.total - inv.sold}`
+const canConfirm = computed(
+  () => session.isLogged && !!chosenDate.value && !paying.value && !done.value
+)
 
 async function confirm(): Promise<void> {
   if (!canConfirm.value) return
   paying.value = true
-  await new Promise((r) => setTimeout(r, 800)) // 模拟支付
   try {
-    const r = booking.createBooking({ itemType: props.itemType, itemId: props.itemId, useDate: chosenDate.value, quantity: people.value })
+    // 下单（服务端查价+扣库存+出票）→ 创建支付单 → 模拟支付
+    const r = await travelApi.bookingCreate({
+      itemType: props.itemType,
+      itemId: props.itemId,
+      useDate: chosenDate.value,
+      quantity: people.value,
+    })
+    const pay = await orderApi.payCreate(r.orderNo)
+    await orderApi.payMock(pay.paymentNo)
     orderNo.value = r.orderNo
     done.value = true
     emit('success', r.orderNo)
-  } catch (e) {
-    alert((e as Error).message)
+  } catch (e: any) {
+    alert(e?.message || '下单失败')
   } finally {
     paying.value = false
   }
@@ -43,7 +62,7 @@ async function confirm(): Promise<void> {
 
       <template v-if="!done">
         <b class="title">🎫 预订</b>
-        <div v-if="!session.isLogged" class="login-tip">请先登录（demo 右上角登录）</div>
+        <div v-if="!session.isLogged" class="login-tip">请先登录（右上角登录）</div>
         <div class="dates">
           <div
             v-for="inv in dates" :key="inv.useDate" class="date-cell"

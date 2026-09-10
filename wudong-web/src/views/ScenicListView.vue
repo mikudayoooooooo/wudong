@@ -1,24 +1,28 @@
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { getAllSpots, getTicketTypes } from '../data/mock'
-import { spotLightCounts } from '../lib/footprint'
+import { travelApi } from '../api/travel'
 
 const router = useRouter()
 const KIND: Record<string, string> = { spot: '景区', dining: '餐饮', stay: '住宿', experience: '体验' }
+const spots = ref<any[]>([])
+
+onMounted(async () => {
+  spots.value = await travelApi.scenicList()
+})
 </script>
 
 <template>
   <div class="container">
     <h2>🎫 景区与地点</h2>
     <div class="cards">
-      <div v-for="s in getAllSpots()" :key="s.id" class="card sc" @click="router.push(`/scenic/${s.id}`)">
-        <span class="icon">{{ s.icon }}</span>
+      <div v-for="s in spots" :key="s.id" class="card sc" @click="router.push(`/scenic/${s.id}`)">
+        <span class="icon">📍</span>
         <div class="info">
           <b>{{ s.name }} <i class="pill kind">{{ KIND[s.type] }}</i></b>
           <div class="addr">{{ s.address }} · {{ s.openTime }}</div>
           <div class="foot">
-            <span class="hot" v-if="spotLightCounts(s.id) > 0">🔥 本周点亮 {{ spotLightCounts(s.id) }}</span>
-            <span v-if="getTicketTypes(s.id).length" class="price">¥{{ Math.min(...getTicketTypes(s.id).map((t) => t.price)) }}起</span>
+            <span v-if="s.intro" class="hot">{{ s.intro }}</span>
           </div>
         </div>
       </div>

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { getPosts, getTopics } from '../data/mock'
-import { sortPosts } from '../lib/feed'
+import { communityApi } from '../api/community'
+import { travelApi } from '../api/travel'
 import { useSession } from '../stores/session'
 import Waterfall from '../components/Waterfall.vue'
 import RouteQuickView from '../components/RouteQuickView.vue'
@@ -10,31 +10,54 @@ import RouteQuickView from '../components/RouteQuickView.vue'
 const router = useRouter()
 const session = useSession()
 const tab = ref<'recommend' | 'latest' | 'follow'>('recommend')
-const topics = getTopics()
-const posts = computed(() => sortPosts(getPosts(), tab.value, [2])) // mock：关注的人=用户2
+const topics = ref<any[]>([])
+const posts = ref<any[]>([])
+const routeTitleMap = ref(new Map<number, string>())
 const quickRouteId = ref<number | null>(null)
 const filteredRoute = ref<number | null>(null)
 
-const shown = computed(() =>
-  filteredRoute.value === null ? posts.value : posts.value.filter((p) => p.linkedRouteId === filteredRoute.value),
-)
+async function load() {
+  const [feed, topicList, routes] = await Promise.all([
+    communityApi.feed(tab.value, 1, 30, filteredRoute.value ?? undefined),
+    communityApi.topicList(),
+    travelApi.routeList(),
+  ])
+  posts.value = feed.list.map((p) => ({
+    ...p,
+    routeTitle: p.linkedRouteId ? routes.find((r) => r.id === p.linkedRouteId)?.title : undefined,
+  }))
+  topics.value = topicList
+  routeTitleMap.value = new Map(routes.map((r) => [r.id, r.title]))
+}
+
+onMounted(load)
+
+async function onTab(t: 'recommend' | 'latest' | 'follow') {
+  if (t === 'follow' && !session.isLogged) {
+    alert('关注流需要登录（右上角登录）')
+    return
+  }
+  tab.value = t
+  filteredRoute.value = null
+  await load()
+}
+
+const shown = computed(() => posts.value)
 
 function onTag(rid: number): void {
   quickRouteId.value = rid
 }
-function onViewPosts(rid: number): void {
+async function onViewPosts(rid: number): Promise<void> {
   filteredRoute.value = rid
   quickRouteId.value = null
+  await load()
 }
 function onBook(rid: number): void {
   router.push(`/route/${rid}`)
 }
-function onTab(t: 'recommend' | 'latest' | 'follow'): void {
-  if (t === 'follow' && !session.isLogged) {
-    session.login() // demo：未登录时静默 mock 登录
-  }
-  tab.value = t
+async function clearFilter(): Promise<void> {
   filteredRoute.value = null
+  await load()
 }
 </script>
 
@@ -52,7 +75,7 @@ function onTab(t: 'recommend' | 'latest' | 'follow'): void {
         >{{ t.name }}</span>
       </div>
       <div v-if="filteredRoute" class="filter-bar">
-        正在看路线相关游记 <a @click="filteredRoute = null">清除过滤 ✕</a>
+        正在看路线相关游记 <a @click="clearFilter">清除过滤 ✕</a>
       </div>
       <Waterfall :posts="shown" @open="(id) => router.push(`/post/${id}`)" @tag="onTag" />
       <div v-if="!shown.length" class="empty card">暂无内容</div>

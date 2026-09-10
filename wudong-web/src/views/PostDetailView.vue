@@ -1,21 +1,41 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { getPost, getUser, getRoute, getTopic } from '../data/mock'
-import { postFootprintView } from '../lib/footprint'
+import { computed, ref, watch } from 'vue'
+import { useRoute as useRouteParam, useRouter } from 'vue-router'
+import { communityApi } from '../api/community'
+import { travelApi } from '../api/travel'
 import FootprintMap from '../components/FootprintMap.vue'
 import RouteQuickView from '../components/RouteQuickView.vue'
 
-const routeParam = useRoute()
+const routeParam = useRouteParam()
 const router = useRouter()
 const postId = computed(() => Number(routeParam.params.id))
-const post = computed(() => getPost(postId.value))
-const author = computed(() => (post.value ? getUser(post.value.userId) : undefined))
-const route = computed(() => (post.value?.linkedRouteId ? getRoute(post.value.linkedRouteId) : undefined))
+const post = ref<any>(null)
+
+watch(
+  postId,
+  async (id) => {
+    post.value = null
+    if (!id) return
+    post.value = await communityApi.postDetail(id)
+    if (post.value?.linkedRouteId) {
+      const r = await travelApi.routeDetail(post.value.linkedRouteId)
+      post.value.routeTitle = r?.title
+      post.value.routePrice = r?.price
+    }
+  },
+  { immediate: true }
+)
+
+const author = computed(() => post.value?.author)
+const route = computed(() =>
+  post.value?.linkedRouteId
+    ? { id: post.value.linkedRouteId, title: post.value.routeTitle, price: post.value.routePrice }
+    : undefined
+)
 
 const expanded = ref(false)
 const quickRouteId = ref<number | null>(null)
-const view = computed(() => postFootprintView(postId.value))
+const view = computed(() => post.value?.footprint || { mode: 'auto', stops: [] })
 const litCount = computed(() => view.value.stops.filter((s) => s.lit).length)
 const lockedCount = computed(() => view.value.stops.filter((s) => s.locked).length)
 
@@ -41,8 +61,8 @@ function onChip(spotId: number): void {
       </div>
       <p class="content">{{ post.content }}</p>
       <div class="topics">
-        <span v-for="tid in post.topicIds" :key="tid" class="pill topic-chip" @click="router.push(`/topic/${tid}`)">
-          {{ getTopic(tid)?.name }}
+        <span v-for="t in post.topics" :key="t.id" class="pill topic-chip" @click="router.push(`/topic/${t.id}`)">
+          {{ t.name }}
         </span>
       </div>
       <div class="actions">

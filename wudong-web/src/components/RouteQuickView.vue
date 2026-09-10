@@ -1,16 +1,25 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { getRoute, getPosts } from '../data/mock'
-import { routeStopsView } from '../lib/footprint'
+import { ref, watch } from 'vue'
+import { travelApi } from '../api/travel'
+import { communityApi } from '../api/community'
 import FootprintMap from './FootprintMap.vue'
 
 const props = defineProps<{ routeId: number | null }>()
 const emit = defineEmits<{ close: []; viewPosts: [routeId: number]; book: [routeId: number] }>()
 
-const route = computed(() => (props.routeId === null ? undefined : getRoute(props.routeId)))
-const stops = computed(() => (props.routeId === null ? [] : routeStopsView(props.routeId)))
-const relatedCount = computed(
-  () => getPosts().filter((p) => p.linkedRouteId === props.routeId).length,
+const route = ref<any>(null)
+const relatedCount = ref(0)
+
+watch(
+  () => props.routeId,
+  async (id) => {
+    route.value = null
+    if (id === null) return
+    route.value = await travelApi.routeDetail(id)
+    const feed = await communityApi.feed('latest', 1, 50, id)
+    relatedCount.value = feed.total
+  },
+  { immediate: true }
 )
 </script>
 
@@ -21,7 +30,7 @@ const relatedCount = computed(
       <b class="title">{{ route.title }}</b>
       <div class="meta">{{ route.days }}天{{ route.days > 1 ? '1晚' : '' }} · ¥{{ route.price }}起 · 已售 {{ route.sales }}</div>
     </header>
-    <FootprintMap :stops="stops" variant="mini" />
+    <FootprintMap :stops="route.stops || []" variant="mini" />
     <div class="foot">
       <div>📷 相关游记 <b>{{ relatedCount }}</b> 篇</div>
       <div class="btns">

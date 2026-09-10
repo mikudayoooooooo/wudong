@@ -1,39 +1,58 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getUser, getPosts, getAllSpots } from '../data/mock'
-import { userLitSpotIds } from '../lib/footprint'
+import { communityApi } from '../api/community'
+import { travelApi, type StopView } from '../api/travel'
 import FootprintMap from '../components/FootprintMap.vue'
 import Waterfall from '../components/Waterfall.vue'
 
 const routeParam = useRoute()
 const router = useRouter()
 const userId = computed(() => Number(routeParam.params.id))
-const user = computed(() => getUser(userId.value))
-const posts = computed(() => getPosts().filter((p) => p.userId === userId.value))
-const totalLikes = computed(() => posts.value.reduce((s, p) => s + p.likeCount, 0))
-const litIds = computed(() => userLitSpotIds(userId.value))
-const archiveStops = computed(() =>
-  getAllSpots().filter((s) => litIds.value.has(s.id)).map((s) => ({
-    spotId: s.id, name: s.name, icon: s.icon, lit: true, locked: false,
-  })),
+const profile = ref<any>(null)
+const routeTitleMap = ref(new Map<number, string>())
+
+watch(
+  userId,
+  async (id) => {
+    profile.value = await communityApi.userProfile(id)
+  },
+  { immediate: true }
 )
-const badge = computed(() => (litIds.value.size >= 4 ? '🏅 足迹达人' : '🌱 初来乍到'))
+travelApi.routeList().then((rs) => {
+  routeTitleMap.value = new Map(rs.map((r) => [r.id, r.title]))
+})
+
+const posts = computed(() =>
+  (profile.value?.posts || []).map((p: any) => ({
+    ...p,
+    author: { id: profile.value.id, nickname: profile.value.nickname, avatar: profile.value.avatar },
+    routeTitle: p.linkedRouteId ? routeTitleMap.value.get(p.linkedRouteId) : undefined,
+  }))
+)
+const totalLikes = computed(() => profile.value?.likeCount ?? 0)
+const badge = computed(() => profile.value?.badge || '初来乍到')
+const litCount = computed(() => profile.value?.litCount ?? 0)
+const archiveStops = computed<StopView[]>(() =>
+  (profile.value?.litSpotIds || []).map((id: number) => ({
+    spotId: id, lit: true, locked: false,
+  }))
+)
 </script>
 
 <template>
-  <div v-if="user" class="container page">
+  <div v-if="profile" class="container page">
     <section class="card head">
-      <span class="avatar">{{ user.avatar }}</span>
+      <span class="avatar">{{ profile.avatar }}</span>
       <div class="who">
-        <b>@{{ user.nickname }}</b>
-        <div class="bio">{{ user.bio }}</div>
-        <div class="stats">游记 {{ posts.length }} 篇 · 获赞 {{ totalLikes }}</div>
+        <b>@{{ profile.nickname }}</b>
+        <div class="bio">{{ profile.bio }}</div>
+        <div class="stats">游记 {{ profile.postCount }} 篇 · 获赞 {{ totalLikes }}</div>
       </div>
-      <span class="pill badge-chip">{{ badge }} · 点亮 {{ litIds.size }}/6 站</span>
+      <span class="pill badge-chip">🏅 {{ badge }} · 点亮 {{ litCount }}/6 站</span>
     </section>
 
-    <FootprintMap :stops="archiveStops" variant="overview" :title="`🧭 TA 的乌东足迹档案`" @select="(id) => router.push(`/scenic/${id}`)" />
+    <FootprintMap :stops="archiveStops" variant="overview" title="🧭 TA 的乌东足迹档案" @select="(id) => router.push(`/scenic/${id}`)" />
 
     <Waterfall class="feed" :posts="posts" @open="(id) => router.push(`/post/${id}`)" @tag="(rid) => router.push(`/route/${rid}`)" />
   </div>

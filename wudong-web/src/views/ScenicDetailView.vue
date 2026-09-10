@@ -1,24 +1,33 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getSpot, getTicketTypes, getReviews, getUser, getRoutes, getItinerary, getInventories } from '../data/mock'
+import { travelApi } from '../api/travel'
 import SectionHeader from '../components/SectionHeader.vue'
 import BookingModal from '../components/BookingModal.vue'
 
 const routeParam = useRoute()
 const router = useRouter()
 const spotId = computed(() => Number(routeParam.params.id))
-const spot = computed(() => getSpot(spotId.value))
-const tickets = computed(() => getTicketTypes(spotId.value))
-const reviews = computed(() => getReviews('scenic', spotId.value))
-const relatedRoutes = computed(() =>
-  getRoutes().filter((r) => getItinerary(r.id).some((s) => s.spotId === spotId.value)),
+const spot = ref<any>(null)
+
+watch(
+  spotId,
+  async (id) => {
+    spot.value = null
+    if (id) spot.value = await travelApi.scenicDetail(id)
+  },
+  { immediate: true }
 )
 
+const tickets = computed(() => spot.value?.tickets || [])
+const reviews = computed(() => spot.value?.reviews || [])
+const relatedRoutes = computed(() => spot.value?.relatedRoutes || [])
+
 const buyTicketId = ref<number | null>(null)
-function onBuy(ticketId: number): void {
-  if (!getInventories('ticket', ticketId).length) {
-    alert('该票种演示数据未配库存')
+async function onBuy(ticketId: number): Promise<void> {
+  const inv = await travelApi.inventoryList('ticket', ticketId)
+  if (!inv.length) {
+    alert('该票种暂未配置日期库存')
     return
   }
   buyTicketId.value = ticketId
@@ -27,7 +36,7 @@ function onBuy(ticketId: number): void {
 
 <template>
   <div v-if="spot" class="container">
-    <div class="ph cover ph-0">{{ spot.icon }} {{ spot.name }}</div>
+    <div class="ph cover ph-0">📍 {{ spot.name }}</div>
     <section class="card info">
       <h2>{{ spot.name }} <span class="pill chip">{{ spot.intro }}</span></h2>
       <div class="meta">📍 {{ spot.address }} · 🕐 {{ spot.openTime }}</div>
@@ -38,7 +47,7 @@ function onBuy(ticketId: number): void {
       <div v-for="t in tickets" :key="t.id" class="card tk">
         <b>{{ t.name }}</b>
         <div class="price">¥{{ t.price }}</div>
-        <div class="stock">库存 {{ t.stock }}</div>
+        <div class="stock">总库存 {{ t.totalStock }}</div>
         <button class="btn-primary" @click="onBuy(t.id)">选日期购票</button>
       </div>
       <div v-if="!tickets.length" class="card tk empty">此地点暂无可售票种（餐饮/住宿/体验类）</div>
@@ -56,7 +65,7 @@ function onBuy(ticketId: number): void {
     <SectionHeader icon="⭐" title="用户评价" />
     <section class="card rvs">
       <div v-for="r in reviews" :key="r.id" class="rv">
-        <b>{{ getUser(r.userId)?.avatar }} {{ getUser(r.userId)?.nickname }}</b>
+        <b>{{ r.avatar }} {{ r.nickname }}</b>
         <span class="stars">{{ '★'.repeat(r.rating) }}</span>
         <p>{{ r.content }}</p>
       </div>

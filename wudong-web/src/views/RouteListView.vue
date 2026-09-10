@@ -1,17 +1,21 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { getRoutes, getItinerary } from '../data/mock'
-import { spotLightCounts } from '../lib/footprint'
+import { travelApi, type RouteDetail } from '../api/travel'
 
 const router = useRouter()
 const theme = ref('全部')
 const themes = ['全部', '经典', '摄影', '亲子', '节庆']
-const routes = computed(() => getRoutes().filter((r) => theme.value === '全部' || r.theme === theme.value))
+const all = ref<RouteDetail[]>([])
+const routes = computed(() => all.value.filter((r) => theme.value === '全部' || r.theme === theme.value))
 
-function avgLit(routeId: number): { lit: number; total: number } {
-  const stops = getItinerary(routeId)
-  return { lit: stops.filter((s) => spotLightCounts(s.spotId) > 0).length, total: stops.length }
+onMounted(async () => {
+  all.value = await travelApi.routeList()
+})
+
+function avgLit(r: RouteDetail): { lit: number; total: number } {
+  const stops = r.stops || []
+  return { lit: stops.filter((s) => s.lit).length, total: stops.length }
 }
 </script>
 
@@ -28,7 +32,7 @@ function avgLit(routeId: number): { lit: number; total: number } {
           <b>{{ r.title }}</b>
           <div class="meta">⭐ 好评 {{ r.notice.includes('24小时') ? '98%' : '96%' }} · 已售 {{ r.sales }}</div>
           <div class="badge-line">
-            <span class="pill lit-badge">🧭 平均点亮 {{ avgLit(r.id).lit }}/{{ avgLit(r.id).total }} 站</span>
+            <span class="pill lit-badge">🧭 平均点亮 {{ avgLit(r).lit }}/{{ avgLit(r).total }} 站</span>
           </div>
           <div class="price">¥{{ r.price }} <span>起</span></div>
         </div>

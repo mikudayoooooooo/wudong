@@ -1,21 +1,35 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { getRoute, getInventories, getReviews, getUser, getPosts } from '../data/mock'
-import { routeStopsView } from '../lib/footprint'
+import { computed, ref, watch } from 'vue'
+import { useRoute as useRouteParam, useRouter } from 'vue-router'
+import { travelApi, type RouteDetail } from '../api/travel'
+import { communityApi } from '../api/community'
 import FootprintMap from '../components/FootprintMap.vue'
 import PostCard from '../components/PostCard.vue'
 import SectionHeader from '../components/SectionHeader.vue'
 import BookingModal from '../components/BookingModal.vue'
 
-const routeParam = useRoute()
+const routeParam = useRouteParam()
 const router = useRouter()
 const routeId = computed(() => Number(routeParam.params.id))
-const route = computed(() => getRoute(routeId.value))
-const stops = computed(() => routeStopsView(routeId.value))
-const dates = computed(() => getInventories('route', routeId.value))
-const reviews = computed(() => getReviews('route', routeId.value))
-const linkedPosts = computed(() => getPosts().filter((p) => p.linkedRouteId === routeId.value))
+const route = ref<RouteDetail | null>(null)
+const linkedPosts = ref<any[]>([])
+
+watch(
+  routeId,
+  async (id) => {
+    route.value = null
+    if (!id) return
+    route.value = await travelApi.routeDetail(id)
+    const feed = await communityApi.feed('latest', 1, 6, id)
+    // 附路线标题给卡片标签
+    linkedPosts.value = feed.list.map((p) => ({ ...p, routeTitle: route.value?.title }))
+  },
+  { immediate: true }
+)
+
+const stops = computed(() => route.value?.stops || [])
+const dates = computed(() => route.value?.inventories || [])
+const reviews = computed(() => route.value?.reviews || [])
 
 const chosenDate = ref('')
 const people = ref(2)
@@ -92,7 +106,7 @@ function onBook(): void {
     <section class="reviews card">
       <b>⭐ 游客评价（{{ reviews.length }}）</b>
       <div v-for="r in reviews" :key="r.id" class="rv">
-        <b>{{ getUser(r.userId)?.avatar }} {{ getUser(r.userId)?.nickname }}</b>
+        <b>{{ r.avatar }} {{ r.nickname }}</b>
         <span class="stars">{{ '★'.repeat(r.rating) }}</span>
         <p>{{ r.content }}</p>
       </div>

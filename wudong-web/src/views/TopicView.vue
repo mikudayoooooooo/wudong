@@ -1,14 +1,36 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getTopic, getRoute, getPosts } from '../data/mock'
+import { communityApi } from '../api/community'
+import { travelApi } from '../api/travel'
 import Waterfall from '../components/Waterfall.vue'
 
 const routeParam = useRoute()
 const router = useRouter()
-const topic = computed(() => getTopic(Number(routeParam.params.id)))
-const posts = computed(() => getPosts().filter((p) => p.topicIds.includes(topic.value?.id ?? -1)))
-const routes = computed(() => (topic.value?.bindRouteIds ?? []).map((id) => getRoute(id)).filter(Boolean))
+const topic = ref<any>(null)
+const routeTitleMap = ref(new Map<number, string>())
+const routeTitle = (id: number) => routeTitleMap.value.get(id) || '路线'
+
+watch(
+  () => Number(routeParam.params.id),
+  async (id) => {
+    topic.value = await communityApi.topicDetail(id)
+  },
+  { immediate: true }
+)
+travelApi.routeList().then((rs) => {
+  routeTitleMap.value = new Map(rs.map((r) => [r.id, r.title]))
+})
+
+const posts = computed(() =>
+  (topic.value?.posts || []).map((p: any) => ({
+    ...p,
+    routeTitle: p.linkedRouteId ? routeTitleMap.value.get(p.linkedRouteId) : undefined,
+  }))
+)
+const routes = computed(() =>
+  (topic.value?.bindRouteIds || []).map((id: number) => ({ id }))
+)
 </script>
 
 <template>
@@ -18,8 +40,8 @@ const routes = computed(() => (topic.value?.bindRouteIds ?? []).map((id) => getR
       <span class="intro">{{ topic.intro }} · {{ topic.viewCount.toLocaleString() }} 浏览</span>
       <div v-if="routes.length" class="bind">
         <span class="label">本话题相关路线：</span>
-        <a v-for="r in routes" :key="r!.id" class="pill rc" @click="router.push(`/route/${r!.id}`)">
-          🗺 {{ r!.title }} · 去订 ›
+        <a v-for="r in routes" :key="r.id" class="pill rc" @click="router.push(`/route/${r.id}`)">
+          🗺 {{ routeTitle(r.id) }} · 去订 ›
         </a>
       </div>
     </section>

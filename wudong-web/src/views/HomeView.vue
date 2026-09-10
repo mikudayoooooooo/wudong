@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import HeroCarousel from '../components/HeroCarousel.vue'
 import FootprintMap from '../components/FootprintMap.vue'
 import SectionHeader from '../components/SectionHeader.vue'
 import Waterfall from '../components/Waterfall.vue'
 import CountUp from '../components/CountUp.vue'
-import { weeklyLeaderboard } from '../lib/stats'
-import { sortPosts } from '../lib/feed'
-import { getRoutes, getAllSpots, getPosts, getTopics, getUsers, getGuides, getPostFootprints } from '../data/mock'
-import { routeStopsView, userLitSpotIds } from '../lib/footprint'
+import { travelApi, type StopView } from '../api/travel'
+import { communityApi } from '../api/community'
+import { operateApi } from '../api/operate'
 
 const router = useRouter()
 const bookDate = ref('2026-09-13')
@@ -24,35 +23,80 @@ const kingkong = [
   { icon: '🛍️', label: '非遗好物', to: '', disabled: true },
 ]
 
-// 首页地图：所有路线的站点合并去重后展示
-const overviewStops = (() => {
-  const seen = new Map<number, ReturnType<typeof routeStopsView>[number]>()
-  for (const r of getRoutes()) for (const s of routeStopsView(r.id)) if (!seen.has(s.spotId)) seen.set(s.spotId, s)
-  return [...getAllSpots()].filter((s) => seen.has(s.id)).map((s) => seen.get(s.id)!)
-})()
+// —— 异步数据 ——
+const overviewStops = ref<StopView[]>([])
+const board = ref<{ spotId: number; name: string; kind: string; count: number }[]>([])
+const highlightPosts = ref<any[]>([])
+const feedPosts = ref<any[]>([])
+const topicRank = ref<any[]>([])
+const activeUsers = ref<any[]>([])
+const guides = ref<any[]>([])
+const announcements = ref<any[]>([])
+const routeTitleMap = ref(new Map<number, string>())
 
-const board = weeklyLeaderboard()
-const barWidth = (i: number): string => `${Math.max((board[i].count / (board[0].count || 1)) * 100, 6)}%`
+const KIND: Record<string, string> = { spot: '景区', dining: '餐饮 · 食', stay: '住宿 · 住', experience: '体验' }
+const gradOf = (i: number): string =>
+  ['linear-gradient(120deg,#7fae8e,#33523e)', 'linear-gradient(120deg,#c9a06b,#8a5f2e)', 'linear-gradient(120deg,#8e7fae,#4a3a6a)'][i % 3]
 
-// 区块5：足迹精选（有足迹快照的游记按点赞取3）
-const highlightPosts = sortPosts(getPosts(), 'recommend').filter((p) => p.linkedRouteId).slice(0, 3)
-const gradOf = (i: number): string => ['linear-gradient(120deg,#7fae8e,#33523e)', 'linear-gradient(120deg,#c9a06b,#8a5f2e)', 'linear-gradient(120deg,#8e7fae,#4a3a6a)'][i % 3]
-function getPostFootprintsOf(postId: number): string {
-  const n = getPostFootprints(postId).filter((s) => s.status === 'normal').length
-  return n > 0 ? `${n} 站点亮` : '待生成'
-}
+onMounted(async () => {
+  const [routes, scenicList] = await Promise.all([travelApi.routeList(), travelApi.scenicList()])
+  routeTitleMap.value = new Map(routes.map((r) => [r.id, r.title]))
+  const spotMap = new Map(scenicList.map((s) => [s.id, s]))
 
-// 区块6：瀑布流 + 侧栏
-const feedPosts = sortPosts(getPosts(), 'recommend')
-const topicRank = [...getTopics()].sort((a, b) => b.viewCount - a.viewCount)
-// 活跃旅人 = 按点亮站数排序的用户
-const activeUsers = getUsers()
-  .map((u) => ({ ...u, litCount: userLitSpotIds(u.id).size }))
-  .sort((a, b) => b.litCount - a.litCount)
-  .slice(0, 3)
+  // 区块3 地图总览 + 区块4 足迹榜：各路线行程站点合并（后端已算点亮数）
+  const details = await Promise.all(routes.map((r) => travelApi.routeDetail(r.id)))
+  const seen = new Map<number, StopView>()
+  for (const d of details) {
+    for (const s of d.stops || []) {
+      if (!seen.has(s.spotId)) {
+        seen.set(s.spotId, {
+          ...s,
+          name: s.name || spotMap.get(s.spotId)?.name,
+          type: spotMap.get(s.spotId)?.type,
+        })
+      }
+    }
+  }
+  overviewStops.value = [...seen.values()]
+  board.value = overviewStops.value
+    .map((s) => ({
+      spotId: s.spotId,
+      name: s.name || `站点${s.spotId}`,
+      kind: KIND[(s as any).type] || '景区',
+      count: s.lightCount || 0,
+    }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5)
 
-// 区块7：攻略 + 平台数据
-const guides = getGuides()
+  // 区块5/6：信息流
+  const feed = await communityApi.feed('recommend', 1, 30)
+  feedPosts.value = feed.list.map((p) => ({
+    ...p,
+    routeTitle: p.linkedRouteId ? routeTitleMap.value.get(p.linkedRouteId) : undefined,
+  }))
+  highlightPosts.value = feedPosts.value.filter((p) => p.linkedRouteId).slice(0, 3)
+
+  // 侧栏
+  topicRank.value = (await communityApi.topicList()).sort((a, b) => b.viewCount - a.viewCount)
+  const authors: any[] = []
+  for (const p of feedPosts.value) {
+    if (!authors.find((u) => u.id === p.author.id)) authors.push(p.author)
+    if (authors.length >= 3) break
+  }
+  activeUsers.value = await Promise.all(
+    authors.map(async (u) => {
+      const prof = await communityApi.userProfile(u.id)
+      return { ...u, litCount: prof?.litCount ?? 0 }
+    })
+  )
+
+  // 区块4 公告 + 区块7 攻略
+  guides.value = await travelApi.guideList()
+  announcements.value = (await operateApi.announcements()).slice(0, 3)
+})
+
+const barWidth = (i: number): string =>
+  `${Math.max(((board.value[i]?.count || 0) / (board.value[0]?.count || 1)) * 100, 6)}%`
 </script>
 
 <template>
@@ -110,7 +154,12 @@ const guides = getGuides()
           <a class="link" @click="router.push('/route')">节庆主题路线已上线 ›</a>
         </div>
         <b>📢 公告</b>
-        <div class="notice">· 中秋两日游余票紧张<br />· 新增广州→凯里高铁攻略</div>
+        <div class="notice">
+          <template v-if="announcements.length">
+            <div v-for="a in announcements" :key="a.id">· {{ a.title }}</div>
+          </template>
+          <template v-else>· 暂无公告</template>
+        </div>
       </aside>
     </section>
 
@@ -120,9 +169,9 @@ const guides = getGuides()
       <div v-for="(p, i) in highlightPosts" :key="p.id" class="card hl" @click="router.push(`/post/${p.id}`)">
         <div class="ph hl-img" :style="{ background: gradOf(i) }">{{ p.title }}</div>
         <div class="hl-body">
-          <b>@{{ getUsers().find((u) => u.id === p.userId)?.nickname }}</b>
-          <span class="sub">· {{ getRoutes().find((r) => r.id === p.linkedRouteId)?.title }}</span>
-          <div class="chain-line">🧭 足迹快照 {{ getPostFootprintsOf(p.id) }} · 赞 {{ p.likeCount }}</div>
+          <b>@{{ p.author?.nickname }}</b>
+          <span class="sub">· {{ routeTitleMap.get(p.linkedRouteId) }}</span>
+          <div class="chain-line">🧭 足迹快照 {{ p.footprintLit }}/{{ p.footprintTotal || p.footprintLit }} 站点亮 · 赞 {{ p.likeCount }}</div>
         </div>
       </div>
     </section>
@@ -140,7 +189,7 @@ const guides = getGuides()
         <div class="card side-card">
           <b>🔥 话题榜</b>
           <div class="side-list">
-            <span v-for="t in topicRank" :key="t.id">{{ t.name }} {{ t.viewCount.toLocaleString() }}浏览</span>
+            <span v-for="t in topicRank" :key="t.id">{{ t.name }} {{ Number(t.viewCount).toLocaleString() }}浏览</span>
           </div>
         </div>
         <div class="card side-card">
@@ -153,7 +202,7 @@ const guides = getGuides()
         </div>
         <div class="card side-card">
           <b>🎫 顺手买一票</b>
-          <div class="side-list"><span>苗寨深度两日游 ¥899 ›</span></div>
+          <div class="side-list"><span @click="router.push('/route/1')" style="cursor:pointer">苗寨深度两日游 ¥899 ›</span></div>
         </div>
       </aside>
     </section>
@@ -165,7 +214,7 @@ const guides = getGuides()
         <div class="guide-cards">
           <div v-for="g in guides" :key="g.id" class="g-card">
             <b>{{ g.departure }}出发</b><br />{{ g.transportType }} {{ g.duration }}<br />
-            <b class="cost">约 ¥{{ g.cost }}</b>
+            <b class="cost">约 ¥{{ Number(g.cost) }}</b>
           </div>
         </div>
       </div>
@@ -192,41 +241,44 @@ const guides = getGuides()
 .kk b { font-size: 20px; display: block; }
 .kk span { font-size: 12px; }
 .kk i { display: block; font-style: normal; font-size: 10px; color: #bbb; }
-.kk.disabled { opacity: .55; cursor: default; }
-.board-row { display: flex; gap: 12px; margin-top: 6px; }
-.board { flex: 1; padding: 0 14px 10px; }
-.board table { width: 100%; border-collapse: collapse; font-size: 12px; }
-.board td { padding: 6px 4px; border-bottom: 1px dashed var(--line-soft); }
-.no { display: inline-flex; width: 20px; height: 20px; border-radius: 6px; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 800; background: #ddd; margin-right: 6px; }
-.no-0 { background: var(--orange-500); } .no-1 { background: #eda75a; } .no-2 { background: #c9b37e; }
+.kk.disabled { opacity: .55; cursor: not-allowed; }
+.board-row { display: flex; gap: 12px; margin: 16px 0; }
+.board { flex: 1.6; padding: 12px 16px; }
+.board table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.board td { padding: 5px 0; }
+.board .bar-cell { width: 40%; }
+.board .bar { height: 8px; background: linear-gradient(90deg, var(--orange-500), var(--orange-300)); border-radius: 4px; }
+.board .cnt { color: var(--text-3); font-size: 12px; text-align: right; }
+.no { display: inline-block; width: 18px; height: 18px; line-height: 18px; text-align: center; border-radius: 6px; background: #eee; margin-right: 8px; font-size: 11px; }
+.no-0 { background: var(--orange-500); color: #fff; }
+.no-1 { background: var(--orange-300); color: #fff; }
+.no-2 { background: var(--green-600); color: #fff; }
 .kind { color: var(--text-3); font-size: 11px; }
-.bar-cell { width: 40%; }
-.bar { height: 8px; border-radius: 4px; background: linear-gradient(90deg, var(--orange-500), var(--orange-300)); }
-.cnt { color: var(--amber-text); font-weight: 700; white-space: nowrap; }
-.festival { width: 260px; padding: 12px 14px; background: var(--paper); font-size: 12px; }
-.fest { margin: 6px 0 12px; padding: 8px; background: #fff; border: 1px solid var(--line-soft); border-radius: 8px; }
-.days { font-size: 22px; font-weight: 800; color: var(--orange-700); }
-.link { color: var(--amber-text); cursor: pointer; font-size: 11px; }
-.notice { color: var(--text-3); margin-top: 4px; }
-.hl-row { display: flex; gap: 12px; }
-.hl { flex: 1; cursor: pointer; }
-.hl-img { height: 86px; border-radius: 0; font-size: 13px; font-weight: 600; }
-.hl-body { padding: 8px 10px; font-size: 12px; }
-.chain-line { color: var(--amber-text); font-size: 11px; margin-top: 4px; }
-.feed-row { display: flex; gap: 12px; margin-top: 6px; }
+.festival { flex: 1; padding: 12px 16px; }
+.fest { margin: 8px 0 14px; }
+.days { font-size: 26px; font-weight: 800; color: var(--orange-500); }
+.link { color: var(--amber-text); font-size: 12px; cursor: pointer; }
+.notice { font-size: 12px; color: var(--text-2); line-height: 1.8; }
+.hl-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.hl { overflow: hidden; cursor: pointer; }
+.hl-img { height: 110px; display: flex; align-items: flex-end; padding: 10px; color: #fff; font-weight: 700; font-size: 14px; }
+.hl-body { padding: 10px 12px; font-size: 12px; }
+.chain-line { color: var(--text-3); margin-top: 4px; font-size: 11px; }
+.feed-row { display: flex; gap: 12px; margin-top: 16px; }
 .feed-main { flex: 1; }
-.tabs { display: flex; gap: 8px; margin-bottom: 10px; font-size: 12px; }
-.tab { background: #f2f2f2; cursor: pointer; }
+.tabs { display: flex; gap: 8px; margin-bottom: 10px; }
+.tab { background: #f2f2f2; }
 .tab.on { background: var(--green-600); color: #fff; }
 .side { width: 240px; display: flex; flex-direction: column; gap: 12px; }
-.side-card { padding: 10px 12px; font-size: 12px; background: var(--paper); }
-.side-list { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; color: var(--text-2); }
+.side-card { padding: 12px 14px; }
+.side-card b { font-size: 13px; }
+.side-list { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--text-2); margin-top: 8px; }
 .side-list span { cursor: pointer; }
-.serv-row { display: flex; gap: 12px; margin: 18px 0 30px; }
-.guides { flex: 1.3; padding: 12px 14px; }
-.guide-cards { display: flex; gap: 8px; margin-top: 8px; }
-.g-card { flex: 1; background: #f7f9f6; border-radius: 8px; padding: 8px; font-size: 11px; }
+.serv-row { display: flex; gap: 12px; margin: 16px 0 30px; }
+.guides { flex: 1.4; padding: 12px 16px; }
+.guide-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; font-size: 12px; }
+.g-card { background: #f7f9f6; border-radius: 8px; padding: 8px 10px; line-height: 1.7; }
 .cost { color: var(--orange-700); }
 .stats { flex: 1; display: flex; gap: 10px; }
-.stat { flex: 1; background: var(--green-900); color: #fff; border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; padding: 12px 0; }
+.stat { flex: 1; background: var(--green-900); color: #fff; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; font-size: 12px; }
 </style>

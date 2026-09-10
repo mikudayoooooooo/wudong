@@ -1,29 +1,32 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import { getRecommendSlots } from '../data/mock'
+import { travelApi } from '../api/travel'
 
 const props = withDefaults(defineProps<{ autoMs?: number }>(), { autoMs: 5000 })
 const emit = defineEmits<{ open: [itemType: string, itemId: number] }>()
 
-const slots = getRecommendSlots()
+const slots = ref<any[]>([])
 const current = ref(0)
 let timer: number | undefined
 
 function schedule(): void {
   timer = window.setInterval(() => {
-    if (!hovering.value) current.value = (current.value + 1) % slots.length
+    if (!hovering.value && slots.value.length) current.value = (current.value + 1) % slots.value.length
   }, props.autoMs)
 }
 const hovering = ref(false)
 
-onMounted(schedule)
+onMounted(async () => {
+  slots.value = await travelApi.recommendList('home')
+  schedule()
+})
 onUnmounted(() => clearInterval(timer))
 
 function go(i: number): void {
   current.value = i
 }
 function shift(delta: number): void {
-  current.value = (current.value + delta + slots.length) % slots.length
+  current.value = (current.value + delta + slots.value.length) % slots.value.length
 }
 function gradient(i: number): string {
   return ['#33523e,#4a7a5c', '#7a4a2e,#a9703f', '#2e4a6b,#3f6a96'][i % 3]

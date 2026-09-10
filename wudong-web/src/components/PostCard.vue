@@ -1,21 +1,19 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { Post } from '../types'
-import { getUser, getRoute, getPostFootprints } from '../data/mock'
 import MiniChain from './MiniChain.vue'
 
-const props = defineProps<{ post: Post }>()
+/** post：后端 feed/detail 行（含 author、footprintLit/footprintTotal、routeTitle 可选） */
+const props = defineProps<{ post: any }>()
 const emit = defineEmits<{ open: [postId: number]; tag: [routeId: number] }>()
 
-const author = computed(() => getUser(props.post.userId))
-const route = computed(() => (props.post.linkedRouteId ? getRoute(props.post.linkedRouteId) : undefined))
+const author = computed(() => props.post.author || { avatar: '👤', nickname: '已注销' })
 const chain = computed(() => {
-  const snaps = getPostFootprints(props.post.id)
-  if (!snaps.length) return null
-  const total = route.value ? 5 : snaps.length
-  return { lit: snaps.filter((s) => s.status === 'normal').length, total }
+  const lit = Number(props.post.footprintLit ?? 0)
+  const total = Number(props.post.footprintTotal ?? 0)
+  if (!total) return null
+  return { lit, total }
 })
-const videoCls = computed(() => (props.post.video ? 'ph-4' : `ph-${props.post.images[0] ?? 0}`))
+const videoCls = computed(() => (props.post.video ? 'ph-4' : `ph-${props.post.images?.[0] ?? 0}`))
 </script>
 
 <template>
@@ -26,11 +24,11 @@ const videoCls = computed(() => (props.post.video ? 'ph-4' : `ph-${props.post.im
     <div class="body">
       <b class="title">{{ post.title }}</b>
       <div class="row2">
-        <a v-if="route" class="pill tag" @click.stop="emit('tag', route.id)">🗺 {{ route.title }} ›</a>
+        <a v-if="post.linkedRouteId" class="pill tag" @click.stop="emit('tag', post.linkedRouteId)">🗺 {{ post.routeTitle || '关联路线' }} ›</a>
         <MiniChain v-if="chain" :lit="chain.lit" :total="chain.total" />
       </div>
       <div class="meta">
-        <span>{{ author?.avatar }} {{ author?.nickname }}</span>
+        <span>{{ author.avatar }} {{ author.nickname }}</span>
         <span class="nums">👍 {{ post.likeCount }} · 💬 {{ post.commentCount }}</span>
       </div>
     </div>
