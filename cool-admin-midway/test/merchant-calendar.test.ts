@@ -1,7 +1,5 @@
 import { auth, boot, close, createHttpRequest, registerMerchant } from './helper';
 
-const FMT = (d: Date) => d.toISOString().slice(0, 10);
-
 describe('B 端房态日历', () => {
   let app;
   let tokenA: string;
@@ -61,6 +59,26 @@ describe('B 端房态日历', () => {
       .set(auth(tokenA));
     expect(res.body.code).toBe(1001);
     expect(res.body.message).toBe('无权操作该资源');
+  });
+
+  it('用他人房型批量设置被拒绝且不写入（P3 写接口越权）', async () => {
+    // calendar/batch 是写接口：requireOwnedRoomType 若被挪走/传错参，这里必须红
+    const res = await createHttpRequest(app)
+      .post('/app/accommodation/merchant/calendar/batch')
+      .set(auth(tokenA))
+      .send({ roomTypeId: roomTypeB, startDate: START, endDate: END, price: 123 });
+    expect(res.body.code).toBe(1001);
+    expect(res.body.message).toBe('无权操作该资源');
+
+    // 关键：确认没有落库——用房主 B 自己的 token 查该区间，价格仍是房型基础价
+    const range = await createHttpRequest(app)
+      .get(
+        `/app/accommodation/merchant/calendar/range?roomTypeId=${roomTypeB}&startDate=${START}&endDate=${END}`
+      )
+      .set(auth(tokenB));
+    expect(range.body.code).toBe(1000);
+    expect(Number(range.body.data[0].price)).toBe(500);
+    expect(range.body.data.every((r: any) => Number(r.price) !== 123)).toBe(true);
   });
 
   it('批量设置价格与库存', async () => {
@@ -153,7 +171,6 @@ describe('B 端房态日历', () => {
       .send({ roomTypeId: roomTypeA, startDate: '2026-12-01', endDate: '2027-01-05', price: 100 });
     expect(res.body.code).toBe(1001);
     expect(res.body.message).toBe('日期区间最多32天');
-    expect(FMT(new Date())).toBeTruthy(); // 常量占位，保持 FMT 被使用
   });
 
   it('日期区间无效被拒绝', async () => {
