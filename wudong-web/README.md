@@ -98,3 +98,12 @@ npm test
 - C 端分页统一 `{list, total}`；时间格式 `'YYYY-MM-DD HH:mm:ss'`
 
 设计文档：`../docs/superpowers/specs/2026-09-09-travel-community-design.md`
+
+## AI管家演示（feature/ai-butler-demo）
+
+1. 起后端 + `node scripts/seed.js` 重灌演示数据（新增：云上人家/长桌宴时段/国庆路线库存）
+2. `npm run dev`，打开 http://localhost:5175 ，右上角登录测试账号（13800000001 / abc123456）
+3. 首页右下角 🤖 → 点 chips 按剧本走 7 拍；双击悬浮圈可跳过铺垫直达预订拍（彩排用）
+4. 台词金额台账：632+168+598=1398，预算剩 102
+5. 彩排后清理脏订单：`cool-admin-midway/scripts/cleanup-demo-orders.sql`
+6. 现场保险：后端/数据异常时对应项自动降级「演示数据」，戏不断
