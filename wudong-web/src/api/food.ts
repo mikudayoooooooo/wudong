@@ -1,5 +1,5 @@
-// 餐饮浏览数据层
-import { request } from './http';
+// 餐饮浏览数据层（统一走 lib/http：/api 前缀经 vite 代理、登录接口带 token）
+import { http } from '../lib/http';
 import type { Restaurant, RestaurantQuery, RestaurantDetail, FarmProduct, FarmProductQuery } from './types';
 
 const toNum = (v: unknown): number => {
@@ -26,7 +26,7 @@ const normFarmProduct = (p: FarmProduct): FarmProduct => ({
 
 /** 搜索餐厅：按关键字/位置/排序 */
 export const searchRestaurants = async (q: RestaurantQuery = {}): Promise<Restaurant[]> => {
-  const d = await request<{ list: Restaurant[]; pagination: any }>(
+  const d = await http.get<{ list: Restaurant[]; pagination: any }>(
     '/app/food/restaurant/list',
     { ...q, page: q.page ?? 1, size: q.size ?? 20 }
   );
@@ -35,8 +35,8 @@ export const searchRestaurants = async (q: RestaurantQuery = {}): Promise<Restau
 
 /** 餐厅详情（基本信息 + 菜品） */
 export const restaurantDetail = async (id: number): Promise<RestaurantDetail> => {
-  const info = await request<Restaurant>(`/app/food/restaurant/detail`, { id });
-  const dishes = await request<any[]>(`/app/food/restaurant/${id}/dishes`);
+  const info = await http.get<Restaurant>(`/app/food/restaurant/${id}`);
+  const dishes = await http.get<any[]>(`/app/food/restaurant/${id}/dishes`);
   return {
     info: normRestaurant(info),
     dishes: dishes || [],
@@ -45,21 +45,25 @@ export const restaurantDetail = async (id: number): Promise<RestaurantDetail> =>
 
 /** 获取可预订时段 */
 export const getAvailableTimeSlots = async (restaurantId: number, date: string): Promise<any[]> => {
-  return await request<any[]>(`/app/food/restaurant/${restaurantId}/time-slots`, { date });
+  return await http.get<any[]>(`/app/food/restaurant/${restaurantId}/time-slots`, { date });
 };
 
-/** 创建预订 */
-export const createReservation = async (data: any): Promise<any> => {
-  return await fetch('/app/food/reservation/create', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  }).then(res => res.json());
+/** 创建预订（需登录） */
+export const createReservation = async (data: {
+  restaurantId: number
+  timeSlotId: number
+  reservationDate: string
+  peopleCount: number
+  contactName?: string
+  contactPhone?: string
+  remark?: string
+}): Promise<any> => {
+  return await http.post('/app/food/reservation/create', data);
 };
 
 /** 搜索农产品 */
 export const searchFarmProducts = async (q: FarmProductQuery = {}): Promise<FarmProduct[]> => {
-  const d = await request<{ list: FarmProduct[]; pagination: any }>(
+  const d = await http.get<{ list: FarmProduct[]; pagination: any }>(
     '/app/food/farm-product/list',
     { ...q, page: q.page ?? 1, size: q.size ?? 20 }
   );
@@ -68,7 +72,7 @@ export const searchFarmProducts = async (q: FarmProductQuery = {}): Promise<Farm
 
 /** 农产品详情 */
 export const farmProductDetail = async (id: number): Promise<any> => {
-  const d = await request<any>('/app/food/farm-product/detail', { id });
+  const d = await http.get<any>(`/app/food/farm-product/${id}`);
   return {
     ...d,
     price: toNum(d.price),
@@ -78,5 +82,5 @@ export const farmProductDetail = async (id: number): Promise<any> => {
 
 /** 获取农产品分类 */
 export const getFarmProductCategories = async (): Promise<any[]> => {
-  return await request<any[]>('/app/food/farm-product/categories');
+  return await http.get<any[]>('/app/food/farm-product/categories');
 };

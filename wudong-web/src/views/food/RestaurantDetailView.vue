@@ -1,8 +1,8 @@
 <script setup lang="ts">
-// 餐厅详情页：展示餐厅信息、菜品列表
+// 餐厅详情页：展示餐厅信息、菜品列表、餐位预订
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { restaurantDetail } from '@/api/food';
+import { restaurantDetail, getAvailableTimeSlots, createReservation } from '@/api/food';
 import type { RestaurantDetail } from '@/api/types';
 
 const route = useRoute();
@@ -31,6 +31,70 @@ const loadRestaurant = async () => {
 const goBack = () => {
   router.push({ name: 'restaurants' });
 };
+
+/** 预订弹窗 */
+const booking = ref({
+  open: false,
+  loading: false,
+  slots: [] as any[],
+  slotsLoading: false,
+  date: new Date(Date.now() + 86400000).toISOString().slice(0, 10),
+  timeSlotId: 0,
+  peopleCount: 2,
+  contactName: '',
+  contactPhone: '',
+});
+
+async function openBooking() {
+  booking.value.open = true;
+  booking.value.timeSlotId = 0;
+  await loadSlots();
+}
+
+async function loadSlots() {
+  booking.value.slotsLoading = true;
+  booking.value.timeSlotId = 0;
+  try {
+    booking.value.slots = await getAvailableTimeSlots(
+      Number(route.params.id),
+      booking.value.date
+    );
+  } catch {
+    booking.value.slots = [];
+  } finally {
+    booking.value.slotsLoading = false;
+  }
+}
+
+async function submitBooking() {
+  const b = booking.value;
+  if (!b.timeSlotId) {
+    alert('请选择预订时段');
+    return;
+  }
+  if (!b.contactName || !b.contactPhone) {
+    alert('请填写联系人和电话');
+    return;
+  }
+  b.loading = true;
+  try {
+    await createReservation({
+      restaurantId: Number(route.params.id),
+      timeSlotId: b.timeSlotId,
+      reservationDate: b.date,
+      peopleCount: b.peopleCount,
+      contactName: b.contactName,
+      contactPhone: b.contactPhone,
+    });
+    alert('预订成功！可在「我的预订」中查看');
+    b.open = false;
+    router.push('/my/reservations');
+  } catch (e: any) {
+    alert(e?.message || '预订失败');
+  } finally {
+    b.loading = false;
+  }
+}
 
 onMounted(() => {
   loadRestaurant();
@@ -79,8 +143,8 @@ onMounted(() => {
             <p v-if="detail.info.phone" class="phone">📞 {{ detail.info.phone }}</p>
           </div>
 
-          <button type="button" class="btn-reserve" disabled>
-            立即预订（即将上线）
+          <button type="button" class="btn-reserve" @click="openBooking">
+            立即预订
           </button>
         </div>
       </section>
@@ -109,6 +173,44 @@ onMounted(() => {
         <p v-else class="no-content">暂无菜品信息</p>
       </section>
     </article>
+
+    <!-- 预订弹窗 -->
+    <div v-if="booking.open" class="booking-mask" @click.self="booking.open = false">
+      <div class="booking card">
+        <h3>预订餐位</h3>
+        <label class="f">
+          <span>日期</span>
+          <input type="date" v-model="booking.date" :min="new Date().toISOString().slice(0, 10)" @change="loadSlots" />
+        </label>
+        <label class="f">
+          <span>时段</span>
+          <select v-model="booking.timeSlotId">
+            <option :value="0" disabled>{{ booking.slotsLoading ? '时段加载中…' : '请选择时段' }}</option>
+            <option v-for="s in booking.slots" :key="s.id" :value="s.id">
+              {{ s.timePeriod || s.name || `时段 #${s.id}` }}{{ s.remain != null ? `（余 ${s.remain}）` : '' }}
+            </option>
+          </select>
+        </label>
+        <label class="f">
+          <span>人数</span>
+          <input type="number" v-model.number="booking.peopleCount" min="1" max="20" />
+        </label>
+        <label class="f">
+          <span>联系人</span>
+          <input v-model="booking.contactName" maxlength="20" placeholder="姓名" />
+        </label>
+        <label class="f">
+          <span>电话</span>
+          <input v-model="booking.contactPhone" maxlength="11" placeholder="手机号" />
+        </label>
+        <div class="d-acts">
+          <button class="mini" @click="booking.open = false">取消</button>
+          <button class="mini primary" :disabled="booking.loading" @click="submitBooking">
+            {{ booking.loading ? '提交中…' : '提交预订' }}
+          </button>
+        </div>
+      </div>
+    </div>
   </main>
 </template>
 
@@ -329,5 +431,60 @@ onMounted(() => {
   .dish-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+}
+
+.booking-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+.booking {
+  width: 420px;
+  max-width: 92vw;
+  padding: 18px;
+}
+.booking h3 {
+  margin-bottom: 12px;
+}
+.booking .f {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.booking .f span {
+  width: 42px;
+  font-size: 13px;
+  color: var(--text-2);
+}
+.booking .f input,
+.booking .f select {
+  flex: 1;
+  border: 1px solid var(--line-soft);
+  border-radius: 8px;
+  padding: 7px 10px;
+}
+.d-acts {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+.mini {
+  border: 1px solid var(--line-soft);
+  background: #fff;
+  border-radius: 12px;
+  padding: 5px 14px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.mini.primary {
+  background: var(--green-600);
+  color: #fff;
+  border-color: var(--green-600);
 }
 </style>

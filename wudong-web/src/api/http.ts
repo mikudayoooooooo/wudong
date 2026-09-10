@@ -34,7 +34,7 @@ const buildQuery = (query?: Record<string, unknown>): string => {
  * - 再检查 json.code === 1000，是则返回 data；否则抛 ApiError(message, code)
  */
 export const request = async <T>(path: string, query?: Record<string, unknown>): Promise<T> => {
-  const url = `${path}${buildQuery(query)}`;
+  const url = `/api${path}${buildQuery(query)}`;
   const res = await fetch(url);
   if (!res.ok) {
     throw new ApiError(`HTTP ${res.status}`, res.status);

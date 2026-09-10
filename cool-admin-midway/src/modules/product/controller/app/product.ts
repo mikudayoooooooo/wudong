@@ -1,8 +1,11 @@
-import { Body, Get, Inject, Post, Provide, Query } from '@midwayjs/core';
+import { Body, Get, Inject, Param, Post, Provide, Query } from '@midwayjs/core';
 import { BaseController, CoolController, CoolTag, CoolUrlTag, TagTypes } from '@cool-midway/core';
+import { InjectEntityModel } from '@midwayjs/typeorm';
+import { Repository } from 'typeorm';
 import { ProductService } from '../../service/product';
 import { ProductCategoryService } from '../../service/category';
 import { Context } from '@midwayjs/koa';
+import { ReviewEntity } from '../../entity/review';
 
 /**
  * 商品C端控制器
@@ -16,6 +19,9 @@ export class AppProductController extends BaseController {
 
   @Inject()
   categoryService: ProductCategoryService;
+
+  @InjectEntityModel(ReviewEntity)
+  productReviewEntity: Repository<ReviewEntity>;
 
   @Inject()
   ctx: Context;
@@ -57,8 +63,8 @@ export class AppProductController extends BaseController {
    */
   @CoolTag(TagTypes.IGNORE_TOKEN)
   @Get('/:id', { summary: '商品详情' })
-    async infoItem(@Query('id') id: number) {
-    const product = await this.productService.getDetail(id);
+    async infoItem(@Param('id') id: number) {
+    const product = await this.productService.getDetail(Number(id));
     if (!product) {
       return this.fail('商品不存在');
     }
@@ -66,15 +72,36 @@ export class AppProductController extends BaseController {
   }
 
   /**
+   * 商品评价列表（匿名）
+   */
+  @CoolTag(TagTypes.IGNORE_TOKEN)
+  @Get('/:id/reviews', { summary: '商品评价列表' })
+  async reviewPage(
+    @Param('id') id: number,
+    @Query('page') page: number,
+    @Query('size') size: number
+  ) {
+    const pageNo = Math.max(Number(page) || 1, 1);
+    const pageSize = Math.max(Number(size) || 10, 1);
+    const [list, total] = await this.productReviewEntity.findAndCount({
+      where: { productId: Number(id), status: 1 },
+      order: { id: 'DESC' },
+      skip: (pageNo - 1) * pageSize,
+      take: pageSize,
+    });
+    return this.ok({ list, total });
+  }
+
+  /**
    * 收藏商品
    */
   @Post('/:id/favorite', { summary: '收藏商品' })
-  async favorite(@Query('id') id: number) {
+  async favorite(@Param('id') id: number) {
     const userId = this.ctx.user?.id;
     if (!userId) {
       return this.fail('请先登录');
     }
-    await this.productService.toggleFavorite(userId, id);
+    await this.productService.toggleFavorite(userId, Number(id));
     return this.ok('操作成功');
   }
 
