@@ -15,6 +15,6 @@ export class FarmProductCategoryEntity extends BaseEntity {
   @Column({ comment: '排序', default: 0 })
   sort: number;
 
-  @Column({ comment: '状态：0-禁用 1-启用', default: 1 })
+  @Column({ comment: '状态 1启用 0禁用', default: 1 })
   status: number;
 }

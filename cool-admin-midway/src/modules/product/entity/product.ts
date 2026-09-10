@@ -34,6 +34,12 @@ export class ProductEntity extends BaseEntity {
   @Column({ comment: '销量', default: 0 })
   sales: number;
 
+  @Column({ comment: '评分', type: 'decimal', precision: 3, scale: 1, default: 0 })
+  rating: number;
+
+  @Column({ comment: '评价数', default: 0 })
+  reviewCount: number;
+
   @Column({ comment: '工艺介绍', type: 'text', nullable: true })
   craftIntro: string;
 

@@ -24,13 +24,13 @@ export class AppOperateController extends BaseController {
   announcementService: AnnouncementService;
 
   @CoolTag(TagTypes.IGNORE_TOKEN)
-  @Get('/banner', { summary: '轮播图下发' })
+  @Get('/banner/list', { summary: '轮播图下发' })
   async banner(@Query('position') position?: string) {
     return this.ok(await this.bannerService.bannerList(position));
   }
 
   @CoolTag(TagTypes.IGNORE_TOKEN)
-  @Get('/announcement', { summary: '公告下发' })
+  @Get('/announcement/list', { summary: '公告下发' })
   async announcement(@Query('type') type?: number) {
     return this.ok(
       await this.announcementService.announcementList(

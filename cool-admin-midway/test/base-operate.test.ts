@@ -14,6 +14,9 @@ describe('operate 平台运营', () => {
       password: '123456',
       database: 'wudong_platform_test',
     });
+    // 前置清理：套件顺序无关（jest 时长优先排序可能把其它 operate 套件排到本套件之前）
+    await conn.query('DELETE FROM banner');
+    await conn.query('DELETE FROM announcement');
     await conn.query(
       "INSERT INTO banner (title, image, linkType, linkValue, position, sort, status, createTime, updateTime) VALUES ('首页焦点A', 'http://img/a.png', 'page', '/pages/route/1', 'home', 1, 1, NOW(), NOW())"
     );

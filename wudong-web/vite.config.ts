@@ -1,8 +1,8 @@
-import { fileURLToPath, URL } from 'node:url';
-import { defineConfig } from 'vite';
-import vue from '@vitejs/plugin-vue';
+/// <reference types="vitest/config" />
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import { fileURLToPath, URL } from 'node:url'
 
-// wudong-web C 端游客站：dev 端口 5173；真实后端走 8001（/app 代理，Task 2 http 层接入）
 export default defineConfig({
   plugins: [vue()],
   resolve: {
@@ -11,12 +11,15 @@ export default defineConfig({
     },
   },
   server: {
-    port: 5173,
+    port: 5175,
     proxy: {
-      '/app': {
+      // C 端对接后端（dev：127.0.0.1:8001），/api 前缀剥除转发
+      '/api': {
         target: 'http://127.0.0.1:8001',
         changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
       },
     },
   },
-});
+  test: { environment: 'jsdom' },
+})

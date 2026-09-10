@@ -11,14 +11,14 @@ export default {
       default: {
         type: 'mysql',
         host: '127.0.0.1',
-        port: 3306, // 本地 MySQL 8.0 端口
+        port: 3307,
         username: 'root',
-        password: 'zhuwenjin',
-        database: 'wudong_travel', // 数据库名改为项目专用
+        password: '123456',
+        database: 'wudong_platform',
         // 自动建表 注意：线上部署的时候不要使用，有可能导致数据丢失
         synchronize: true,
         // 打印日志
-        logging: true, // 开发时建议开启，方便调试 SQL
+        logging: false,
         // 字符集
         charset: 'utf8mb4',
         // 是否开启缓存
@@ -32,7 +32,7 @@ export default {
   },
   cool: {
     // 实体与路径，跟生成代码、前端请求、swagger文档相关 注意：线上不建议开启，以免暴露敏感信息
-    eps: false, // 临时禁用 EPS，避免前端启动错误
+    eps: true,
     // 是否自动导入模块数据库
     initDB: true,
     // 判断是否初始化的方式

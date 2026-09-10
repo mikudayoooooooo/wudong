@@ -7,6 +7,14 @@ async function seed() {
     host: '127.0.0.1', port: 3307, user: 'root', password: '123456',
     database: 'wudong_platform_test',
   });
+  // 前置清理：套件顺序无关（base-operate 等其它套件可能先插入数据）
+  const conn0 = await mysql.createConnection({
+    host: '127.0.0.1', port: 3307, user: 'root', password: '123456',
+    database: 'wudong_platform_test',
+  });
+  await conn0.query('DELETE FROM banner');
+  await conn0.query('DELETE FROM announcement');
+  await conn0.end();
   const t = '2026-09-01 00:00:00';
   const f = '2099-12-31 23:59:59';
   // home 位：有效启用 x2（sort 1、2）+ 禁用 x1；startTime/endTime/createTime/updateTime 用 ? 占位
@@ -41,7 +49,7 @@ describe('operate C 端匿名下发', () => {
   });
 
   it('banner 匿名下发：home 启用且在时间窗内，按 sort 升序', async () => {
-    const res = await createHttpRequest(app).get('/app/operate/banner?position=home');
+    const res = await createHttpRequest(app).get('/app/operate/banner/list?position=home');
     expect(res.status).toBe(200);
     expect(res.body.code).toBe(1000);
     const list = res.body.data;
@@ -51,7 +59,7 @@ describe('operate C 端匿名下发', () => {
   });
 
   it('announcement 匿名下发：发布态+时间窗内，置顶优先', async () => {
-    const res = await createHttpRequest(app).get('/app/operate/announcement');
+    const res = await createHttpRequest(app).get('/app/operate/announcement/list');
     expect(res.body.code).toBe(1000);
     const list = res.body.data;
     expect(list.length).toBe(2); // 草稿被排除
@@ -59,7 +67,7 @@ describe('operate C 端匿名下发', () => {
   });
 
   it('announcement 支持 type 过滤', async () => {
-    const res = await createHttpRequest(app).get('/app/operate/announcement?type=2');
+    const res = await createHttpRequest(app).get('/app/operate/announcement/list?type=2');
     expect(res.body.data.length).toBe(1);
     expect(res.body.data[0].title).toBe('活动招募');
   });
@@ -77,7 +85,7 @@ describe('operate C 端匿名下发', () => {
     } as any);
     // 越过整秒边界，使“盖章为 now”的 startTime/endTime 必然早于下发时刻而失配
     await new Promise(r => setTimeout(r, 1200));
-    const res = await createHttpRequest(app).get('/app/operate/banner?position=home');
+    const res = await createHttpRequest(app).get('/app/operate/banner/list?position=home');
     expect(res.status).toBe(200);
     expect(res.body.code).toBe(1000);
     const titles = res.body.data.map(r => r.title);

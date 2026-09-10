@@ -11,13 +11,14 @@ export default {
     dataSource: {
       default: {
         type: 'mysql',
-        host: '127.0.0.1',
-        port: 3306,
-        username: 'root',
-        password: '123456',
-        database: 'cool',
+        host: process.env.DB_HOST || '127.0.0.1',
+        port: Number(process.env.DB_PORT) || 3306,
+        username: process.env.DB_USERNAME || 'root',
+        password: process.env.DB_PASSWORD || '123456',
+        database: process.env.DB_DATABASE || 'cool',
         // 自动建表 注意：线上部署的时候不要使用，有可能导致数据丢失
-        synchronize: false,
+        // 容器/首次部署可用 DB_SYNC=true 一次性同步表结构（docker compose run -e DB_SYNC=true）
+        synchronize: process.env.DB_SYNC === 'true',
         // 打印日志
         logging: false,
         // 字符集

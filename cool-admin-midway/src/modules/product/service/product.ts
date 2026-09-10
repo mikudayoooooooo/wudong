@@ -6,8 +6,9 @@ import { ProductEntity } from '../entity/product';
 import { ProductSkuEntity } from '../entity/sku';
 import { ProductImageEntity } from '../entity/image';
 import { ReviewEntity } from '../entity/review';
-import { FavoriteEntity } from '../entity/favorite';
+import { MemberFavoriteService } from '../../member/service/favorite';
 import { MerchantService } from '../../merchant/service/merchant';
+import { MemberUserEntity } from '../../member/entity/user';
 
 /**
  * 商品服务
@@ -26,11 +27,15 @@ export class ProductService extends BaseService {
   @InjectEntityModel(ReviewEntity)
   reviewEntity: Repository<ReviewEntity>;
 
-  @InjectEntityModel(FavoriteEntity)
-  favoriteEntity: Repository<FavoriteEntity>;
+
+  @InjectEntityModel(MemberUserEntity)
+  memberUserEntity: Repository<MemberUserEntity>;
 
   @Inject()
   merchantService: MerchantService;
+
+  @Inject()
+  memberFavoriteService: MemberFavoriteService;
 
   /**
    * 创建商品（带SKU和图片）
@@ -146,15 +151,6 @@ export class ProductService extends BaseService {
   }
 
   /**
-   * 获取分类列表（C端使用）
-   */
-  async getCategories() {
-    return await this.productEntity.query(
-      'SELECT * FROM product_category WHERE status = 1 ORDER BY sort ASC'
-    );
-  }
-
-  /**
    * C端：获取商品列表（仅显示上架商品）
    */
   async getPublicList(params: any) {
@@ -163,6 +159,7 @@ export class ProductService extends BaseService {
     const query = this.productEntity
       .createQueryBuilder('product')
       .where('product.status = :status', { status: 1 }) // 只显示上架商品
+      .leftJoinAndSelect('product.category', 'category')
       .select([
         'product.id',
         'product.name',
@@ -170,7 +167,7 @@ export class ProductService extends BaseService {
         'product.price',
         'product.sales',
         'product.createTime',
-        'product.categoryId',
+        'category.name',
       ]);
 
     // 分类筛选
@@ -236,22 +233,10 @@ export class ProductService extends BaseService {
   }
 
   /**
-   * C端：收藏/取消收藏
+   * C端：收藏/取消收藏（复用 base member 收藏，targetType='product'）
    */
   async toggleFavorite(userId: number, productId: number) {
-    const favorite = await this.favoriteEntity.findOne({
-      where: { userId, productId },
-    });
-
-    if (favorite) {
-      // 已收藏，取消收藏
-      await this.favoriteEntity.delete({ id: favorite.id });
-      return { action: 'unfavorite' };
-    } else {
-      // 未收藏，添加收藏
-      await this.favoriteEntity.save({ userId, productId });
-      return { action: 'favorite' };
-    }
+    return this.memberFavoriteService.toggle(userId, 'product', productId);
   }
 
   /**
@@ -296,8 +281,13 @@ export class ProductService extends BaseService {
       .where('review.productId = :productId', { productId })
       .getRawOne();
 
-    // 只更新评价数，不更新评分（Product实体可能没有rating字段）
-    // 如果需要评分功能，需要在ProductEntity添加rating字段
+    await this.productEntity.update(
+      { id: productId },
+      {
+        rating: result.avgRating || 0,
+        reviewCount: result.reviewCount || 0,
+      }
+    );
   }
 
   /**
@@ -310,20 +300,32 @@ export class ProductService extends BaseService {
       skip: (page - 1) * size,
       take: size,
     });
+    // 评价作者信息：按 userId 查 member_user（无物理外键，逻辑关联）
+    const uids = [...new Set(list.map((r) => r.userId))];
+    const users = uids.length
+      ? await this.memberUserEntity
+          .createQueryBuilder()
+          .where('id IN (:...ids)', { ids: uids })
+          .getMany()
+      : [];
+    const umap = new Map(users.map((u) => [u.id, u]));
 
     return {
-      list: list.map(review => ({
-        id: review.id,
-        rating: review.rating,
-        content: review.content,
-        images: review.images ? JSON.parse(review.images) : [],
-        createTime: review.createTime,
-        user: {
-          id: review.userId,
-          nickname: '用户' + review.userId,
-          avatar: '',
-        },
-      })),
+      list: list.map(review => {
+        const u = umap.get(review.userId);
+        return {
+          id: review.id,
+          rating: review.rating,
+          content: review.content,
+          images: review.images ? JSON.parse(review.images) : [],
+          createTime: review.createTime,
+          user: {
+            id: review.userId,
+            nickname: u?.nickname || '游客',
+            avatar: u?.avatar || '👤',
+          },
+        };
+      }),
       pagination: { page, size, total },
     };
   }

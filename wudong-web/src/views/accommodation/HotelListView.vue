@@ -54,7 +54,7 @@ onMounted(doSearch);
 </script>
 
 <template>
-  <main class="container">
+  <main class="container acc-scope">
     <section class="section">
       <FilterBar v-model="query" :styles="styleOptions" @search="doSearch" />
 

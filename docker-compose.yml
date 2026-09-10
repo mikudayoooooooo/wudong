@@ -1,0 +1,32 @@
+services:
+  midway:
+    build: ./cool-admin-midway
+    container_name: midway # 匹配前端 nginx.conf 的 upstream midway:8001
+    environment:
+      DB_HOST: wudong-mysql
+      DB_PORT: "3306"
+      DB_USERNAME: root
+      DB_PASSWORD: "123456"
+      DB_DATABASE: wudong_platform
+    volumes:
+      - cool-admin-data:/root/.cool-admin # 上传文件/缓存持久化
+    networks: [wudong-net]
+    expose: ["8001"] # 仅容器网络内部可见（nginx 走内网）
+    ports:
+      - "8001:8001" # 宿主机调试/冒烟用：C端 vite 代理与 curl 直连
+
+  admin:
+    build: ./cool-admin-vue
+    container_name: cool-admin-web
+    ports:
+      - "8000:80" # 浏览器入口 http://localhost:8000
+    depends_on:
+      - midway
+    networks: [wudong-net]
+
+networks:
+  wudong-net:
+    external: true
+
+volumes:
+  cool-admin-data:

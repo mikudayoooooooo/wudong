@@ -1,16 +1,20 @@
-import { Body, Get, Inject, Post, Query } from '@midwayjs/core';
-import { CoolController, BaseController, CoolUrlTag, CoolTag, TagTypes } from '@cool-midway/core';
+import { Body, Get, Inject, Post, Provide, Query } from '@midwayjs/core';
+import { CoolController, BaseController } from '@cool-midway/core';
 import { ProductService } from '../../service/product';
+import { ProductCategoryService } from '../../service/category';
 import { Context } from '@midwayjs/koa';
 
 /**
  * 商品C端控制器
  */
-@CoolUrlTag()
+@Provide()
 @CoolController('/app/product')
 export class AppProductController extends BaseController {
   @Inject()
   productService: ProductService;
+
+  @Inject()
+  categoryService: ProductCategoryService;
 
   @Inject()
   ctx: Context;
@@ -18,24 +22,22 @@ export class AppProductController extends BaseController {
   /**
    * 获取商品分类
    */
-  @CoolTag(TagTypes.IGNORE_TOKEN)
   @Get('/categories', { summary: '获取商品分类' })
   async getCategories() {
-    const categories = await this.productService.getCategories();
+    const categories = await this.categoryService.tree();
     return this.ok(categories);
   }
 
   /**
    * 商品列表
    */
-  @CoolTag(TagTypes.IGNORE_TOKEN)
   @Get('/list', { summary: '商品列表' })
   async list(
     @Query('page') page = 1,
     @Query('size') size = 10,
     @Query('categoryId') categoryId?: number,
     @Query('keyword') keyword?: string,
-    @Query('sort') sort?: string
+    @Query('sort') sort?: string // price_asc, price_desc, sales_desc, new
   ) {
     const result = await this.productService.getPublicList({
       page,
@@ -50,9 +52,8 @@ export class AppProductController extends BaseController {
   /**
    * 商品详情
    */
-  @CoolTag(TagTypes.IGNORE_TOKEN)
-  @Get('/detail', { summary: '商品详情' })
-  async getDetail(@Query('id') id: number) {
+  @Get('/:id', { summary: '商品详情' })
+  async infoItem(@Query('id') id: number) {
     const product = await this.productService.getDetail(id);
     if (!product) {
       return this.fail('商品不存在');
@@ -69,7 +70,6 @@ export class AppProductController extends BaseController {
     if (!userId) {
       return this.fail('请先登录');
     }
-
     await this.productService.toggleFavorite(userId, id);
     return this.ok('操作成功');
   }
@@ -86,6 +86,7 @@ export class AppProductController extends BaseController {
 
     const { productId, orderId, rating, content, images } = body;
 
+    // 验证必填字段
     if (!productId || !rating || !content) {
       return this.fail('商品ID、评分和内容不能为空');
     }
@@ -105,7 +106,6 @@ export class AppProductController extends BaseController {
   /**
    * 评价列表
    */
-  @CoolTag(TagTypes.IGNORE_TOKEN)
   @Get('/:id/reviews', { summary: '商品评价列表' })
   async getReviews(
     @Query('id') id: number,

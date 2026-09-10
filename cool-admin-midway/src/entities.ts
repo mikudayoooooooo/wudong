@@ -2,57 +2,74 @@
 import * as entity0 from './modules/user/entity/wx';
 import * as entity1 from './modules/user/entity/info';
 import * as entity2 from './modules/user/entity/address';
-import * as entity3 from './modules/task/entity/log';
-import * as entity4 from './modules/task/entity/info';
-import * as entity5 from './modules/space/entity/type';
-import * as entity6 from './modules/space/entity/info';
-import * as entity7 from './modules/sensitive/entity/word';
-import * as entity8 from './modules/recycle/entity/data';
-import * as entity9 from './modules/product/entity/sku';
-import * as entity10 from './modules/product/entity/review';
-import * as entity11 from './modules/product/entity/product';
-import * as entity12 from './modules/product/entity/image';
-import * as entity13 from './modules/product/entity/favorite';
-import * as entity14 from './modules/product/entity/category';
-import * as entity15 from './modules/plugin/entity/info';
-import * as entity16 from './modules/pay/entity/record';
-import * as entity17 from './modules/order/entity/order';
-import * as entity18 from './modules/order/entity/order-ticket';
-import * as entity19 from './modules/order/entity/order-reservation';
-import * as entity20 from './modules/order/entity/order-product';
-import * as entity21 from './modules/operate/entity/finance-record';
-import * as entity22 from './modules/operate/entity/banner';
-import * as entity23 from './modules/operate/entity/announcement';
-import * as entity24 from './modules/message/entity/system-message';
-import * as entity25 from './modules/merchant/entity/merchant';
-import * as entity26 from './modules/merchant/entity/merchant-application';
-import * as entity27 from './modules/member/entity/user';
-import * as entity28 from './modules/member/entity/sms-code';
-import * as entity29 from './modules/member/entity/favorite';
-import * as entity30 from './modules/food/entity/time-slot';
-import * as entity31 from './modules/food/entity/restaurant';
-import * as entity32 from './modules/food/entity/reservation';
-import * as entity33 from './modules/food/entity/farm-product';
-import * as entity34 from './modules/food/entity/farm-category';
-import * as entity35 from './modules/food/entity/dish';
-import * as entity36 from './modules/dict/entity/type';
-import * as entity37 from './modules/dict/entity/info';
-import * as entity38 from './modules/demo/entity/goods';
-import * as entity39 from './modules/cart/entity/cart';
-import * as entity40 from './modules/base/entity/base';
-import * as entity41 from './modules/base/entity/sys/user_role';
-import * as entity42 from './modules/base/entity/sys/user';
-import * as entity43 from './modules/base/entity/sys/role_menu';
-import * as entity44 from './modules/base/entity/sys/role_department';
-import * as entity45 from './modules/base/entity/sys/role';
-import * as entity46 from './modules/base/entity/sys/param';
-import * as entity47 from './modules/base/entity/sys/menu';
-import * as entity48 from './modules/base/entity/sys/log';
-import * as entity49 from './modules/base/entity/sys/department';
-import * as entity50 from './modules/base/entity/sys/conf';
-import * as entity51 from './modules/accommodation/entity/room-type';
-import * as entity52 from './modules/accommodation/entity/room-calendar';
-import * as entity53 from './modules/accommodation/entity/hotel';
+import * as entity3 from './modules/travel/entity/traffic-guide';
+import * as entity4 from './modules/travel/entity/ticket-type';
+import * as entity5 from './modules/travel/entity/scenic-spot';
+import * as entity6 from './modules/travel/entity/route-package';
+import * as entity7 from './modules/travel/entity/route-itinerary';
+import * as entity8 from './modules/travel/entity/review';
+import * as entity9 from './modules/travel/entity/recommend-slot';
+import * as entity10 from './modules/travel/entity/inventory';
+import * as entity11 from './modules/travel/entity/e-ticket';
+import * as entity12 from './modules/task/entity/log';
+import * as entity13 from './modules/task/entity/info';
+import * as entity14 from './modules/space/entity/type';
+import * as entity15 from './modules/space/entity/info';
+import * as entity16 from './modules/sensitive/entity/word';
+import * as entity17 from './modules/recycle/entity/data';
+import * as entity18 from './modules/product/entity/sku';
+import * as entity19 from './modules/product/entity/review';
+import * as entity20 from './modules/product/entity/product';
+import * as entity21 from './modules/product/entity/image';
+import * as entity22 from './modules/product/entity/category';
+import * as entity23 from './modules/plugin/entity/info';
+import * as entity24 from './modules/pay/entity/record';
+import * as entity25 from './modules/order/entity/order';
+import * as entity26 from './modules/order/entity/order-ticket';
+import * as entity27 from './modules/order/entity/order-reservation';
+import * as entity28 from './modules/order/entity/order-product';
+import * as entity29 from './modules/operate/entity/finance-record';
+import * as entity30 from './modules/operate/entity/banner';
+import * as entity31 from './modules/operate/entity/announcement';
+import * as entity32 from './modules/message/entity/system-message';
+import * as entity33 from './modules/merchant/entity/merchant';
+import * as entity34 from './modules/merchant/entity/merchant-application';
+import * as entity35 from './modules/member/entity/user';
+import * as entity36 from './modules/member/entity/sms-code';
+import * as entity37 from './modules/member/entity/favorite';
+import * as entity38 from './modules/food/entity/time-slot';
+import * as entity39 from './modules/food/entity/restaurant';
+import * as entity40 from './modules/food/entity/reservation';
+import * as entity41 from './modules/food/entity/farm-product';
+import * as entity42 from './modules/food/entity/farm-category';
+import * as entity43 from './modules/food/entity/dish';
+import * as entity44 from './modules/dict/entity/type';
+import * as entity45 from './modules/dict/entity/info';
+import * as entity46 from './modules/demo/entity/goods';
+import * as entity47 from './modules/community/entity/topic';
+import * as entity48 from './modules/community/entity/topic-follow';
+import * as entity49 from './modules/community/entity/report';
+import * as entity50 from './modules/community/entity/post';
+import * as entity51 from './modules/community/entity/post-footprint';
+import * as entity52 from './modules/community/entity/message';
+import * as entity53 from './modules/community/entity/like';
+import * as entity54 from './modules/community/entity/follow';
+import * as entity55 from './modules/community/entity/comment';
+import * as entity56 from './modules/cart/entity/cart';
+import * as entity57 from './modules/base/entity/base';
+import * as entity58 from './modules/base/entity/sys/user_role';
+import * as entity59 from './modules/base/entity/sys/user';
+import * as entity60 from './modules/base/entity/sys/role_menu';
+import * as entity61 from './modules/base/entity/sys/role_department';
+import * as entity62 from './modules/base/entity/sys/role';
+import * as entity63 from './modules/base/entity/sys/param';
+import * as entity64 from './modules/base/entity/sys/menu';
+import * as entity65 from './modules/base/entity/sys/log';
+import * as entity66 from './modules/base/entity/sys/department';
+import * as entity67 from './modules/base/entity/sys/conf';
+import * as entity68 from './modules/accommodation/entity/room-type';
+import * as entity69 from './modules/accommodation/entity/room-calendar';
+import * as entity70 from './modules/accommodation/entity/hotel';
 export const entities = [
   ...Object.values(entity0),
   ...Object.values(entity1),
@@ -108,4 +125,21 @@ export const entities = [
   ...Object.values(entity51),
   ...Object.values(entity52),
   ...Object.values(entity53),
+  ...Object.values(entity54),
+  ...Object.values(entity55),
+  ...Object.values(entity56),
+  ...Object.values(entity57),
+  ...Object.values(entity58),
+  ...Object.values(entity59),
+  ...Object.values(entity60),
+  ...Object.values(entity61),
+  ...Object.values(entity62),
+  ...Object.values(entity63),
+  ...Object.values(entity64),
+  ...Object.values(entity65),
+  ...Object.values(entity66),
+  ...Object.values(entity67),
+  ...Object.values(entity68),
+  ...Object.values(entity69),
+  ...Object.values(entity70),
 ];

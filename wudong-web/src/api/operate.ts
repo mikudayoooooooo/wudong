@@ -1,19 +1,23 @@
-// 运营位数据层：真实后端(8001) 与 mocks 同构数据间选择（唯一判据 USE_MOCK）。
-import { USE_MOCK } from '../env';
-import { request } from './http';
-import type { Announcement, Banner } from './types';
-import { mockAnnouncements, mockBanners } from '../mocks/operate';
+import { http } from '../lib/http'
 
-/** 轮播图下发（按 position 筛选） */
-export const banners = async (position = 'home'): Promise<Banner[]> => {
-  if (USE_MOCK) {
-    return mockBanners.filter((b) => b.position === position);
-  }
-  return request<Banner[]>('/app/operate/banner', { position });
-};
+/** 平台运营位（匿名） */
+export const operateApi = {
+  announcements: () => http.get<any[]>('/app/operate/announcement/list'),
+  banners: (position = 'home') =>
+    http.get<any[]>(`/app/operate/banner/list?position=${position}`),
+}
 
-/** 平台公告下发 */
-export const announcements = async (): Promise<Announcement[]> => {
-  if (USE_MOCK) return mockAnnouncements.slice();
-  return request<Announcement[]>('/app/operate/announcement');
-};
+/** 公共订单/支付（下单支付链路由 travel booking 起头，这里补支付两步与订单查询） */
+export const orderApi = {
+  payCreate: (orderNo: string, channel: 'wechat' | 'alipay' = 'wechat') =>
+    http.post<{ paymentNo: string }>('/app/pay/create', { orderNo, channel }),
+  payMock: (paymentNo: string) => http.post<boolean>('/app/pay/mock', { paymentNo }),
+  payRecord: (orderNo: string) => http.get<any[]>(`/app/pay/record?orderNo=${orderNo}`),
+  orderPage: (status?: number, page = 1, size = 20) => {
+    const qs = new URLSearchParams({ page: String(page), size: String(size) })
+    if (status) qs.set('status', String(status))
+    return http.get<{ list: any[]; total: number }>(`/app/order/page?${qs}`)
+  },
+  orderDetail: (orderNo: string) => http.get<any>(`/app/order/detail?orderNo=${orderNo}`),
+  orderCancel: (orderNo: string) => http.post<boolean>('/app/order/cancel', { orderNo }),
+}

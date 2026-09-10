@@ -131,7 +131,7 @@ watch(
 </script>
 
 <template>
-  <main class="container detail">
+  <main class="container detail acc-scope">
     <button type="button" class="back-btn" @click="router.push('/hotels')">← 返回民宿列表</button>
 
     <div v-if="loading" class="state-note">正在加载民宿详情…</div>
