@@ -76,23 +76,31 @@ export class MerchantHotelService extends BaseService {
   @InjectEntityModel(RoomTypeEntity)
   roomTypeEntity: Repository<RoomTypeEntity>;
 
-  /** 字段白名单过滤 + 类型归一：数字字段 Number()、数组字段校验后逐项 String()、字符串 trim */
+  /** 字段白名单过滤 + 类型归一：数字字段 Number()、数组字段校验后逐项 trim、字符串 trim */
   private pick(body: any): Partial<HotelEntity> {
     const out: any = {};
     for (const key of HOTEL_FIELDS) {
       const value = body?.[key];
       if (value === undefined || value === null) continue;
       if (NUMERIC_FIELDS.includes(key)) {
+        // 空串/空数组是「没填」而不是 0：Number('') === 0 会让必填校验形同虚设
+        if (value === '' || (Array.isArray(value) && value.length === 0)) {
+          throw new CoolCommException('民宿信息格式不正确');
+        }
         const num = Number(value);
         if (Number.isNaN(num)) {
           throw new CoolCommException('民宿信息格式不正确');
         }
         out[key] = num;
       } else if (JSON_FIELDS.includes(key)) {
-        if (!Array.isArray(value)) {
+        // 元素必须是字符串：String({url:'a.jpg'}) 会静默存成 '[object Object]'
+        if (
+          !Array.isArray(value) ||
+          value.some((v: unknown) => typeof v !== 'string' || !v.trim())
+        ) {
           throw new CoolCommException('标签格式不正确');
         }
-        out[key] = value.map((v: unknown) => String(v));
+        out[key] = value.map((v: string) => v.trim());
       } else {
         out[key] = typeof value === 'string' ? value.trim() : value;
       }

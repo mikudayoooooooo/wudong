@@ -106,6 +106,12 @@ describe('B 端民宿管理', () => {
     expect(res.body.code).toBe(1000);
     hotelIdA = res.body.data.id;
     expect(Number(res.body.data.merchantId)).toBe(merchantIdA);
+
+    // 回查落库行，确认归属是持久化结果而非内存实体的回显
+    const info = await createHttpRequest(app)
+      .get(`/app/accommodation/merchant/hotel/info?id=${hotelIdA}`)
+      .set(auth(tokenA));
+    expect(Number(info.body.data.merchantId)).toBe(merchantIdA);
   });
 
   it('民宿必填字段缺失被拒绝', async () => {
@@ -185,7 +191,38 @@ describe('B 端民宿管理', () => {
       .post('/app/accommodation/merchant/hotel/update')
       .set(auth(tokenA))
       .send({ id: hotelIdA, styleTags: '苗寨' });
+    expect(res.body.code).toBe(1001);
     expect(res.body.message).toBe('标签格式不正确');
+  });
+
+  it('标签元素不是字符串被拒绝', async () => {
+    const res = await createHttpRequest(app)
+      .post('/app/accommodation/merchant/hotel/update')
+      .set(auth(tokenA))
+      .send({ id: hotelIdA, images: [{ url: 'a.jpg' }] });
+    expect(res.body.code).toBe(1001);
+    expect(res.body.message).toBe('标签格式不正确');
+  });
+
+  it("经纬度传空串被拒绝，且不落库（Number('') 不是 0）", async () => {
+    const res = await createHttpRequest(app)
+      .post('/app/accommodation/merchant/hotel/add')
+      .set(auth(tokenA))
+      .send({
+        name: '空坐标院',
+        address: '雷山县',
+        longitude: '',
+        latitude: '',
+      });
+    expect(res.body.code).toBe(1001);
+    expect(res.body.message).toBe('民宿信息格式不正确');
+
+    const list = await createHttpRequest(app)
+      .get('/app/accommodation/merchant/hotel/page?page=1&size=50')
+      .set(auth(tokenA));
+    expect(list.body.data.list.some((h: any) => h.name === '空坐标院')).toBe(
+      false
+    );
   });
 
   it('删除有房型的民宿被拒绝（P6）', async () => {
