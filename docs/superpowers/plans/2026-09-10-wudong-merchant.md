@@ -18,7 +18,8 @@
   （jest.config.js 已 `maxWorkers: 1` + `forceExit: true` + `testTimeout: 120000`；`NODE_ENV=unittest` 才会读 `config.unittest.ts` → 测试库 `127.0.0.1:3307 / root / 123456 / wudong_platform_test`，由 `test/global-setup.js` 每次重建）。
 - 测试依赖本机 3307 的 MySQL（docker 容器 `wudong-mysql`）已启动。
 - **鉴权头是裸 token**：`test/helper.ts` 的 `auth(token)` 返回 `{ Authorization: token }`，**没有 `Bearer ` 前缀**（中间件直接 `jwt.verify(ctx.get('Authorization'))`）。前端同此约定。
-- C 端未登录的响应形态：HTTP **200** + `{"code":1001,"message":"登录失效~"}`；业务错误也是 `code:1001`。**前端只能靠 `message.startsWith('登录失效')` 区分鉴权失败**，不能靠 code。
+- C 端未登录的响应形态：HTTP **200** + `{"code":1001,"message":"登录失效~"}`；业务错误也是 `code:1001`。
+- **测试手机号必须按套件分块，不得与其它测试文件撞号**：`test/global-setup.js` 只在**每次 jest 运行开始时**重建一次测试库，同一次 `--runInBand` 里所有套件共用同一个库；而注册接口对已存在的手机号会抛 `该手机号已注册，请直接登录`，`registerAndLogin` 又断言 `code === 1000`，撞号会让**后跑的那个套件**在 `beforeAll` 全挂。既有占用：`13300133001-03`（base-message）、`13200132001-03`（base-merchant）等。本计划占用：T1 `13300133004/05/06`、T2 `13300133007`、T3 `13300133101/102`、T4 `13300133201/202`——新增用例继续在这些块内取未用号，不要复用其它套件的号段。**前端只能靠 `message.startsWith('登录失效')` 区分鉴权失败**，不能靠 code。
 - 所有 B 端路由挂在显式前缀 `/app/accommodation/merchant`（`@CoolController({ prefix: ... })`）；`/app/*` 自动受登录中间件保护，**不要**加 `@CoolTag(TagTypes.IGNORE_TOKEN)`。
 - 控制器方法名**不得**与 `BaseController` 内置方法同名（`page/list/info/add/update/delete`），否则 TS2416 编译失败；一律用 `hotelPage` / `hotelAdd` 这类前缀名。
 - **服务方法名同样受限**：`@cool-midway/core` 的 `BaseService` 也声明了 `page/list/info/add/update/delete`（`node_modules/@cool-midway/core/dist/service/base.js:135-215`），同名即 TS2416 且应用启动失败。因此 `MerchantHotelService` 用 `hotelPage/hotelInfo/hotelAdd/hotelUpdate/hotelRemove`，`MerchantRoomTypeService` 用 `roomTypePage/roomTypeAdd/roomTypeUpdate/roomTypeRemove`（`MerchantCalendarService.range/batch` 不冲突，保持原名）。T1 实现时已按此基线落地命名。
@@ -192,15 +193,15 @@ describe('B 端民宿管理', () => {
     app = await boot();
     ({ token: tokenA, merchantId: merchantIdA } = await registerMerchant(
       app,
-      '13300133001',
+      '13300133004',
       'accommodation'
     ));
     ({ token: tokenB, merchantId: merchantIdB } = await registerMerchant(
       app,
-      '13300133002',
+      '13300133005',
       'accommodation'
     ));
-    tokenC = await registerAndLogin(app, '13300133003');
+    tokenC = await registerAndLogin(app, '13300133006');
   });
 
   afterAll(async () => {
@@ -449,7 +450,7 @@ git commit -m "feat(merchant): B 端住宿归属校验基座 + 我的民宿分�
 并在 `beforeAll` 末尾追加一行：
 
 ```ts
-    ({ token: tokenD } = await registerMerchant(app, '13300133004', 'product'));
+    ({ token: tokenD } = await registerMerchant(app, '13300133007', 'product'));
 ```
 
 再追加用例：
