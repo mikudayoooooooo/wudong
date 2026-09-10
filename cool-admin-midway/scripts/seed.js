@@ -29,6 +29,7 @@ async function main() {
     'community_like', 'community_report', 'community_message',
     'banner', 'announcement',
     'hotel', 'room_type', 'room_calendar',
+    'restaurant', 'time_slot',
   ]) {
     await conn.query(`TRUNCATE TABLE \`${t}\``);
   }
@@ -127,6 +128,7 @@ async function main() {
       ['route', 2, '2026-09-13', 20, 12, now, now],
       ['ticket', 11, '2026-09-12', 200, 45, now, now],
       ['ticket', 13, '2026-09-12', 300, 120, now, now],
+      ['route', 2, '2026-10-01', 20, 3, now, now],
     ]);
 
   // ---- 电子票（足迹演示：user1/user2 核销路线1，user3 核销路线2，user2 一张退款票）----
@@ -228,7 +230,7 @@ async function main() {
   await ins('hotel',
     ['id', 'merchantId', 'name', 'address', 'longitude', 'latitude', 'styleTags', 'facilityTags', 'mainImage', 'images', 'intro', 'rating', 'reviewCount', 'checkInTime', 'checkOutTime', 'status', 'createTime', 'updateTime'],
     [
-      [1, null, '乌东苗寨木楼', '雷山县 · 乌东村一组', 108.100000, 26.300000,
+      [1, null, '云上人家', '雷山县 · 乌东村一组', 108.100000, 26.300000,
        JSON.stringify(['苗寨', '江景']), JSON.stringify(['WiFi', '空调', '独立卫浴']),
        'https://picsum.photos/seed/h1/900/600', JSON.stringify(['https://picsum.photos/seed/h1/900/600', 'https://picsum.photos/seed/h1b/900/600']),
        '坐落于梯田之上的百年木楼，推窗见云雾青山。', 4.8, 126, '14:00', '12:00', 1, now, now],
@@ -242,13 +244,28 @@ async function main() {
        '干净实惠，步行到长桌宴广场五分钟。', 4.2, 57, '14:00', '12:00', 1, now, now],
     ]);
   await ins('room_type',
-    ['hotelId', 'name', 'bedType', 'area', 'maxGuests', 'facilities', 'price', 'stock', 'status', 'createTime', 'updateTime'],
+    ['id', 'hotelId', 'name', 'bedType', 'area', 'maxGuests', 'facilities', 'price', 'stock', 'status', 'createTime', 'updateTime'],
     [
-      [1, '木屋大床房', '大床', 28, 2, JSON.stringify(['WiFi', '空调']), 380, 3, 1, now, now],
-      [1, '吊脚楼双床房', '双床', 32, 2, JSON.stringify(['WiFi', '空调', '江景']), 520, 2, 1, now, now],
-      [1, '阁楼家庭房', '大床+单床', 40, 4, JSON.stringify(['WiFi', '空调']), 680, 1, 1, now, now],
-      [2, '星空标间', '双床', 26, 2, JSON.stringify(['WiFi', '暖气']), 420, 4, 1, now, now],
-      [3, '经济单人间', '单床', 16, 1, JSON.stringify(['WiFi']), 120, 5, 1, now, now],
+      [1, 1, '木屋大床房', '大床', 28, 2, JSON.stringify(['WiFi', '空调']), 380, 3, 1, now, now],
+      [2, 1, '吊脚楼双床房', '双床', 32, 2, JSON.stringify(['WiFi', '空调', '江景']), 316, 2, 1, now, now],
+      [3, 1, '阁楼家庭房', '大床+单床', 40, 4, JSON.stringify(['WiFi', '空调']), 680, 1, 1, now, now],
+      [4, 2, '星空标间', '双床', 26, 2, JSON.stringify(['WiFi', '暖气']), 420, 4, 1, now, now],
+      [5, 3, '经济单人间', '单床', 16, 1, JSON.stringify(['WiFi']), 120, 5, 1, now, now],
+    ]);
+
+  // ---- 餐饮（AI管家演示：长桌宴 + 10-01 时段）----
+  await ins('restaurant',
+    ['id', 'merchantId', 'name', 'coverImage', 'address', 'longitude', 'latitude', 'phone', 'businessHours', 'avgPrice', 'rating', 'specialty', 'description', 'status', 'createTime', 'updateTime'],
+    [
+      [3, 1, '长桌宴', 'https://picsum.photos/seed/r3/900/600', '乌东村广场', 108.102000, 26.302000,
+       '13800000003', '11:00-21:00', 84, 4.7, '酸汤鱼、糯米饭、米豆腐',
+       '苗家长桌宴，逢节开席，敬酒歌不断。', 1, now, now],
+    ]);
+  await ins('time_slot',
+    ['id', 'restaurantId', 'date', 'timePeriod', 'startTime', 'endTime', 'maxReservations', 'currentReservations', 'status', 'createTime', 'updateTime'],
+    [
+      [301, 3, '2026-10-01', '午市 11:00-13:00', '11:00', '13:00', 20, 0, 1, now, now],
+      [302, 3, '2026-10-01', '晚市 17:00-20:00', '17:00', '20:00', 20, 0, 1, now, now],
     ]);
 
   const [rows] = await conn.query(`SELECT
