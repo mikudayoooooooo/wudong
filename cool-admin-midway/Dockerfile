@@ -21,7 +21,9 @@ COPY package.json ./package.json
 RUN npm install
 # 构建项目
 COPY . .
-RUN npm run build
+# 注意：不要用 npm run build（其中的 bundle 会内联模块并丢失方法级 @CoolTag 元数据，
+# 导致生产镜像里 /app/** 匿名路由（IGNORE_TOKEN）全部失效）——直接 tsc 编译保留目录结构
+RUN npx cool entity && npx mwtsc --cleanOutDir
 # 删除开发期依赖
 RUN rm -rf node_modules && rm package-lock.json    
 # 安装生产环境依赖   

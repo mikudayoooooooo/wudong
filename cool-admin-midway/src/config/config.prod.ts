@@ -17,7 +17,8 @@ export default {
         password: process.env.DB_PASSWORD || '123456',
         database: process.env.DB_DATABASE || 'cool',
         // 自动建表 注意：线上部署的时候不要使用，有可能导致数据丢失
-        synchronize: false,
+        // 容器/首次部署可用 DB_SYNC=true 一次性同步表结构（docker compose run -e DB_SYNC=true）
+        synchronize: process.env.DB_SYNC === 'true',
         // 打印日志
         logging: false,
         // 字符集
