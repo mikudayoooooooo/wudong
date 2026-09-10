@@ -14,8 +14,10 @@ const auth = useAuthStore();
 setAuthToken(auth.token || null);
 setUnauthorizedHandler(() => {
   auth.logout();
-  if (router.currentRoute.value.path !== '/login') {
-    router.push({ name: 'login' });
+  const current = router.currentRoute.value;
+  if (current.path !== '/login') {
+    // 带上来源（与路由守卫一致），重登后回到被踢出的页面
+    router.push({ name: 'login', query: { redirect: current.fullPath } });
   }
 });
 

@@ -21,6 +21,20 @@ const submitLabel = computed(() =>
   mode.value === 'login' ? '登录' : '注册并登录'
 );
 
+/** 与后端 member/service/login.ts 完全一致的密码规则（8–20 位且同时含字母和数字） */
+const PASSWORD_RULE = /^(?=.*[A-Za-z])(?=.*\d)[\s\S]{8,20}$/;
+/** 逐字照抄后端文案，前后端同一句话 */
+const PASSWORD_RULE_MESSAGE = '密码须为8-20位，且同时包含字母和数字';
+
+/** 只接受站内绝对路径作为 redirect，挡掉 `//evil.com` 之类的站外地址 */
+function safeRedirect(): string {
+  const raw = route.query.redirect;
+  if (typeof raw === 'string' && raw.startsWith('/') && !raw.startsWith('//')) {
+    return raw;
+  }
+  return '/merchant';
+}
+
 function switchMode(next: 'login' | 'register'): void {
   mode.value = next;
   error.value = '';
@@ -61,6 +75,11 @@ async function submit(): Promise<void> {
     error.value = '请填写短信验证码';
     return;
   }
+  // 注册态本地先拦一道与后端同规则的密码校验，避免只靠后端报错（spec §5.2 前后端一致）
+  if (mode.value === 'register' && !PASSWORD_RULE.test(form.password)) {
+    error.value = PASSWORD_RULE_MESSAGE;
+    return;
+  }
   submitting.value = true;
   try {
     if (mode.value === 'login') {
@@ -72,8 +91,7 @@ async function submit(): Promise<void> {
         password: form.password,
       });
     }
-    const redirect = String(route.query.redirect || '/merchant');
-    await router.replace(redirect);
+    await router.replace(safeRedirect());
   } catch (e) {
     error.value = e instanceof Error ? e.message : '操作失败，请稍后重试';
   } finally {

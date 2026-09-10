@@ -78,6 +78,16 @@ describe('LoginView', () => {
     expect(router.currentRoute.value.path).toBe('/merchant');
   });
 
+  it('redirect 指向站外地址时回落到 /merchant（不被带偏）', async () => {
+    vi.mocked(loginByPassword).mockResolvedValue({ token: 'jwt-1' });
+    const { wrapper, router } = await mountView('//evil.com');
+    await wrapper.find('input[type="tel"]').setValue('13300133001');
+    await wrapper.find('input[type="password"]').setValue('abc123456');
+    await wrapper.find('form').trigger('submit');
+    await flushPromises();
+    expect(router.currentRoute.value.path).toBe('/merchant');
+  });
+
   it('登录失败展示后端 message 且不跳转', async () => {
     vi.mocked(loginByPassword).mockRejectedValue(new Error('手机号或密码错误'));
     const { wrapper, router } = await mountView('/merchant');
@@ -116,6 +126,25 @@ describe('LoginView', () => {
     expect(
       (wrapper.find('.sms-code-input').element as HTMLInputElement).value
     ).toBe('123456');
+  });
+
+  it('注册态密码不合规：本地拦截，不发请求', async () => {
+    vi.mocked(register).mockResolvedValue({ token: 'jwt-reg' });
+    const { wrapper, router } = await mountView('/merchant');
+    const registerTab = wrapper
+      .findAll('.login-tab button')
+      .find((b) => b.text().includes('注册'));
+    await registerTab!.trigger('click');
+    await wrapper.find('input[type="tel"]').setValue('13300133002');
+    await wrapper.find('.sms-code-input').setValue('123456');
+    await wrapper.find('input[type="password"]').setValue('12345678'); // 纯数字，不合规
+    await wrapper.find('form').trigger('submit');
+    await flushPromises();
+
+    // 关键：断言「没发请求」，否则该文案可能只是被 register 的 rejection message 满足
+    expect(register).not.toHaveBeenCalled();
+    expect(wrapper.find('.m-error').text()).toBe('密码须为8-20位，且同时包含字母和数字');
+    expect(router.currentRoute.value.path).toBe('/login');
   });
 
   it('注册成功后进入商家区', async () => {

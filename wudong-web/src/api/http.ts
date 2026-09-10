@@ -47,6 +47,27 @@ const buildQuery = (query?: Record<string, unknown>): string => {
 const isAuthFailure = (message?: string): boolean =>
   typeof message === 'string' && message.startsWith('登录失效');
 
+/**
+ * 触发鉴权失效处理（清 token + 跳登录）。
+ * handler 自身的异常必须被吞掉：它是在抛 ApiError 之前调用的，
+ * 一旦冒泡出去就会顶掉原始错误，用户看到的是 handler 的异常而不是后端 message。
+ */
+const fireUnauthorized = (): void => {
+  try {
+    unauthorizedHandler?.();
+  } catch {
+    // 忽略：不能让它顶掉调用方即将抛出的原始错误
+  }
+};
+
+/**
+ * 供自建 fetch 的上传等场景复用「登录失效 → 清 token + 跳 /login」，
+ * 避免绕过 http.ts 的集中处理（判据与 doFetch 一致：message 前缀）。
+ */
+export const notifyUnauthorized = (message: string): void => {
+  if (isAuthFailure(message)) fireUnauthorized();
+};
+
 /** 统一收发：GET 走 query，POST 走 JSON body；鉴权失败先回调再抛错 */
 const doFetch = async <T>(
   method: 'GET' | 'POST',
@@ -66,12 +87,12 @@ const doFetch = async <T>(
 
   const res = await fetch(url, init);
   if (!res.ok) {
-    if (res.status === 401) unauthorizedHandler?.();
+    if (res.status === 401) fireUnauthorized();
     throw new ApiError(`HTTP ${res.status}`, res.status);
   }
   const json = (await res.json()) as Envelope<T>;
   if (json.code !== 1000) {
-    if (isAuthFailure(json.message)) unauthorizedHandler?.();
+    notifyUnauthorized(json.message ?? '');
     throw new ApiError(json.message || '接口异常', json.code);
   }
   return json.data as T;

@@ -2,7 +2,7 @@
 // mock 模式把文件读成 dataURL（本地即可预览，无需后端）。
 // 后端各上传插件返回形态不一致，这里统一兼容 string / {url} / {path}。
 import { USE_MOCK } from '../env';
-import { ApiError, authHeader } from './http';
+import { ApiError, authHeader, notifyUnauthorized } from './http';
 
 const fileToDataUrl = (file: File): Promise<string> =>
   new Promise((resolve, reject) => {
@@ -35,10 +35,13 @@ export const uploadImage = async (file: File): Promise<string> => {
     body: form,
   });
   if (!res.ok) {
+    // 上传是自建 fetch，必须自己接回 http.ts 的鉴权失效处理（否则 401 时 token 不清、不跳登录）
+    notifyUnauthorized(res.status === 401 ? '登录失效~' : `HTTP ${res.status}`);
     throw new ApiError(`HTTP ${res.status}`, res.status);
   }
   const json = (await res.json()) as { code: number; message?: string; data?: unknown };
   if (json.code !== 1000) {
+    notifyUnauthorized(json.message ?? '');
     throw new ApiError(json.message || '图片上传失败', json.code);
   }
   const url = pickUploadUrl(json.data);
