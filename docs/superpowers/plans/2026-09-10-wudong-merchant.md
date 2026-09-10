@@ -4160,7 +4160,8 @@ git commit -m "feat(merchant): 登录页补注册与验证码"
 - [ ] **Step 1: 写失败测试 `src/components/TagInput.spec.ts`**
 
 ```ts
-import { describe, expect, it, vi } from 'vitest';
+// 注意：本文件不用 vi，故不 import（tsconfig 的 noUnusedLocals 会让未用的 import 报 TS6133）
+import { describe, expect, it } from 'vitest';
 import { mount } from '@vue/test-utils';
 import TagInput from './TagInput.vue';
 
@@ -4773,8 +4774,8 @@ import { createPinia, setActivePinia } from 'pinia';
 import MerchantApplyView from './MerchantApplyView.vue';
 import ImageUploader from '@/components/ImageUploader.vue';
 import { merchantApplication, merchantApply, merchantMy } from '@/api/merchant';
-import { useAuthStore } from '@/stores/auth';
 
+// 注意：本文件不用 useAuthStore，故不 import（noUnusedLocals 会让未用的 import 报 TS6133）
 vi.mock('@/api/merchant', () => ({
   merchantApplication: vi.fn(),
   merchantApply: vi.fn(),
@@ -6465,7 +6466,7 @@ Expected: FAIL — 视图不存在。
 <script setup lang="ts">
 // 某个民宿的房型管理：列表 + 内联新增/编辑表单 + 二次确认删除 + 房态入口。
 // 「零间房」等前端可判定的错误就地拦截，其余以后端 message 为准。
-import { computed, onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import {
   merchantHotelInfo,
