@@ -5337,7 +5337,7 @@ onMounted(load);
 - [ ] **Step 8: 运行测试确认通过**
 
 Run: `npm run test`
-Expected: PASS（含首页 6 个 + 申请页 6 个）。
+Expected: PASS（含首页 6 个 + 申请页 7 个）。
 
 - [ ] **Step 9: 类型检查 + Commit**
 
@@ -6253,7 +6253,7 @@ onMounted(load);
 - [ ] **Step 5: 运行测试确认通过**
 
 Run: `npm run test -- src/views/merchant/MerchantHotelEditView.spec.ts`
-Expected: PASS（7 个用例）。
+Expected: PASS（8 个用例）。
 
 - [ ] **Step 6: 类型检查 + Commit**
 
