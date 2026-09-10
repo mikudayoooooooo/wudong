@@ -1,0 +1,193 @@
+// 商家区样式：类名前缀 merchant- / m- 避免与游客站冲突
+.merchant-page {
+  display: flex;
+  gap: 20px;
+  max-width: 1160px;
+  margin: 24px auto;
+  padding: 0 20px;
+  align-items: flex-start;
+}
+
+.merchant-aside {
+  flex: 0 0 200px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+  position: sticky;
+  top: 84px;
+}
+.merchant-shop-name {
+  font-weight: 700;
+  color: var(--green-900);
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+.merchant-shop-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+.tag {
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+.tag-on {
+  color: var(--green-500);
+  background: var(--green-100);
+}
+.tag-off {
+  color: var(--gold-600);
+  background: #fff7ec;
+}
+.merchant-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+.merchant-nav button {
+  text-align: left;
+  border: 0;
+  background: transparent;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--ink);
+}
+.merchant-nav button.active,
+.merchant-nav button:hover {
+  background: var(--green-700);
+  color: #fff;
+}
+.merchant-logout {
+  width: 100%;
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 8px;
+  padding: 8px 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.merchant-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.m-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.m-card-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 16px;
+  font-size: 18px;
+  color: var(--green-900);
+}
+.m-card-title .m-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+
+.m-btn {
+  border: 1px solid var(--green-700);
+  background: var(--green-700);
+  color: #fff;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+}
+.m-btn:hover {
+  opacity: 0.9;
+}
+.m-btn-ghost {
+  background: #fff;
+  color: var(--green-700);
+}
+.m-btn-danger {
+  background: #fff;
+  color: var(--gold-600);
+  border-color: #e6b4ad;
+}
+.m-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.m-form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.m-form-row > label {
+  font-size: 13px;
+  color: var(--muted);
+}
+.m-form-row input,
+.m-form-row select,
+.m-form-row textarea {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--ink);
+  background: #fff;
+}
+.m-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0 16px;
+}
+.m-form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.m-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.m-table th,
+.m-table td {
+  text-align: left;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--line);
+}
+.m-table th {
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.m-state {
+  padding: 26px 16px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+}
+.m-error {
+  color: var(--gold-600);
+}
+.m-hint {
+  font-size: 13px;
+  color: var(--muted);
+}
+.m-required {
+  color: var(--gold-600);
+  margin-left: 2px;
+}

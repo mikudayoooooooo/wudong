@@ -13,6 +13,10 @@ const navItems = [
 function isActive(itemPath: string): boolean {
   return itemPath === '/' ? route.path === '/' : route.path.startsWith(itemPath);
 }
+
+function goMerchant(): void {
+  router.push('/merchant');
+}
 </script>
 
 <template>
@@ -31,6 +35,7 @@ function isActive(itemPath: string): boolean {
             {{ item.label }}
           </button>
         </nav>
+        <button type="button" class="merchant-entry" @click="goMerchant">商家中心</button>
         <span class="badge-coming">在线预订 · 即将上线</span>
       </div>
     </header>
@@ -40,3 +45,18 @@ function isActive(itemPath: string): boolean {
     <footer class="site-footer container">乌东文旅 · 衣 食 住 行 社区 — 云上苗寨游客站</footer>
   </div>
 </template>
+
+<style scoped>
+.merchant-entry {
+  border: 1px solid var(--green-700);
+  background: #fff;
+  color: var(--green-700);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 13px;
+}
+.merchant-entry:hover {
+  background: var(--green-700);
+  color: #fff;
+}
+</style>
