@@ -26,6 +26,7 @@
 - 归属字段：`hotel.merchantId` 定民宿归属；`room_type.hotelId` → `hotel.merchantId` 定房型归属；`room_calendar.roomTypeId` → 房型归属。
 - 后端错误文案（测试精确断言，不得改写）：
   `仅商家可访问` / `无权操作该资源` / `请指定民宿` / `请填写完整的民宿信息` / `请填写完整的房型信息` / `房型价格必须大于 0` / `房间数量至少为 1` / `标签格式不正确` / `您的入驻模块非住宿，无法新增民宿` / `请先删除该民宿下的房型` / `日期区间无效` / `日期区间最多32天`。
+  归一（`service/merchant-field.ts` 的 `pickFields`）另有两个「字段值形态不对」的文案：数字字段为空/不可解析 → `民宿信息格式不正确`（民宿）/ `房型信息格式不正确`（房型）；标签类字段元素不是非空字符串 → `标签格式不正确`。
 - **不提交 `cool-admin-midway/src/config/config.local.ts`**（本机 3307/`cool` 覆盖，未提交状态必须保持；`git add` 时不得带上它）。
 - 不修改其它组的模块（`base` / `member` / `merchant` / `order` / `pay` / `message` / `cart` / `food` / `product` / `sensitive`）。本计划只允许改：`cool-admin-midway/src/modules/accommodation/**`、`cool-admin-midway/src/modules/operate/controller/admin/{banner,announcement}.ts`、`cool-admin-midway/test/{helper.ts,*.test.ts}`、`wudong-web/**`、`docs/**`。
 - 前端：路径别名 `@` → `src`；测试与被测文件同目录、命名 `*.spec.ts`，`include: ['src/**/*.spec.ts']`；命令 `npm run test`（vitest）与 `npm run type-check`（vue-tsc `--noEmit`）。
@@ -802,12 +803,16 @@ git commit -m "feat(merchant): 商家民宿增查改删（模块/归属/删除�
 ## Task 3: 房型 增/查/改/删（P7 级联清房态）
 
 **Files:**
+- Create: `cool-admin-midway/src/modules/accommodation/service/merchant-field.ts`
 - Create: `cool-admin-midway/src/modules/accommodation/service/merchant-room-type.ts`
+- Modify: `cool-admin-midway/src/modules/accommodation/service/merchant-hotel.ts`（`pick()` 改为调用共用 `pickFields`，签名与行为不变）
 - Modify: `cool-admin-midway/src/modules/accommodation/controller/app/merchant.ts`
 - Test: `cool-admin-midway/test/merchant-room-type.test.ts`
+- 回归（不新增用例）：`cool-admin-midway/test/merchant-hotel.test.ts` 必须**一并跑绿** —— `merchant-hotel.ts` 的 `pick()` 本 Task 被改为委托给共用 `pickFields`，T2 已通过的 `民宿信息格式不正确`/`标签格式不正确`/`经纬度空串` 用例就是这次抽取的回归网。
 
 **Interfaces:**
 - Consumes: `MerchantScopeService.requireOwnedHotel / requireOwnedRoomType`（Task 1）、`RoomCalendarEntity`。
+- Produces: `pickFields(body, spec)`（`service/merchant-field.ts`）——民宿与房型两个服务共用同一个白名单归一实现，避免 T2 已修好的校验被复制后各自漂移。
 - Produces:
   - `MerchantRoomTypeService.roomTypePage(merchantId, query): Promise<{ list: RoomTypeEntity[]; total: number }>`
   - `MerchantRoomTypeService.roomTypeAdd(merchantId, body): Promise<RoomTypeEntity>`
@@ -930,6 +935,29 @@ describe('B 端房型管理', () => {
     expect(res.body.message).toBe('房间数量至少为 1');
   });
 
+  it('价格传空串被拒绝（Number(\'\') 不是 0）', async () => {
+    const res = await createHttpRequest(app)
+      .post('/app/accommodation/merchant/room-type/add')
+      .set(auth(tokenA))
+      .send({ hotelId: hotelA, name: '空价房', price: '', stock: 1 });
+    expect(res.body.code).toBe(1001);
+    expect(res.body.message).toBe('房型信息格式不正确');
+
+    const list = await createHttpRequest(app)
+      .get(`/app/accommodation/merchant/room-type/page?hotelId=${hotelA}`)
+      .set(auth(tokenA));
+    expect(list.body.data.list.some((r: any) => r.name === '空价房')).toBe(false);
+  });
+
+  it('设施标签元素不是字符串被拒绝', async () => {
+    const res = await createHttpRequest(app)
+      .post('/app/accommodation/merchant/room-type/update')
+      .set(auth(tokenA))
+      .send({ id: roomTypeA, facilities: [{ name: 'WiFi' }] });
+    expect(res.body.code).toBe(1001);
+    expect(res.body.message).toBe('标签格式不正确');
+  });
+
   it('房型列表只含本民宿', async () => {
     const mine = await createHttpRequest(app)
       .get(`/app/accommodation/merchant/room-type/page?hotelId=${hotelA}`)
@@ -1010,7 +1038,79 @@ describe('B 端房型管理', () => {
 Run: `npx cross-env NODE_ENV=unittest jest test/merchant-room-type.test.ts --runInBand`
 Expected: FAIL — `/room-type/page` 404。
 
-- [ ] **Step 3: 实现 `src/modules/accommodation/service/merchant-room-type.ts`**
+- [ ] **Step 3: 抽出共用归一 `service/merchant-field.ts`，并实现 `service/merchant-room-type.ts`**
+
+**3a. 创建 `src/modules/accommodation/service/merchant-field.ts`**（民宿与房型共用一份归一逻辑，
+避免两处 `pick()` 各写一遍后校验语义漂移——T2 的 review 正是在这份代码上抓到两个「静默把坏输入变合法」的洞）：
+
+```ts
+import { CoolCommException } from '@cool-midway/core';
+
+/** 一份白名单字段表的归一规则 */
+export interface FieldSpec {
+  /** 可写字段白名单；不在表里的键（id、归属字段、实体默认字段）一律丢弃 */
+  fields: string[];
+  /** 需要转成 number 的字段 */
+  numeric: string[];
+  /** 需要是「非空字符串数组」的字段 */
+  json: string[];
+  /** 数字字段值为空或无法解析时抛出的文案 */
+  numberError: string;
+}
+
+/**
+ * 字段白名单过滤 + 类型归一（B 端商家服务共用）。
+ * - 空串/空数组视为「没填」而不是 0：Number('') === 0 会让必填校验形同虚设
+ * - 数组元素必须是字符串：String({url:'a.jpg'}) 会静默存成 '[object Object]'
+ */
+export function pickFields(body: any, spec: FieldSpec): Record<string, any> {
+  const out: Record<string, any> = {};
+  for (const key of spec.fields) {
+    const value = body?.[key];
+    if (value === undefined || value === null) continue;
+    if (spec.numeric.includes(key)) {
+      if (value === '' || (Array.isArray(value) && value.length === 0)) {
+        throw new CoolCommException(spec.numberError);
+      }
+      const num = Number(value);
+      if (Number.isNaN(num)) {
+        throw new CoolCommException(spec.numberError);
+      }
+      out[key] = num;
+    } else if (spec.json.includes(key)) {
+      if (
+        !Array.isArray(value) ||
+        value.some((v: unknown) => typeof v !== 'string' || !v.trim())
+      ) {
+        throw new CoolCommException('标签格式不正确');
+      }
+      out[key] = value.map((v: string) => v.trim());
+    } else {
+      out[key] = typeof value === 'string' ? value.trim() : value;
+    }
+  }
+  return out;
+}
+```
+
+**3b. 改 `service/merchant-hotel.ts`**：删掉私有 `pick()` 的实现，改为调用共用函数（对外签名与行为不变）：
+
+```ts
+  /** 字段白名单过滤 + 类型归一 */
+  private pick(body: any): Partial<HotelEntity> {
+    return pickFields(body, {
+      fields: HOTEL_FIELDS,
+      numeric: NUMERIC_FIELDS,
+      json: JSON_FIELDS,
+      numberError: '民宿信息格式不正确',
+    });
+  }
+```
+
+并在该文件顶部 import 里加 `import { pickFields } from './merchant-field';`。
+（`HOTEL_FIELDS`/`NUMERIC_FIELDS`/`JSON_FIELDS` 三个常量原样保留。）
+
+**3c. 创建 `src/modules/accommodation/service/merchant-room-type.ts`**：
 
 ```ts
 import { Inject, Provide } from '@midwayjs/core';
@@ -1020,6 +1120,7 @@ import { Repository } from 'typeorm';
 import { RoomTypeEntity } from '../entity/room-type';
 import { RoomCalendarEntity } from '../entity/room-calendar';
 import { MerchantScopeService } from './merchant-scope';
+import { pickFields } from './merchant-field';
 
 /** 可写字段白名单：不含 hotelId，房型不能改挂到别的人民宿 */
 const ROOM_FIELDS = [
@@ -1048,28 +1149,14 @@ export class MerchantRoomTypeService extends BaseService {
   @Inject()
   scopeService: MerchantScopeService;
 
-  /** 字段白名单过滤 + 类型归一 */
+  /** 字段白名单过滤 + 类型归一（与民宿共用 `pickFields`） */
   private pick(body: any): Partial<RoomTypeEntity> {
-    const out: any = {};
-    for (const key of ROOM_FIELDS) {
-      const value = body?.[key];
-      if (value === undefined || value === null) continue;
-      if (NUMERIC_FIELDS.includes(key)) {
-        const num = Number(value);
-        if (Number.isNaN(num)) {
-          throw new CoolCommException('房型信息格式不正确');
-        }
-        out[key] = num;
-      } else if (JSON_FIELDS.includes(key)) {
-        if (!Array.isArray(value)) {
-          throw new CoolCommException('标签格式不正确');
-        }
-        out[key] = value.map((v: unknown) => String(v));
-      } else {
-        out[key] = typeof value === 'string' ? value.trim() : value;
-      }
-    }
-    return out;
+    return pickFields(body, {
+      fields: ROOM_FIELDS,
+      numeric: NUMERIC_FIELDS,
+      json: JSON_FIELDS,
+      numberError: '房型信息格式不正确',
+    });
   }
 
   /** 某民宿的房型分页（必须先确认民宿归属） */
@@ -1205,17 +1292,21 @@ import { MerchantRoomTypeService } from '../../service/merchant-room-type';
 
 - [ ] **Step 5: 运行测试确认通过**
 
-Run: `npx cross-env NODE_ENV=unittest jest test/merchant-room-type.test.ts --runInBand`
-Expected: PASS（12 个用例）。
+Run: `npx cross-env NODE_ENV=unittest jest test/merchant-room-type.test.ts test/merchant-hotel.test.ts --runInBand`
+（两个套件必须在同一次 jest 调用里一起跑：`merchant-hotel.ts` 的 `pick()` 本 Task 被改成委托，
+它的 17 个用例就是这次抽取的回归网。两个套件的手机号段不同——101/102 与 04-07——同一库可共存。）
+Expected: PASS（房型 14 个用例 + 民宿 17 个用例）。
 
 - [ ] **Step 6: Commit**
 
 ```bash
 cd cool-admin-midway
 git add test/merchant-room-type.test.ts \
+  src/modules/accommodation/service/merchant-field.ts \
   src/modules/accommodation/service/merchant-room-type.ts \
+  src/modules/accommodation/service/merchant-hotel.ts \
   src/modules/accommodation/controller/app/merchant.ts
-git commit -m "feat(merchant): 商家房型管理（价/库存校验 + 删房型级联清房态）"
+git commit -m "feat(merchant): 商家房型管理（共用归一 + 价/库存校验 + 删房型级联清房态）"
 ```
 
 ---
