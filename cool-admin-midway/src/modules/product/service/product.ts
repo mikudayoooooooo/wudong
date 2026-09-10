@@ -216,23 +216,30 @@ export class ProductService extends BaseService {
    * C端：获取商品详情
    */
   async getDetail(id: number) {
-    const product = await this.productEntity
-      .createQueryBuilder('product')
-      .where('product.id = :id', { id })
-      .andWhere('product.status = :status', { status: 1 })
-      .leftJoinAndSelect('product.category', 'category')
-      .leftJoinAndSelect('product.images', 'images')
-      .leftJoinAndSelect('product.skus', 'skus')
-      .getOne();
+    const product = await this.productEntity.findOne({
+      where: { id, status: 1 },
+    });
 
     if (!product) {
       return null;
     }
 
-    // 增加浏览量（可选）
-    await this.productEntity.increment({ id }, 'views', 1);
+    // 获取商品图片
+    const images = await this.productImageEntity.find({
+      where: { productId: id },
+      order: { sort: 'ASC' },
+    });
 
-    return product;
+    // 获取SKU列表
+    const skus = await this.productSkuEntity.find({
+      where: { productId: id },
+    });
+
+    return {
+      ...product,
+      images,
+      skus,
+    };
   }
 
   /**

@@ -42,7 +42,7 @@ const handleAddToCart = async () => {
 
   purchasing.value = true;
   try {
-    await addToCart(product.value.id, 1);
+    await addToCart(product.value.id, 1, 1); // itemId, itemType=1(非遗商品), quantity=1
     alert('已加入购物车！');
   } catch (e: any) {
     if (e.message?.includes('登录')) {

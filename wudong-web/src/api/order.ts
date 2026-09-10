@@ -2,8 +2,38 @@
 import { request } from './http';
 
 /** 添加到购物车 */
-export const addToCart = async (productId: number, quantity: number = 1) => {
-  return request('/app/cart/add', { productId, skuId: 0, quantity });
+export const addToCart = async (itemId: number, itemType: number = 1, quantity: number = 1) => {
+  return request('/app/cart/add', { itemType, itemId, quantity });
+};
+
+/** 更新购物车数量 */
+export const updateCartQuantity = async (cartItemId: number, quantity: number) => {
+  return request('/app/cart/update', { cartItemId, quantity });
+};
+
+/** 移除购物车商品 */
+export const removeCartItem = async (cartItemId: number) => {
+  return request('/app/cart/remove', { cartItemId });
+};
+
+/** 查看购物车 */
+export const getCartList = async () => {
+  return request('/app/cart/list', {});
+};
+
+/** 清空购物车 */
+export const clearCart = async () => {
+  return request('/app/cart/clear', {});
+};
+
+/** 获取购物车数量 */
+export const getCartCount = async () => {
+  return request('/app/cart/count', {});
+};
+
+/** 从购物车创建订单 */
+export const createOrderFromCart = async (addressId: number, remark?: string) => {
+  return request('/app/order/create-from-cart', { addressId, remark });
 };
 
 /** 创建订单 */
