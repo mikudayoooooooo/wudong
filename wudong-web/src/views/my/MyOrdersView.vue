@@ -10,6 +10,9 @@ const session = useSession()
 const loading = ref(true)
 const list = ref<any[]>([])
 const status = ref<number>(0)
+const page = ref(1)
+const size = 10
+const total = ref(0)
 
 const STATUS_TABS = [
   { label: '全部', value: 0 },
@@ -41,11 +44,18 @@ const reviewable = (o: any) => o.module === 'travel' && o.status === 3
 async function load() {
   loading.value = true
   try {
-    const r = await getMyOrders(status.value || undefined, 1, 50)
+    const r = await getMyOrders(status.value || undefined, page.value, size)
     list.value = r.list || []
+    total.value = r.total || 0
   } finally {
     loading.value = false
   }
+}
+
+function goPage(p: number) {
+  if (p < 1 || (total.value && p > Math.ceil(total.value / size))) return
+  page.value = p
+  load()
 }
 
 async function onCancel(o: any) {
@@ -108,7 +118,7 @@ onMounted(async () => {
         :key="t.value"
         class="tab"
         :class="{ active: status === t.value }"
-        @click="status = t.value; load()"
+        @click="status = t.value; page = 1; load()"
       >
         {{ t.label }}
       </button>
@@ -136,6 +146,12 @@ onMounted(async () => {
           <button v-if="o.status === 1" class="mini" @click="onCancel(o)">取消</button>
           <button v-if="reviewable(o)" class="mini primary" @click="openReview(o)">评价</button>
         </div>
+      </div>
+
+      <div v-if="total > size" class="pager">
+        <button class="mini" :disabled="page <= 1" @click="goPage(page - 1)">上一页</button>
+        <span class="pinfo">{{ page }} / {{ Math.ceil(total / size) }}</span>
+        <button class="mini" :disabled="page >= Math.ceil(total / size)" @click="goPage(page + 1)">下一页</button>
       </div>
     </div>
 
@@ -186,4 +202,6 @@ onMounted(async () => {
 .star.on { color: var(--orange-500); }
 textarea { width: 100%; box-sizing: border-box; border: 1px solid var(--line-soft); border-radius: 8px; padding: 8px; }
 .d-acts { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+.pager { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 8px 0; }
+.pinfo { font-size: 12px; color: var(--text-3); }
 </style>

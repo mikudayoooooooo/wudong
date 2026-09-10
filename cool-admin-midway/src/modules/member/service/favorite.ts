@@ -1,8 +1,15 @@
 import { Provide } from '@midwayjs/core';
 import { BaseService, CoolCommException } from '@cool-midway/core';
-import { InjectEntityModel } from '@midwayjs/typeorm';
-import { Equal, Repository } from 'typeorm';
+import { InjectDataSource, InjectEntityModel } from '@midwayjs/typeorm';
+import { DataSource, Equal, In, Repository } from 'typeorm';
 import { MemberFavoriteEntity } from '../entity/favorite';
+import { ProductEntity } from '../../product/entity/product';
+import { RestaurantEntity } from '../../food/entity/restaurant';
+import { HotelEntity } from '../../accommodation/entity/hotel';
+import { TravelScenicSpotEntity } from '../../travel/entity/scenic-spot';
+import { TravelRoutePackageEntity } from '../../travel/entity/route-package';
+import { TravelTrafficGuideEntity } from '../../travel/entity/traffic-guide';
+import { CommunityPostEntity } from '../../community/entity/post';
 
 /** 收藏目标类型（全平台共用，需求文档与行/社区 spec 的并集） */
 export const FAVORITE_TYPES = [
@@ -15,6 +22,17 @@ export const FAVORITE_TYPES = [
   'post',
 ];
 
+/** 类型 → 实体与名称字段（列表回填 targetName 用；仅实体级引用，无服务级依赖） */
+const TARGET_META: Record<string, { entity: any; field: string }> = {
+  product: { entity: ProductEntity, field: 'name' },
+  restaurant: { entity: RestaurantEntity, field: 'name' },
+  hotel: { entity: HotelEntity, field: 'name' },
+  scenic: { entity: TravelScenicSpotEntity, field: 'name' },
+  route: { entity: TravelRoutePackageEntity, field: 'title' },
+  guide: { entity: TravelTrafficGuideEntity, field: 'title' },
+  post: { entity: CommunityPostEntity, field: 'title' },
+};
+
 /**
  * 收藏
  */
@@ -22,6 +40,9 @@ export const FAVORITE_TYPES = [
 export class MemberFavoriteService extends BaseService {
   @InjectEntityModel(MemberFavoriteEntity)
   memberFavoriteEntity: Repository<MemberFavoriteEntity>;
+
+  @InjectDataSource()
+  dataSource: DataSource;
 
   /**
    * 收藏/取消收藏（幂等切换）
@@ -82,6 +103,30 @@ export class MemberFavoriteService extends BaseService {
     const pageSize = Math.max(Number(size) || 10, 1);
     qb.skip((pageNo - 1) * pageSize).take(pageSize);
     const [list, total] = await qb.getManyAndCount();
-    return { list, total };
+
+    // 按类型批量回填目标名称（已删除的目标置「已失效」）
+    const idsByType = new Map<string, number[]>();
+    for (const item of list) {
+      const ids = idsByType.get(item.targetType) || [];
+      ids.push(item.targetId);
+      idsByType.set(item.targetType, ids);
+    }
+    const names = new Map<string, string>();
+    for (const [type, ids] of idsByType) {
+      const meta = TARGET_META[type];
+      if (!meta) continue;
+      const rows: any[] = await this.dataSource
+        .getRepository(meta.entity)
+        .find({ where: { id: In(ids) } });
+      for (const row of rows) {
+        names.set(`${type}:${row.id}`, row[meta.field]);
+      }
+    }
+    const withNames = list.map((item) => ({
+      ...item,
+      targetName: names.get(`${item.targetType}:${item.targetId}`) ?? '已失效',
+    }));
+
+    return { list: withNames, total };
   }
 }

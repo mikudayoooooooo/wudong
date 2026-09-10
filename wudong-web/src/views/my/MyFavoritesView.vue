@@ -105,7 +105,7 @@ onMounted(async () => {
     <div v-else class="favs">
       <div v-for="f in items" :key="f.id" class="fav card" @click="go(f)">
         <span class="tag">{{ f.label }}</span>
-        <span class="name">#{{ f.targetId }}</span>
+        <span class="name">{{ f.targetName || `#${f.targetId}` }}</span>
         <span class="spacer" />
         <button class="mini" @click.stop="onRemove(f)">取消收藏</button>
       </div>
