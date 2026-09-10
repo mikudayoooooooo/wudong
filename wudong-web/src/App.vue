@@ -4,10 +4,12 @@ import { useRoute, useRouter } from 'vue-router';
 const route = useRoute();
 const router = useRouter();
 
-// 导航项（按钮式，router.push 切换）；民宿及其详情（/hotels*）同组高亮
 const navItems = [
   { label: '首页', path: '/' },
   { label: '民宿', path: '/hotels' },
+  { label: '非遗商品', path: '/products' },
+  { label: '特色餐厅', path: '/restaurants' },
+  { label: '新鲜农产品', path: '/farm-products' },
 ];
 
 function isActive(itemPath: string): boolean {

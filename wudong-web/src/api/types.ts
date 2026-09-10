@@ -96,3 +96,96 @@ export interface Announcement {
   /** 是否置顶：1 是 0 否 */
   isTop: number;
 }
+
+/** 商品 */
+export interface Product {
+  id: number;
+  name: string;
+  coverImage: string;
+  price: number;
+  sales: number;
+  rating: number;
+  reviewCount: number;
+  categoryId?: number;
+  category?: { name: string };
+}
+
+/** 商品详情 */
+export interface ProductDetail extends Product {
+  images?: string[];
+  stock: number;
+  craftIntro?: string;
+  description?: string;
+  skus?: any[];
+}
+
+/** 商品分类 */
+export interface ProductCategory {
+  id: number;
+  name: string;
+  parentId?: number;
+  children?: ProductCategory[];
+}
+
+/** 商品搜索条件 */
+export interface ProductQuery {
+  keyword?: string;
+  categoryId?: number;
+  sort?: string; // price_asc | price_desc | sales_desc | new
+  page?: number;
+  size?: number;
+}
+
+/** 餐厅 */
+export interface Restaurant {
+  id: number;
+  name: string;
+  coverImage: string;
+  address: string;
+  phone?: string;
+  avgPrice: number;
+  rating: number;
+  longitude: number;
+  latitude: number;
+  distance?: number;
+  businessHours?: string;
+  specialty?: string;
+}
+
+/** 餐厅详情 */
+export interface RestaurantDetail {
+  info: Restaurant;
+  dishes: any[];
+}
+
+/** 餐厅搜索条件 */
+export interface RestaurantQuery {
+  keyword?: string;
+  longitude?: number;
+  latitude?: number;
+  sort?: string; // distance | rating | price
+  page?: number;
+  size?: number;
+}
+
+/** 农产品 */
+export interface FarmProduct {
+  id: number;
+  name: string;
+  coverImage: string;
+  price: number;
+  unit?: string;
+  origin?: string;
+  sales: number;
+  categoryId?: number;
+  category?: { name: string };
+}
+
+/** 农产品搜索条件 */
+export interface FarmProductQuery {
+  keyword?: string;
+  categoryId?: number;
+  sort?: string;
+  page?: number;
+  size?: number;
+}

@@ -14,7 +14,7 @@ export default {
         port: 3306, // 本地 MySQL 8.0 端口
         username: 'root',
         password: 'zhuwenjin',
-        database: 'wudong_platform', // 数据库名改为项目专用
+        database: 'wudong_travel', // 数据库名改为项目专用
         // 自动建表 注意：线上部署的时候不要使用，有可能导致数据丢失
         synchronize: true,
         // 打印日志

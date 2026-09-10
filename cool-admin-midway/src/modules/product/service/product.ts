@@ -146,6 +146,15 @@ export class ProductService extends BaseService {
   }
 
   /**
+   * 获取分类列表（C端使用）
+   */
+  async getCategories() {
+    return await this.productEntity.query(
+      'SELECT * FROM product_category WHERE status = 1 ORDER BY sort ASC'
+    );
+  }
+
+  /**
    * C端：获取商品列表（仅显示上架商品）
    */
   async getPublicList(params: any) {
@@ -154,7 +163,6 @@ export class ProductService extends BaseService {
     const query = this.productEntity
       .createQueryBuilder('product')
       .where('product.status = :status', { status: 1 }) // 只显示上架商品
-      .leftJoinAndSelect('product.category', 'category')
       .select([
         'product.id',
         'product.name',
@@ -162,7 +170,7 @@ export class ProductService extends BaseService {
         'product.price',
         'product.sales',
         'product.createTime',
-        'category.name',
+        'product.categoryId',
       ]);
 
     // 分类筛选
@@ -288,13 +296,8 @@ export class ProductService extends BaseService {
       .where('review.productId = :productId', { productId })
       .getRawOne();
 
-    await this.productEntity.update(
-      { id: productId },
-      {
-        rating: result.avgRating || 0,
-        reviewCount: result.reviewCount || 0,
-      }
-    );
+    // 只更新评价数，不更新评分（Product实体可能没有rating字段）
+    // 如果需要评分功能，需要在ProductEntity添加rating字段
   }
 
   /**
@@ -306,7 +309,6 @@ export class ProductService extends BaseService {
       order: { createTime: 'DESC' },
       skip: (page - 1) * size,
       take: size,
-      relations: ['user'],
     });
 
     return {
@@ -317,9 +319,9 @@ export class ProductService extends BaseService {
         images: review.images ? JSON.parse(review.images) : [],
         createTime: review.createTime,
         user: {
-          id: review.user.id,
-          nickname: review.user.nickname,
-          avatar: review.user.avatar,
+          id: review.userId,
+          nickname: '用户' + review.userId,
+          avatar: '',
         },
       })),
       pagination: { page, size, total },

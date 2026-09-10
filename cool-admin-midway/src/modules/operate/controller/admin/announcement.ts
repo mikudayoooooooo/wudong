@@ -10,7 +10,6 @@ import { AnnouncementEntity } from '../../entity/announcement';
   entity: AnnouncementEntity,
   pageQueryOp: {
     fieldEq: ['a.status', 'a.type'],
-    keywordLikeFields: ['a.title'],
   },
 })
 export class AdminOperateAnnouncementController extends BaseController {}

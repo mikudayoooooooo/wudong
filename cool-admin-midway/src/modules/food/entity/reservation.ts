@@ -1,11 +1,10 @@
-import { EntityModel } from '@midwayjs/orm';
 import { BaseEntity } from '@cool-midway/core';
-import { Column, Index } from 'typeorm';
+import { Column, Entity, Index } from 'typeorm';
 
 /**
  * 餐厅预订实体
  */
-@EntityModel('food_reservation')
+@Entity('food_reservation')
 export class ReservationEntity extends BaseEntity {
   @Index()
   @Column({ comment: '用户ID' })

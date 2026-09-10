@@ -1,11 +1,10 @@
-import { EntityModel } from '@midwayjs/orm';
 import { BaseEntity } from '@cool-midway/core';
-import { Column, Index } from 'typeorm';
+import { Column, Entity, Index } from 'typeorm';
 
 /**
  * 商品收藏实体
  */
-@EntityModel('product_favorite')
+@Entity('product_favorite')
 export class FavoriteEntity extends BaseEntity {
   @Index()
   @Column({ comment: '用户ID' })

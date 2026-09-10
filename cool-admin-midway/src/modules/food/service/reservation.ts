@@ -63,7 +63,7 @@ export class ReservationService extends BaseService {
       },
     });
 
-    if (existingCount >= timeSlot.maxTables) {
+    if (existingCount >= timeSlot.maxReservations) {
       throw new CoolCommException('该时段已约满');
     }
 
@@ -163,14 +163,18 @@ export class ReservationService extends BaseService {
   async confirmReservation(merchantId: number, reservationId: number) {
     const reservation = await this.reservationEntity.findOne({
       where: { id: reservationId },
-      relations: ['restaurant'],
     });
 
     if (!reservation) {
       throw new CoolCommException('预订不存在');
     }
 
-    if (reservation.restaurant.merchantId !== merchantId) {
+    // 获取餐厅信息验证权限
+    const restaurant = await this.restaurantEntity.findOne({
+      where: { id: reservation.restaurantId },
+    });
+
+    if (!restaurant || restaurant.merchantId !== merchantId) {
       throw new CoolCommException('无权限操作');
     }
 

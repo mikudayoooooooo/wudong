@@ -1,11 +1,10 @@
-import { EntityModel } from '@midwayjs/orm';
 import { BaseEntity } from '@cool-midway/core';
-import { Column, Index } from 'typeorm';
+import { Column, Entity, Index } from 'typeorm';
 
 /**
  * 商品评价实体
  */
-@EntityModel('product_review')
+@Entity('product_review')
 export class ReviewEntity extends BaseEntity {
   @Index()
   @Column({ comment: '用户ID' })

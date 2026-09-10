@@ -89,18 +89,7 @@ export class RestaurantService extends BaseService {
 
     const query = this.restaurantEntity
       .createQueryBuilder('restaurant')
-      .where('restaurant.status = :status', { status: 1 })
-      .select([
-        'restaurant.id',
-        'restaurant.name',
-        'restaurant.coverImage',
-        'restaurant.address',
-        'restaurant.phone',
-        'restaurant.avgPrice',
-        'restaurant.rating',
-        'restaurant.longitude',
-        'restaurant.latitude',
-      ]);
+      .where('restaurant.status = :status', { status: 1 });
 
     // 关键词搜索
     if (keyword) {
@@ -110,9 +99,7 @@ export class RestaurantService extends BaseService {
     }
 
     // 排序
-    if (sort === 'rating') {
-      query.orderBy('restaurant.rating', 'DESC');
-    } else if (sort === 'price') {
+    if (sort === 'price') {
       query.orderBy('restaurant.avgPrice', 'ASC');
     } else {
       query.orderBy('restaurant.createTime', 'DESC');
@@ -192,7 +179,7 @@ export class RestaurantService extends BaseService {
   async getRestaurantDishes(restaurantId: number) {
     const dishes = await this.dishEntity.find({
       where: { restaurantId, status: 1 },
-      order: { sort: 'ASC', createTime: 'DESC' },
+      order: { createTime: 'DESC' },
     });
 
     return dishes;
@@ -210,11 +197,12 @@ export class RestaurantService extends BaseService {
     // TODO: 这里可以进一步查询每个时段的预订情况，返回剩余桌数
     return slots.map(slot => ({
       id: slot.id,
-      name: slot.name,
+      timePeriod: slot.timePeriod,
       startTime: slot.startTime,
       endTime: slot.endTime,
-      maxTables: slot.maxTables,
-      // available: slot.maxTables - bookedCount
+      maxReservations: slot.maxReservations,
+      currentReservations: slot.currentReservations,
+      // available: slot.maxReservations - slot.currentReservations
     }));
   }
 }

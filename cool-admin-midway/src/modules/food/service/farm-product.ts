@@ -3,7 +3,7 @@ import { BaseService, CoolCommException } from '@cool-midway/core';
 import { InjectEntityModel } from '@midwayjs/typeorm';
 import { Repository } from 'typeorm';
 import { FarmProductEntity } from '../entity/farm-product';
-import { FarmCategoryEntity } from '../entity/farm-category';
+import { FarmProductCategoryEntity } from '../entity/farm-category';
 import { MerchantService } from '../../merchant/service/merchant';
 
 /**
@@ -14,8 +14,8 @@ export class FarmProductService extends BaseService {
   @InjectEntityModel(FarmProductEntity)
   farmProductEntity: Repository<FarmProductEntity>;
 
-  @InjectEntityModel(FarmCategoryEntity)
-  farmCategoryEntity: Repository<FarmCategoryEntity>;
+  @InjectEntityModel(FarmProductCategoryEntity)
+  farmCategoryEntity: Repository<FarmProductCategoryEntity>;
 
   @Inject()
   merchantService: MerchantService;
@@ -98,7 +98,6 @@ export class FarmProductService extends BaseService {
     const query = this.farmProductEntity
       .createQueryBuilder('product')
       .where('product.status = :status', { status: 1 })
-      .leftJoinAndSelect('product.category', 'category')
       .select([
         'product.id',
         'product.name',
@@ -106,9 +105,8 @@ export class FarmProductService extends BaseService {
         'product.price',
         'product.unit',
         'product.origin',
-        'product.sales',
         'product.createTime',
-        'category.name',
+        'product.categoryId',
       ]);
 
     // 分类筛选
@@ -130,9 +128,6 @@ export class FarmProductService extends BaseService {
         break;
       case 'price_desc':
         query.orderBy('product.price', 'DESC');
-        break;
-      case 'sales_desc':
-        query.orderBy('product.sales', 'DESC');
         break;
       case 'new':
       default:
@@ -158,7 +153,6 @@ export class FarmProductService extends BaseService {
       .createQueryBuilder('product')
       .where('product.id = :id', { id })
       .andWhere('product.status = :status', { status: 1 })
-      .leftJoinAndSelect('product.category', 'category')
       .getOne();
 
     if (!product) {
