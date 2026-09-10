@@ -109,26 +109,30 @@ export class AccommodationBookingService extends BaseService {
 
     // 公共订单（失败回补库存）
     try {
-      const r = await this.orderService.create(userId, {
-        module: 'accommodation',
-        orderType: 3,
-        items: [
-          {
-            targetId: rt.id,
-            targetName: hotel.name,
-            checkInDate: checkIn,
-            checkOutDate: checkOut,
-            guestName: String(param?.guestName || userId),
-            guestPhone: String(param?.guestPhone || ''),
-            guestCount: Number(param?.guestCount || 2),
-            roomTypeId: rt.id,
-            specialRequest: param?.specialRequest || null,
-            price: total,
-            quantity: 1,
-          },
-        ],
-        remark: param?.remark,
-      });
+      const r = await this.orderService.create(
+        userId,
+        {
+          module: 'accommodation',
+          orderType: 3,
+          items: [
+            {
+              targetId: rt.id,
+              targetName: hotel.name,
+              checkInDate: checkIn,
+              checkOutDate: checkOut,
+              guestName: String(param?.guestName || userId),
+              guestPhone: String(param?.guestPhone || ''),
+              guestCount: Number(param?.guestCount || 2),
+              roomTypeId: rt.id,
+              specialRequest: param?.specialRequest || null,
+              price: total,
+              quantity: 1,
+            },
+          ],
+          remark: param?.remark,
+        },
+        hotel.merchantId
+      );
       return { orderNo: r.orderNo, payAmount: r.payAmount, nights: nights.length };
     } catch (err) {
       // 回补：日历行 +1；缺行日期回补房型默认库存

@@ -13,6 +13,10 @@ export class OrderEntity extends BaseEntity {
   @Column({ comment: '用户ID' })
   userId: number;
 
+  @Index()
+  @Column({ comment: '商家ID（归属标识，由下单调用模块解析传入，无商家归属为空）', nullable: true })
+  merchantId: number;
+
   @Column({
     comment: '订单类型 1商品 2餐位 3住宿 4门票 5路线',
     dict: ['商品', '餐位', '住宿', '门票', '路线'],

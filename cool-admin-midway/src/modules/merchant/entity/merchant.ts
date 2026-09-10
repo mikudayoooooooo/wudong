@@ -10,6 +10,13 @@ export class MerchantEntity extends BaseEntity {
   @Column({ comment: '关联用户ID' })
   userId: number;
 
+  @Index()
+  @Column({
+    comment: '绑定的管理端用户ID（商家角色数据权限，空为未绑定）',
+    nullable: true,
+  })
+  adminUserId: number;
+
   @Index({ unique: true })
   @Column({ comment: '商家账号', length: 50 })
   username: string;

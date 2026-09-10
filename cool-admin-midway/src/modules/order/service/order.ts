@@ -90,8 +90,10 @@ export class OrderService extends BaseService {
 
   /**
    * 创建订单：主单 + 按 orderType 落对应明细，金额服务端汇总
+   * merchantId 为可信归属参数：仅限业务模块服务端调用时传入（通用 C 端入口不得透传），
+   * 归属正确性由调用模块自行解析，本服务不反查业务表（单向依赖）
    */
-  async create(userId: number, param) {
+  async create(userId: number, param, merchantId?: number) {
     const { module, orderType, remark, items } = param || {};
     if (!MODULE_TYPES[module]) {
       throw new CoolCommException('订单模块不正确');
@@ -103,6 +105,9 @@ export class OrderService extends BaseService {
     if (!Array.isArray(items) || items.length === 0) {
       throw new CoolCommException('订单明细不能为空');
     }
+    const mid = Number(merchantId);
+    const ownerMerchantId =
+      Number.isInteger(mid) && mid > 0 ? mid : null;
 
     let sum = 0;
     const details = [];
@@ -134,6 +139,7 @@ export class OrderService extends BaseService {
       const inserted = await manager.insert(OrderEntity, {
         orderNo,
         userId,
+        merchantId: ownerMerchantId,
         orderType: type,
         module,
         totalAmount: payAmount,
