@@ -292,6 +292,8 @@ export class OrderService extends BaseService {
     return await this.dataSource.transaction(async manager => {
       const orderItems = [];
       let totalAmount = 0;
+      // 商家归属：购物车项全部同一商家则带归属，混合商家置空（平台视角）
+      let ownerMerchantId: number | null = null;
 
       // 4. 逐项校验商品和库存
       for (const cartItem of cartItems) {
@@ -317,6 +319,17 @@ export class OrderService extends BaseService {
         // 校验商品存在且上架
         if (!product || product.status !== 1) {
           throw new CoolCommException(`商品【${cartItem.itemName}】已下架`);
+        }
+
+        // 归属一致性：混合商家订单不带归属（null=平台视角）
+        const itemMerchantId = Number(product.merchantId) || null;
+        if (ownerMerchantId === null) {
+          ownerMerchantId = itemMerchantId;
+        } else if (
+          itemMerchantId !== null &&
+          itemMerchantId !== ownerMerchantId
+        ) {
+          ownerMerchantId = null;
         }
 
         // 校验库存
@@ -363,6 +376,7 @@ export class OrderService extends BaseService {
       const orderResult = await manager.insert(OrderEntity, {
         orderNo,
         userId,
+        merchantId: ownerMerchantId,
         orderType: 1, // 商品订单
         module: 'product',
         totalAmount: payAmount,
