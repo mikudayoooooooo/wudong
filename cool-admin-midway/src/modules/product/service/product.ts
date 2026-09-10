@@ -8,6 +8,7 @@ import { ProductImageEntity } from '../entity/image';
 import { ReviewEntity } from '../entity/review';
 import { MemberFavoriteService } from '../../member/service/favorite';
 import { MerchantService } from '../../merchant/service/merchant';
+import { ProductCategoryEntity } from '../entity/category';
 import { MemberUserEntity } from '../../member/entity/user';
 
 /**
@@ -23,6 +24,9 @@ export class ProductService extends BaseService {
 
   @InjectEntityModel(ProductImageEntity)
   productImageEntity: Repository<ProductImageEntity>;
+
+  @InjectEntityModel(ProductCategoryEntity)
+  productCategoryEntity: Repository<ProductCategoryEntity>;
 
   @InjectEntityModel(ReviewEntity)
   reviewEntity: Repository<ReviewEntity>;
@@ -158,17 +162,7 @@ export class ProductService extends BaseService {
 
     const query = this.productEntity
       .createQueryBuilder('product')
-      .where('product.status = :status', { status: 1 }) // 只显示上架商品
-      .leftJoinAndSelect('product.category', 'category')
-      .select([
-        'product.id',
-        'product.name',
-        'product.coverImage',
-        'product.price',
-        'product.sales',
-        'product.createTime',
-        'category.name',
-      ]);
+      .where('product.status = :status', { status: 1 });
 
     // 分类筛选
     if (categoryId) {
@@ -203,8 +197,18 @@ export class ProductService extends BaseService {
       .take(size)
       .getManyAndCount();
 
+    // 补分类名（实体无关系定义，手动组装）
+    const cids = [...new Set(list.map((p) => p.categoryId).filter(Boolean))];
+    const cats = cids.length
+      ? await this.productCategoryEntity
+          .createQueryBuilder()
+          .where('id IN (:...ids)', { ids: cids })
+          .getMany()
+      : [];
+    const cmap = new Map(cats.map((c) => [c.id, c.name]));
+
     return {
-      list,
+      list: list.map((p) => ({ ...p, categoryName: cmap.get(p.categoryId) })),
       pagination: { page, size, total },
     };
   }
@@ -213,23 +217,28 @@ export class ProductService extends BaseService {
    * C端：获取商品详情
    */
   async getDetail(id: number) {
-    const product = await this.productEntity
-      .createQueryBuilder('product')
-      .where('product.id = :id', { id })
-      .andWhere('product.status = :status', { status: 1 })
-      .leftJoinAndSelect('product.category', 'category')
-      .leftJoinAndSelect('product.images', 'images')
-      .leftJoinAndSelect('product.skus', 'skus')
-      .getOne();
-
+    const product = await this.productEntity.findOneBy({ id, status: 1 });
     if (!product) {
       return null;
     }
 
-    // 增加浏览量（可选）
-    await this.productEntity.increment({ id }, 'views', 1);
+    const images = await this.productImageEntity.find({
+      where: { productId: id },
+      order: { sort: 'ASC' },
+    });
+    const skus = await this.productSkuEntity.find({
+      where: { productId: id },
+    });
+    const cat = product.categoryId
+      ? await this.productCategoryEntity.findOneBy({ id: product.categoryId })
+      : null;
 
-    return product;
+    return {
+      ...product,
+      images: images.map((i) => i.imageUrl),
+      skus,
+      categoryName: cat?.name,
+    };
   }
 
   /**
