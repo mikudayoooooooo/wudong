@@ -1,4 +1,4 @@
-import { Body, Get, Inject, Post, Provide, Query } from '@midwayjs/core';
+import { Body, Get, Inject, Param, Post, Provide, Query } from '@midwayjs/core';
 import { BaseController, CoolController, CoolTag, CoolUrlTag, TagTypes } from '@cool-midway/core';
 import { RestaurantService } from '../../service/restaurant';
 import { Context } from '@midwayjs/koa';
@@ -7,6 +7,7 @@ import { Context } from '@midwayjs/koa';
  * 餐厅C端控制器
  */
 @Provide()
+@CoolUrlTag()
 @CoolController('/app/food/restaurant')
 export class AppRestaurantController extends BaseController {
   @Inject()
@@ -45,8 +46,9 @@ export class AppRestaurantController extends BaseController {
    * 餐厅详情
    */
   @CoolTag(TagTypes.IGNORE_TOKEN)
-    async infoItem(@Query('id') id: number) {
-    const restaurant = await this.restaurantService.getDetail(id);
+  @Get('/:id')
+  async infoItem(@Param('id') id: number) {
+    const restaurant = await this.restaurantService.getDetail(Number(id));
     if (!restaurant) {
       return this.fail('餐厅不存在');
     }
@@ -57,8 +59,9 @@ export class AppRestaurantController extends BaseController {
    * 获取餐厅菜品
    */
   @CoolTag(TagTypes.IGNORE_TOKEN)
-    async getDishes(@Query('id') id: number) {
-    const dishes = await this.restaurantService.getRestaurantDishes(id);
+  @Get('/:id/dishes')
+  async getDishes(@Param('id') id: number) {
+    const dishes = await this.restaurantService.getRestaurantDishes(Number(id));
     return this.ok(dishes);
   }
 
@@ -66,12 +69,13 @@ export class AppRestaurantController extends BaseController {
    * 获取可预订时段
    */
   @CoolTag(TagTypes.IGNORE_TOKEN)
-    async getTimeSlots(
-    @Query('id') id: number,
+  @Get('/:id/time-slots')
+  async getTimeSlots(
+    @Param('id') id: number,
     @Query('date') date: string
   ) {
     const slots = await this.restaurantService.getAvailableTimeSlots(
-      id,
+      Number(id),
       date
     );
     return this.ok(slots);
