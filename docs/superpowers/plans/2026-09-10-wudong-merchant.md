@@ -3247,10 +3247,8 @@ import { createPinia, setActivePinia } from 'pinia';
 import router from './index';
 import { useAuthStore } from '../stores/auth';
 
-const okJson = (data: unknown) => ({
-  ok: true,
-  json: async () => ({ code: 1000, data }),
-});
+// 注意：本文件不需要 fetch 打桩，故没有 okJson 之类的辅助常量 —
+// 未被引用的顶层 const 同样会触发 noUnusedLocals 的 TS6133。
 
 describe('router 守卫', () => {
   beforeEach(async () => {
@@ -3268,6 +3266,10 @@ describe('router 守卫', () => {
 
   it('已登录可直接进入 /merchant', async () => {
     localStorage.setItem('wudong_token', 'jwt-x');
+    // 守卫在**每次**导航里都调 useAuthStore()，所以上面 beforeEach 的 router.replace('/')
+    // 已经用"localStorage 刚清空"的状态建好并缓存了一个 store 实例。
+    // 必须换一个全新的 pinia，才能在 setItem 之后重新按持久化 token 初始化：
+    setActivePinia(createPinia());
     const auth = useAuthStore();
     expect(auth.isLoggedIn).toBe(true);
     await router.push('/merchant');
