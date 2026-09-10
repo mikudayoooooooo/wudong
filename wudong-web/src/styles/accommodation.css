@@ -1,0 +1,28 @@
+/*
+ * 住宿模块（组员移植）视觉作用域
+ * 他们的设计 token 与全局主题存在同名异值（--green-900/--line/--radius），
+ * 统一挂在 .acc-scope 下，仅在住宿页面子树生效，避免污染既有页面。
+ */
+.acc-scope {
+  --green-900: #24412f;
+  --green-700: #33523e;
+  --green-500: #4a7a5c;
+  --green-300: #7ba384;
+  --green-100: #eef5ea;
+  --green-50: #f6faf3;
+  --gold-600: #d97f22;
+  --gold-500: #e8963e;
+  --gold-300: #f6c26b;
+  --ink: #24301f;
+  --muted: #6b7a66;
+  --line: #dfe8d8;
+  --shadow: 0 10px 30px rgba(51, 82, 62, 0.1);
+  --radius: 14px;
+  background: var(--green-50);
+}
+
+.acc-scope .section { margin-top: 30px; }
+.acc-scope .section-title { display: flex; align-items: baseline; gap: 10px; margin: 0 0 16px; }
+.acc-scope .section-title h2 { margin: 0; font-size: 22px; color: var(--green-900); }
+.acc-scope .section-title .more { margin-left: auto; font-size: 13px; color: var(--muted); }
+.acc-scope button { font-family: inherit; cursor: pointer; }
