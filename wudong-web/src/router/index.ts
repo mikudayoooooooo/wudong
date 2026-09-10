@@ -46,6 +46,16 @@ const router = createRouter({
           name: 'merchant-hotel-edit',
           component: () => import('../views/merchant/MerchantHotelEditView.vue'),
         },
+        {
+          path: 'hotels/:id/rooms',
+          name: 'merchant-hotel-rooms',
+          component: () => import('../views/merchant/MerchantRoomTypeView.vue'),
+        },
+        {
+          path: 'rooms/:id/calendar',
+          name: 'merchant-room-calendar',
+          component: () => import('../views/merchant/MerchantCalendarView.vue'),
+        },
       ],
     },
   ],
