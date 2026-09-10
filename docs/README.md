@@ -125,6 +125,19 @@ wudong-platform/
 
 ## 🚀 快速开始
 
+> ## ⚠️ 组员必读：base 层已合并，拉代码后先做三件事（2026-09-09）
+>
+> 公共底座（member 用户 / order 订单 / pay 支付 / merchant 商家 / message 消息 / cart 购物车 / operate 运营位 / sensitive 敏感词）已合入 main。**拉取最新 main 后**：
+>
+> 1. **清理本地库 legacy 表**（否则后端起不来，外键冲突）：
+>    ```bash
+>    mysql -uroot -p wudong_platform < docs/database/migrate-base-20260909.sql
+>    ```
+> 2. `cd cool-admin-midway && npm i && npm run test`（应 21 套件 / 101 用例全绿）
+> 3. 开发约定看 `docs/superpowers/specs/2026-09-09-platform-base-design.md` **§6 复用矩阵 + §9.3 踩坑纪律**：当前用户取 `ctx.user.id`；收藏注入 `MemberFavoriteService`；下单走 `OrderService.create`；支付走 `PayService`；商家身份用 `isMerchant`；**不要自建用户/订单/支付/消息轮子，不要改 user/member/base 模块**
+>
+> 注意：本地库 `config.local.ts` 的数据库端口应为 **3307**（docker `wudong-mysql`，root/123456），3306 是本机原生 MySQL80 不可用。
+
 ### 环境要求
 
 - Node.js >= 18.x

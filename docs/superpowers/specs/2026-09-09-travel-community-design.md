@@ -1,5 +1,19 @@
 # 行（线路订票）+ 社区（照片分享）模块设计文档
 
+> ## ⚠️ 2026-09-09 修订公告：公共底座（base）已落地，本文档以下内容以 base 设计为准
+>
+> 平台公共底座已实现并合入 main（见 `2026-09-09-platform-base-design.md`），本文档 5 处设计被其取代：
+>
+> | 本文位置 | 原设计 | 以 base 为准 |
+> |---|---|---|
+> | §5.4 订单 | order/order_ticket 由 travel 模块自建 | order 主表与三明细在**公共 order 模块**，travel 调 `OrderService.create(module='travel')`，本地只留 travel_inventory / travel_e_ticket 等业务表 |
+> | §5.4 支付 | `POST /app/travel/pay/mock` | 改走 **pay 模块** `/app/pay/create` + `/app/pay/mock`；退票规则仍在 travel 实现，调 `OrderService.markRefunded` + `PayService.refund` |
+> | §5.5 收藏 | 白名单 scenic/route/guide/post | 已扩为七类并集（+product/restaurant/hotel），直接用 `/app/member/favorite/*` 或注入 `MemberFavoriteService` |
+> | §5.3 敏感词 | sensitive_word 表在 community | 移至**公共 sensitive 模块**，注入 `SensitiveService.check()`，community 不建表 |
+> | §5.1 用户 | member_user 无 role | 已加 `role` 列（商家审核回写），本模块不管理角色 |
+>
+> 复用矩阵与踩坑纪律：base 设计 §6 / §9.3。travel/community 各自的业务表（scenic_spot 等 27 张）仍按本文档 §5.2/§5.3 开发。
+
 | 项目 | 内容 |
 |---|---|
 | 文档版本 | V1.0 |

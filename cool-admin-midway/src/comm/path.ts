@@ -2,16 +2,25 @@ import * as path from 'path';
 import * as os from 'os';
 import * as md5 from 'md5';
 import * as fs from 'fs';
+import { isTypeScriptEnvironment } from '@midwayjs/core';
 
 /**
  * 获得配置文件中的 keys
- * @returns
+ * jest(ts-jest) 直接从 src 运行，__dirname 下只有 .ts 源码；
+ * dev/build 从 dist 运行，为编译后的 .js。两种情况都要能读到。
  */
 const getKeys = () => {
-  const configFile = path.join(__dirname, '../config/config.default.js');
-  const configContent = fs.readFileSync(configFile, 'utf8');
-  const keys = configContent.match(/keys: '([^']+)'/)?.[1];
-  return keys;
+  const candidates = isTypeScriptEnvironment()
+    ? ['../config/config.default.ts', '../config/config.default.js']
+    : ['../config/config.default.js', '../config/config.default.ts'];
+  for (const rel of candidates) {
+    const configFile = path.join(__dirname, rel);
+    if (fs.existsSync(configFile)) {
+      const configContent = fs.readFileSync(configFile, 'utf8');
+      return configContent.match(/keys: '([^']+)'/)?.[1];
+    }
+  }
+  return undefined;
 };
 
 /**
