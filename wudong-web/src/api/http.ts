@@ -88,3 +88,7 @@ export const post = <T>(
   path: string,
   body?: Record<string, unknown>
 ): Promise<T> => doFetch<T>('POST', path, undefined, body);
+
+/** 当前鉴权头（供 FormData 上传等需要自建 fetch 的场景复用；未登录返回 {}） */
+export const authHeader = (): Record<string, string> =>
+  authToken ? { Authorization: authToken } : {};
