@@ -29,15 +29,15 @@ describe('B 端民宿管理', () => {
     app = await boot();
     ({ token: tokenA, merchantId: merchantIdA } = await registerMerchant(
       app,
-      '13300133001',
+      '13300133004',
       'accommodation'
     ));
     ({ token: tokenB, merchantId: merchantIdB } = await registerMerchant(
       app,
-      '13300133002',
+      '13300133005',
       'accommodation'
     ));
-    tokenC = await registerAndLogin(app, '13300133003');
+    tokenC = await registerAndLogin(app, '13300133006');
   });
 
   afterAll(async () => {
