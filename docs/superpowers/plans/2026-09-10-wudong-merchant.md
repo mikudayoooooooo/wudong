@@ -32,6 +32,8 @@
 - 前端：路径别名 `@` → `src`；测试与被测文件同目录、命名 `*.spec.ts`，`include: ['src/**/*.spec.ts']`；命令 `npm run test`（vitest）与 `npm run type-check`（vue-tsc `--noEmit`）。
 - 前端数据源开关唯一判据是 `USE_MOCK`（`src/env.ts`）：每个 api 模块在**内部**选择 mock/real，视图层不感知。
 - 前端错误约定：`ApiError.message` 以 `登录失效` 开头 → 清 token、跳 `/login`；其它 → 就地展示 message。
+- **凡「可被重复触发的 `load()` 型拉取」一律加请求序号守卫**（筛选变更 / 翻页 / 上一个-下一个窗口 / 写操作后刷新），参考 `wudong-web/src/views/accommodation/HotelListView.vue:25-45`（C 端同一竞态在 commit `011b584` 已修）：进入时 `const seq = ++reqSeq`，**每个 `await` 之后**都要 `if (seq !== reqSeq) return;`，`finally` 里只在 `seq === reqSeq` 时才清 `loading`（否则慢请求的 `finally` 会盖掉新请求的加载态）。配套要求：**必须有用例钉住**「迟到的旧响应不覆盖新结果」——旧代码下必红、加守卫后转绿，否则该修复在回归意义上等于没修。
+  适用性：**T13 已实现**（守卫 + 删除确认态复位 + 错误态/空态互斥）；**T15/T16 适用**（房型增删改后刷新、7/30 天切窗与前后一周按钮）；**T14 不适用**——其 `load()` 只被 `onMounted` 调用一次，`submit()` 成功后直接跳转离开、不重载，无竞态面，加了反而是无的放矢的死代码。
 - 提交粒度：一个 Task 一次 commit，信息形如 `feat(merchant): …` / `fix(operate): …`；只 `git add` 该 Task 涉及的文件。
 
 ---
@@ -5516,7 +5518,11 @@ describe('MerchantHotelListView', () => {
     expect(merchantHotelPage).toHaveBeenCalled();
     expect(wrapper.text()).toContain('乌东苗寨木楼');
     expect(wrapper.text()).toContain('已下架的院子');
-    expect(wrapper.text()).toContain('已下架');
+    // 状态列必须真的渲染：只看 wrapper.text() 会被筛选框里的 <option>已下架</option> 满足而变成空断言
+    expect(wrapper.findAll('tbody tr td:nth-child(3)').map((c) => c.text())).toEqual([
+      '已上架',
+      '已下架',
+    ]);
   });
 
   it('无民宿时展示空态与新增引导', async () => {
@@ -5630,10 +5636,15 @@ const status = ref<string>('');
 /** 待确认删除的民宿 id；非空时该行显示确认按钮 */
 const pendingDelete = ref<number | null>(null);
 const busy = ref(false);
+/** 请求序号：每次 load 自增；响应回来仅当仍是最新请求才写回 list（防慢响应乱序覆盖） */
+let reqSeq = 0;
 
 async function load(): Promise<void> {
+  const seq = ++reqSeq;
   loading.value = true;
   error.value = '';
+  // 列表将整体刷新，上一轮的删除确认态失去意义（避免已下架的行仍挂着「确认删除」）
+  pendingDelete.value = null;
   try {
     const result = await merchantHotelPage({
       page: 1,
@@ -5641,16 +5652,19 @@ async function load(): Promise<void> {
       name: name.value.trim() || undefined,
       status: status.value === '' ? undefined : Number(status.value),
     });
+    if (seq !== reqSeq) return; // 已发新请求，本响应过期，丢弃（不改 list）
     list.value = result.list;
   } catch (e) {
+    if (seq !== reqSeq) return; // 过期请求的错误同样丢弃
     error.value = e instanceof Error ? e.message : '民宿加载失败';
     list.value = [];
   } finally {
-    loading.value = false;
+    if (seq === reqSeq) loading.value = false; // 仅最新请求控制 loading
   }
 }
 
 async function toggleStatus(hotel: MerchantHotel): Promise<void> {
+  if (busy.value) return; // 双击保护不依赖 :disabled 的刷新时机
   error.value = '';
   busy.value = true;
   try {
@@ -5697,8 +5711,14 @@ onMounted(load);
       </h2>
 
       <div class="hotel-filters">
-        <input v-model="name" type="text" placeholder="按名称搜索" @keyup.enter="load" />
-        <select v-model="status" @change="load">
+        <input
+          v-model="name"
+          type="text"
+          aria-label="按名称搜索民宿"
+          placeholder="按名称搜索"
+          @keyup.enter="load"
+        />
+        <select v-model="status" aria-label="按状态筛选" @change="load">
           <option value="">全部状态</option>
           <option value="1">已上架</option>
           <option value="0">已下架</option>
@@ -5706,9 +5726,10 @@ onMounted(load);
         <button type="button" class="m-btn m-btn-ghost" @click="load">查询</button>
       </div>
 
+      <!-- 错误 / 加载中 / 空态 / 表格互斥：失败时 list 也被清空，若空态与错误同级会同时出现 -->
       <p v-if="error" class="m-state m-error">{{ error }}</p>
 
-      <div v-if="loading" class="m-state">正在加载民宿…</div>
+      <div v-else-if="loading" class="m-state">正在加载民宿…</div>
 
       <p v-else-if="!list.length" class="m-state">
         还没有民宿，点右上角「新增民宿」创建第一家吧。
