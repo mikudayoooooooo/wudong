@@ -76,6 +76,30 @@ wudong-web/
 │   └── **/*.spec.ts          # 与实现同目录的单测（vitest jsdom）
 ```
 
+## 商家区（B 端）
+
+访客站在顶栏提供「商家中心」入口，路由前缀 `/merchant`，需要登录（未登录跳 `/login?redirect=…`）。
+
+| 路由 | 页面 | 说明 |
+|---|---|---|
+| `/login` | 登录/注册 | 手机号+密码登录；注册需短信验证码（本地环境后端把验证码放在返回值里，页面自动回填） |
+| `/merchant` | 店铺概览 | 店铺信息 + 入驻进度（待审核/已驳回原因） |
+| `/merchant/apply` | 入驻申请 | 三态：已入驻 / 审核中 / 可提交（驳回后用上次资料预填） |
+| `/merchant/hotels` | 我的民宿 | 名称与状态筛选、上下架、编辑、删除（有房型时后端拒绝） |
+| `/merchant/hotels/new`、`/merchant/hotels/:id/edit` | 民宿表单 | 主图/图集上传、标签输入、经纬度、押金、含早、上下架 |
+| `/merchant/hotels/:id/rooms` | 房型管理 | 房型增删改、房态入口 |
+| `/merchant/rooms/:id/calendar` | 房态日历 | 7/30 天窗口，按区间批量设价/设可售间数/关房，可限定星期几 |
+
+后端接口一律挂在 `/app/accommodation/merchant/**`（前缀显式声明），归属校验集中在
+`accommodation/service/merchant-scope.ts`：非正常状态商家 → `仅商家可访问`；非本人民宿/房型 →
+`无权操作该资源`（不区分“不存在”与“非本人”，避免探测）。
+
+批量设置房态可直接复用后端 `RoomCalendarService` 的语义：区间内无记录的日期回退到房型基础价与房间数，
+`availableStock` 会被截断到房型房间数；单次窗口上限 32 天。
+
+`USE_MOCK=true`（见 `.env.demo`）时商家区走 `src/mocks/merchant.ts` 的内存数据，增删改在本次会话内生效，
+无需后端即可演示；演示身份是已入驻的「乌东苗寨木楼」（住宿模块）。
+
 ## 如何新增一个模块 / 页面
 
 以「新模块 X」为例（沿用现有 accommodation 模式）：
