@@ -20,6 +20,7 @@
   | a468385 | 首页版式升级（全幅 Hero 色带/悬浮订票/明度翻转区块） |
   | 2dcddd4 | 顶栏登录后拥挤修复（去重退出/nowrap/≤1180px 汉堡折叠） |
   | a29bede | FootprintMap 手绘地图升级（纸底回纹/线稿山水/朱红点亮脉冲，已定稿） |
+  | 1c74f41 | 图片库扩充 18 张 + photos.ts 索引池 + 全站实景图接入 + 地图去 emoji 合规 |
 - 验证基线：`vitest run` = **31 文件 123 用例全绿**；`vite build` 通过。任何改动后必须保持。
 
 ### 常用命令（Node 用 managed 绝对路径）
@@ -54,8 +55,8 @@ VITE_USE_MOCK=true "$N" node_modules/vite/bin/vite.js --port 5173 --strictPort  
 
 ### 1.3 资源（`src/assets/`）
 - `img/hero|scenic|hotel` 13 张实景（Unsplash License）；`pattern/` 8 个蜡染纹样 SVG（深浅双色）；`avatar/` 6 首字头像；`icons/` 60 Tabler；`fonts/` 思源宋体子集。
-- 缺图时用 `.ph .ph-N`（纹样占位），**禁止引入远程图床**。
-- 换图/补图：`node scripts/fetch-assets.mjs --force --ids <id>`（候选链在 scripts/assets.config.mjs；有 PEXELS_API_KEY/UNSPLASH_ACCESS_KEY 可走 API 检索）。
+- **1c74f41 扩充**：`img/route|food|product|post` + `img/scenic` 新增共 18 张题材实景（Bing 图搜抓取→人工挑选，CREDITS 标注「个人学习用途」）。统一入口 **`src/data/photos.ts`**：`POST_PHOTOS`（游记 images 索引池）/ `ROUTE_COVERS` / `SCENIC_COVERS` / `HL_COVERS`——组件取图一律从这里引，禁止散落 assets 路径。补图管线：`scripts/probe-images.mjs`（关键词探测→拼版）→ 人工挑 → `scripts/accept-images.mjs`（入库+CREDITS）。
+- 缺图时用 `.ph .ph-N`（纹样占位），**禁止引入远程图床**。fetch-assets.mjs 仍可用于 Unsplash 系换图。
 
 ## 2. 已落地样板（参照标准）
 
@@ -128,7 +129,7 @@ VITE_USE_MOCK=true "$N" node_modules/vite/bin/vite.js --port 5173 --strictPort  
 4. 验收：截图中 40px 纸色宋体标题在任何一张轮播图上都清晰可读（目测对比度足够即可）。
 
 ### 3.2 列表页版式（6 个，结构同构）
-文件：`RouteListView / ScenicListView / ProductListView / RestaurantListView / FarmProductListView / accommodation/HotelListView`
+文件：`RouteListView / ScenicListView / ProductListView / RestaurantListView / FarmProductListView / accommodation/HotelListView`（RouteList 封面已接入实景图，其余按同法复用 photos.ts：product-* / food-* / EXTRA_COVERS）
 1. 页面顶部：标题区 `h1.font-display` 24px `--ind-800` + 一行 sub（12px `--text-3`）+ 底部发丝线；上边距 24px。（已用 SectionHeader 的页面确认 icon 传的是图标名不是 emoji。）
 2. FilterBar/筛选条：去掉任何底色块，贴发丝线底边；激活 chip = `--ind-700` 实底纸色字，未激活 = 白底发丝线。
 3. 卡片栅格：`gap: 16px`；封面改 `.img-frame` 16:10（无图时 `.ph` 纹样）；卡内标题 15px；价格 `var(--cinnabar)` + `.font-display`。
