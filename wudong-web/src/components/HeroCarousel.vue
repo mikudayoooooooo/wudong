@@ -15,9 +15,9 @@ let timer: number | undefined
 // 本地实景轮播底图（Unsplash License，见 CREDITS.md）；按槽位循环
 // position 逐图调过：hero-1 取山脊线、hero-2 取湖面倒影、hero-3 取船头水面
 const heroImgs = [
-  { src: hero1, pos: 'center 62%' },
+  { src: hero1, pos: 'center 75%' },
   { src: hero2, pos: 'center 55%' },
-  { src: hero3, pos: 'center 70%' },
+  { src: hero3, pos: 'center 60%' },
 ]
 
 function schedule(): void {
@@ -47,9 +47,13 @@ defineExpose({ current })
   <div class="carousel" @mouseenter="hovering = true" @mouseleave="hovering = false">
     <div
       v-for="(s, i) in slots" :key="s.id" class="slide" :class="{ active: i === current }"
-      :style="{ backgroundImage: `url(${heroImgs[i % heroImgs.length].src})`, backgroundPosition: heroImgs[i % heroImgs.length].pos }"
       @click="emit('open', s.itemType, s.itemId)"
     >
+      <img
+        class="slide-img" :src="heroImgs[i % heroImgs.length].src"
+        :style="{ objectPosition: heroImgs[i % heroImgs.length].pos }" :alt="s.title" :loading="i === 0 ? 'eager' : 'lazy'"
+      />
+      <span class="slide-mask" aria-hidden="true" />
       <div class="card">
         <div class="card-inner">
           <span class="pill badge">{{ s.badge }}</span>
@@ -68,11 +72,12 @@ defineExpose({ current })
 
 <style scoped>
 .carousel { position: relative; height: 420px; background: var(--ind-950); }
-.slide { position: absolute; inset: 0; opacity: 0; transition: opacity .7s; cursor: pointer; background-size: cover; }
+.slide { position: absolute; inset: 0; opacity: 0; transition: opacity .7s; cursor: pointer; background: var(--ind-950); }
 .slide.active { opacity: 1; }
+.slide-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; transform: translateZ(0); }
 /* 平色靛蓝罩（非渐变）：压暗画面保证宋体大标题可读 */
-.slide::before { content: ""; position: absolute; inset: 0; background: rgba(11, 29, 44, .46); }
-.card { position: relative; height: 100%; display: flex; align-items: flex-end; }
+.slide-mask { position: absolute; inset: 0; background: rgba(11, 29, 44, .5); z-index: 1; }
+.card { position: relative; height: 100%; display: flex; align-items: flex-end; z-index: 2; }
 .card-inner { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 16px 64px; color: var(--paper); }
 .badge { background: transparent; border: 1px solid rgba(251, 247, 238, .45); color: var(--paper); width: fit-content; margin-bottom: 14px; }
 .title { font-size: 40px; font-weight: 700; line-height: 1.25; max-width: 640px; }

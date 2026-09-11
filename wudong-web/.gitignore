@@ -23,3 +23,5 @@ dist-ssr
 *.sln
 *.sw?
 scripts/.probe/
+wudong-web/shot-*.png
+wudong-web/scripts/.probe/
