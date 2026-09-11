@@ -28,7 +28,7 @@ watch(
   <aside v-if="route" class="drawer card">
     <i class="close" @click="emit('close')"><Icon name="x" :size="14" /></i>
     <header class="head">
-      <b class="title">{{ route.title }}</b>
+      <b class="title font-display">{{ route.title }}</b>
       <div class="meta">{{ route.days }}天{{ route.days > 1 ? '1晚' : '' }} · ¥{{ route.price }}起 · 已售 {{ route.sales }}</div>
     </header>
     <FootprintMap :stops="route.stops || []" variant="mini" />
@@ -50,6 +50,6 @@ watch(
 .meta { font-size: 11px; opacity: .9; margin-top: 2px; }
 .foot { padding: 10px 12px; font-size: 12px; color: var(--text-2); }
 .btns { display: flex; gap: 8px; margin-top: 8px; }
-.btns button { flex: 1; border-radius: 8px; padding: 7px 0; font-weight: 700; }
-.ghost { border: 1px solid var(--orange-500); color: var(--orange-700); background: #fff; }
+.btns button { flex: 1; border-radius: var(--radius); padding: 7px 0; font-weight: 700; }
+.ghost { border: 1px solid var(--ind-300); color: var(--ind-700); background: #fff; }
 </style>

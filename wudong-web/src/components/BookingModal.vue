@@ -99,12 +99,12 @@ async function confirm(): Promise<void> {
 .modal { width: 380px; padding: 18px; position: relative; }
 .close { position: absolute; top: 10px; right: 12px; background: none; font-size: 14px; color: var(--text-3); }
 .title { font-size: 15px; }
-.login-tip { background: var(--amber-bg); color: var(--amber-text); border-radius: 8px; padding: 8px 12px; font-size: 12px; margin-top: 10px; }
+.login-tip { background: var(--cinnabar-100); color: var(--cinnabar-700); border-radius: var(--radius); padding: 8px 12px; font-size: 12px; margin-top: 10px; }
 .dates { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
-.date-cell { border: 1px solid var(--line); border-radius: 8px; text-align: center; padding: 6px 12px; cursor: pointer; font-size: 12px; }
-.date-cell span { color: var(--orange-500); display: block; }
+.date-cell { border: 1px solid var(--line); border-radius: var(--radius); text-align: center; padding: 6px 12px; cursor: pointer; font-size: 12px; }
+.date-cell span { color: var(--cinnabar); display: block; }
 .date-cell.soldout { color: var(--text-3); border-style: dashed; cursor: not-allowed; }
-.date-cell.picked { border-color: var(--green-600); background: var(--ok-bg); }
+.date-cell.picked { border-color: var(--ind-700); background: var(--ind-50); }
 .people { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-bottom: 12px; }
 .people button { width: 24px; height: 24px; border-radius: 6px; border: 1px solid var(--line); background: #fff; }
 .confirm { width: 100%; }
@@ -112,5 +112,5 @@ async function confirm(): Promise<void> {
 .done { text-align: center; padding: 12px 0 4px; }
 .ok-icon { font-size: 34px; }
 .ono { font-size: 12px; color: var(--text-3); margin: 6px 0; }
-.hint { background: var(--amber-bg); color: var(--amber-text); border-radius: 8px; padding: 8px 10px; font-size: 12px; margin-bottom: 12px; }
+.hint { background: var(--cinnabar-100); color: var(--cinnabar-700); border-radius: var(--radius); padding: 8px 10px; font-size: 12px; margin-bottom: 12px; }
 </style>
