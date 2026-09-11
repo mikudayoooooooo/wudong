@@ -1,4 +1,4 @@
-import { Body, Get, Inject, Post, Provide, Query } from '@midwayjs/core';
+import { Body, Get, Inject, Param, Post, Provide, Query } from '@midwayjs/core';
 import { BaseController, CoolController, CoolTag, CoolUrlTag, TagTypes } from '@cool-midway/core';
 import { FarmProductService } from '../../service/farm-product';
 import { Context } from '@midwayjs/koa';
@@ -43,7 +43,11 @@ export class AppFarmProductController extends BaseController {
    */
   @CoolTag(TagTypes.IGNORE_TOKEN)
   @Get('/:id', { summary: '农产品详情' })
-  async infoItem(@Query('id') id: number) {
+  async infoItem(@Param('id') rawId: string) {
+    const id = Number(rawId);
+    if (!Number.isInteger(id) || id <= 0) {
+      return this.fail('农产品不存在');
+    }
     const product = await this.farmProductService.getDetail(id);
     if (!product) {
       return this.fail('农产品不存在');
