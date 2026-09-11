@@ -10,6 +10,7 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import RoomCard from '@/components/RoomCard.vue';
 import CalendarTable from '@/components/CalendarTable.vue';
+import Icon from '@/components/Icon.vue';
 import { hotelDetail, roomCalendar, bookingCreate } from '@/api/accommodation';
 import { addDaysISO, todayISO } from '@/utils/date';
 import { useSession } from '../../stores/session';
@@ -215,7 +216,7 @@ watch(
         <h1>{{ info.name }}</h1>
         <span class="rate">★ {{ info.rating.toFixed(1) }}（{{ info.reviewCount || 0 }} 条评价）</span>
       </div>
-      <p class="addr-line">📍 {{ info.address }} · 入住 {{ info.checkInTime }} / 离店 {{ info.checkOutTime }}</p>
+      <p class="addr-line"><Icon name="map-pin" :size="12" /> {{ info.address }} · 入住 {{ info.checkInTime }} / 离店 {{ info.checkOutTime }}</p>
 
       <!-- 简介 / 风格 / 设施 + 入住信息（§5.4；入住/离店时刻已在上方 subtitle，此处补早餐/宠物政策） -->
       <section class="intro-box">

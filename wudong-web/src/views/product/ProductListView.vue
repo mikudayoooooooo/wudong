@@ -147,7 +147,7 @@ onMounted(async () => {
               <span class="sales">已售 {{ p.sales }}</span>
             </div>
             <div v-if="p.rating" class="rating">
-              ⭐ {{ p.rating.toFixed(1) }} ({{ p.reviewCount }})
+              ★ {{ p.rating.toFixed(1) }} ({{ p.reviewCount }})
             </div>
           </div>
         </article>

@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSession } from '../stores/session'
 import { travelApi } from '../api/travel'
+import Icon from '../components/Icon.vue'
 
 const router = useRouter()
 const session = useSession()
@@ -66,7 +67,7 @@ async function onRefund(t: any): Promise<void> {
             </span>
             <a v-if="t.effectiveStatus === 'unpaid'" class="refund" @click="router.push(`/route/${t.itemId}`)">去支付 ›</a>
             <a v-if="t.effectiveStatus === 'unused'" class="refund" @click="onRefund(t)">退票</a>
-            <a v-if="t.effectiveStatus === 'used'" class="write" @click="router.push('/publish')">🎁 已计入足迹 · 去写游记 →</a>
+            <a v-if="t.effectiveStatus === 'used'" class="write" @click="router.push('/publish')"><Icon name="gift" :size="12" /> 已计入足迹 · 去写游记 ›</a>
           </div>
         </div>
         <div class="tear">

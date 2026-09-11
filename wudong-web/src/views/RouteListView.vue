@@ -36,9 +36,9 @@ function avgLit(r: RouteDetail): { lit: number; total: number } {
         <div v-else class="ph cover ph-1">{{ r.days }}天 · {{ r.theme }}</div>
         <div class="body">
           <b>{{ r.title }}</b>
-          <div class="meta">⭐ 好评 {{ r.notice.includes('24小时') ? '98%' : '96%' }} · 已售 {{ r.sales }}</div>
+          <div class="meta">★ 好评 {{ r.notice.includes('24小时') ? '98%' : '96%' }} · 已售 {{ r.sales }}</div>
           <div class="badge-line">
-            <span class="pill lit-badge">🧭 平均点亮 {{ avgLit(r).lit }}/{{ avgLit(r).total }} 站</span>
+            <span class="pill lit-badge"><Icon name="compass" :size="12" /> 平均点亮 {{ avgLit(r).lit }}/{{ avgLit(r).total }} 站</span>
           </div>
           <div class="price">¥{{ r.price }} <span>起</span></div>
         </div>

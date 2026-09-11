@@ -6,6 +6,7 @@ import { travelApi } from '../api/travel'
 import FootprintMap from '../components/FootprintMap.vue'
 import RouteQuickView from '../components/RouteQuickView.vue'
 import { postPhoto } from '../data/photos'
+import Icon from '../components/Icon.vue'
 
 const routeParam = useRouteParam()
 const router = useRouter()
@@ -70,8 +71,8 @@ function onChip(spotId: number): void {
         </span>
       </div>
       <div class="actions">
-        <span>👍 {{ post.likeCount }}</span><span>💬 {{ post.commentCount }}</span>
-        <span>⭐ {{ post.favoriteCount }}</span><span class="spacer" /><span>↗ 分享</span>
+        <span><Icon name="heart" :size="13" /> {{ post.likeCount }}</span><span><Icon name="message-circle" :size="13" /> {{ post.commentCount }}</span>
+        <span><Icon name="star-filled" :size="13" /> {{ post.favoriteCount }}</span><span class="spacer" /><span><Icon name="share" :size="13" /> 分享</span>
       </div>
     </article>
 
@@ -79,12 +80,12 @@ function onChip(spotId: number): void {
     <section v-if="view.stops.length" class="card foot-block">
       <div class="teaser" :class="view.mode" @click="expanded = !expanded">
         <template v-if="view.mode === 'route' && route">
-          <b>🧭 {{ route.title }} · 足迹 {{ litCount }}/{{ view.stops.length }} 站</b>
+          <b><Icon name="compass" :size="13" /> {{ route.title }} · 足迹 {{ litCount }}/{{ view.stops.length }} 站</b>
           <span class="pill trust">✓ 核销背书</span>
-          <span v-if="lockedCount" class="locked-tip">还有 {{ lockedCount }} 站未解锁 🔒</span>
+          <span v-if="lockedCount" class="locked-tip">还有 {{ lockedCount }} 站未解锁</span>
         </template>
         <template v-else>
-          <b>🧭 TA 最近去过 {{ view.stops.length }} 个地方</b>
+          <b><Icon name="compass" :size="13" /> TA 最近去过 {{ view.stops.length }} 个地方</b>
           <span class="pill trust ok">✓ 来自核销记录</span>
         </template>
         <span class="spacer" />
@@ -95,7 +96,7 @@ function onChip(spotId: number): void {
         <template v-if="view.mode === 'route'">
           <FootprintMap :stops="view.stops" variant="chain" :show-counts="false" @select="onChip" />
           <div v-if="route" class="cta">
-            <span>📍 关联路线</span>
+            <span><Icon name="map-pin" :size="13" /> 关联路线</span>
             <a class="go-link" @click="router.push(`/route/${route.id}`)">¥{{ route.price }} 起 · 去走同款 ›</a>
           </div>
         </template>

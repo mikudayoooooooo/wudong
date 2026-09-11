@@ -83,10 +83,10 @@ async function confirm(): Promise<void> {
 
       <template v-else>
         <div class="done">
-          <div class="ok-icon">✅</div>
+          <div class="ok-icon"><Icon name="check" :size="18" /></div>
           <b>出票成功</b>
           <div class="ono">订单号 {{ orderNo }}</div>
-          <div class="hint">🧭 使用日后核销，你的足迹地图将自动点亮这一站</div>
+          <div class="hint"><Icon name="compass" :size="12" /> 使用日后核销，你的足迹地图将自动点亮这一站</div>
           <button class="btn-primary" @click="emit('close')">好的，期待成行</button>
         </div>
       </template>

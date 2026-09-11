@@ -3,6 +3,7 @@
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { restaurantDetail, getAvailableTimeSlots, createReservation } from '@/api/food';
+import Icon from '@/components/Icon.vue';
 import type { RestaurantDetail } from '@/api/types';
 
 const route = useRoute();
@@ -126,7 +127,7 @@ onMounted(() => {
           <div class="meta-grid">
             <div class="meta-item">
               <span class="label">评分</span>
-              <span class="value">⭐ {{ detail.info.rating.toFixed(1) }}</span>
+              <span class="value">★ {{ detail.info.rating.toFixed(1) }}</span>
             </div>
             <div class="meta-item">
               <span class="label">人均</span>
@@ -139,8 +140,8 @@ onMounted(() => {
           </div>
 
           <div class="contact-info">
-            <p class="address">📍 {{ detail.info.address }}</p>
-            <p v-if="detail.info.phone" class="phone">📞 {{ detail.info.phone }}</p>
+            <p class="address"><Icon name="map-pin" :size="12" /> {{ detail.info.address }}</p>
+            <p v-if="detail.info.phone" class="phone"><Icon name="phone" :size="12" /> {{ detail.info.phone }}</p>
           </div>
 
           <button type="button" class="btn-reserve" @click="openBooking">

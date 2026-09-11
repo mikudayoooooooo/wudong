@@ -5,6 +5,7 @@ import { travelApi } from '../api/travel'
 import SectionHeader from '../components/SectionHeader.vue'
 import BookingModal from '../components/BookingModal.vue'
 import { SCENIC_COVERS } from '../data/photos'
+import Icon from '../components/Icon.vue'
 
 const routeParam = useRoute()
 const router = useRouter()
@@ -41,10 +42,10 @@ async function onBuy(ticketId: number): Promise<void> {
       <img :src="SCENIC_COVERS[spot.id]" :alt="spot.name" />
       <b class="cover-name font-display">{{ spot.name }}</b>
     </div>
-    <div v-else class="ph cover ph-0">📍 {{ spot.name }}</div>
+    <div v-else class="ph cover ph-0"><Icon name="map-pin" :size="13" /> {{ spot.name }}</div>
     <section class="card info">
       <h2>{{ spot.name }} <span class="pill chip">{{ spot.intro }}</span></h2>
-      <div class="meta">📍 {{ spot.address }} · 🕐 {{ spot.openTime }}</div>
+      <div class="meta"><Icon name="map-pin" :size="12" /> {{ spot.address }} · <Icon name="clock" :size="12" /> {{ spot.openTime }}</div>
     </section>
 
     <SectionHeader icon="ticket" title="票种" sub="选择日期与票种下单" />
@@ -62,7 +63,7 @@ async function onBuy(ticketId: number): Promise<void> {
       <SectionHeader icon="map-pins" title="从这出发的路线" />
       <div class="rr">
         <div v-for="r in relatedRoutes" :key="r.id" class="card rr-card" @click="router.push(`/route/${r.id}`)">
-          🗺 {{ r.title }} · ¥{{ r.price }}起 ›
+          <Icon name="map-pin" :size="12" /> {{ r.title }} · ¥{{ r.price }}起 ›
         </div>
       </div>
     </template>

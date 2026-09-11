@@ -139,7 +139,7 @@ onMounted(() => {
         </div>
 
         <div v-if="product.rating" class="rating-section">
-          <span class="rating">⭐ {{ product.rating.toFixed(1) }}</span>
+          <span class="rating">★ {{ product.rating.toFixed(1) }}</span>
           <span class="review-count">{{ product.reviewCount }} 条评价</span>
           <span class="sales">已售 {{ product.sales }}</span>
         </div>
@@ -187,7 +187,7 @@ onMounted(() => {
           <article v-for="review in reviews" :key="review.id" class="review-item">
             <div class="review-header">
               <span class="user-name">{{ review.user?.nickname || '匿名用户' }}</span>
-              <span class="rating">⭐ {{ review.rating }}</span>
+              <span class="rating">★ {{ review.rating }}</span>
             </div>
             <p class="review-content">{{ review.content }}</p>
             <div v-if="review.images && review.images.length" class="review-images">

@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useSession } from '../../stores/session'
 import { getMyOrders, cancelOrder } from '../../api/order'
 import { reviewAdd } from '../../api/personal'
+import Icon from '../../components/Icon.vue'
 import { productReviewAdd } from '../../api/product'
 
 const router = useRouter()
@@ -121,7 +122,7 @@ onMounted(async () => {
 
 <template>
   <div class="container page">
-    <h2>🧾 我的订单</h2>
+    <h2><Icon name="ticket" :size="16" /> 我的订单</h2>
 
     <div class="tabs">
       <button

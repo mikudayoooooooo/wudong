@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { communityApi } from '../api/community'
 import { travelApi } from '../api/travel'
 import Waterfall from '../components/Waterfall.vue'
+import Icon from '../components/Icon.vue'
 
 const routeParam = useRoute()
 const router = useRouter()
@@ -41,7 +42,7 @@ const routes = computed(() =>
       <div v-if="routes.length" class="bind">
         <span class="label">本话题相关路线：</span>
         <a v-for="r in routes" :key="r.id" class="pill rc" @click="router.push(`/route/${r.id}`)">
-          🗺 {{ routeTitle(r.id) }} · 去订 ›
+          <Icon name="map-pin" :size="12" /> {{ routeTitle(r.id) }} · 去订 ›
         </a>
       </div>
     </section>

@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import MiniChain from './MiniChain.vue'
 import { postPhoto } from '../data/photos'
+import Icon from './Icon.vue'
 
 /** post：后端 feed/detail 行（含 author、footprintLit/footprintTotal、routeTitle 可选） */
 const props = defineProps<{ post: any }>()
@@ -30,12 +31,12 @@ const videoCls = computed(() => (props.post.video ? 'ph-4' : `ph-${props.post.im
     <div class="body">
       <b class="title">{{ post.title }}</b>
       <div class="row2">
-        <a v-if="post.linkedRouteId" class="pill tag" @click.stop="emit('tag', post.linkedRouteId)">🗺 {{ post.routeTitle || '关联路线' }} ›</a>
+        <a v-if="post.linkedRouteId" class="pill tag" @click.stop="emit('tag', post.linkedRouteId)"><Icon name="map-pin" :size="12" /> {{ post.routeTitle || '关联路线' }} ›</a>
         <MiniChain v-if="chain" :lit="chain.lit" :total="chain.total" />
       </div>
       <div class="meta">
         <span>{{ author.avatar }} {{ author.nickname }}</span>
-        <span class="nums">👍 {{ post.likeCount }} · 💬 {{ post.commentCount }}</span>
+        <span class="nums"><Icon name="heart" :size="12" /> {{ post.likeCount }} · <Icon name="message-circle" :size="12" /> {{ post.commentCount }}</span>
       </div>
     </div>
   </div>

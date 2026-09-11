@@ -7,6 +7,7 @@ import FootprintMap from '../components/FootprintMap.vue'
 import PostCard from '../components/PostCard.vue'
 import SectionHeader from '../components/SectionHeader.vue'
 import BookingModal from '../components/BookingModal.vue'
+import Icon from '../components/Icon.vue'
 
 const routeParam = useRouteParam()
 const router = useRouter()
@@ -56,13 +57,13 @@ function onBook(): void {
           <span class="pill chip">{{ route.days }}天{{ route.days > 1 ? '1晚' : '' }}</span>
           <span class="pill chip">{{ route.theme }}</span>
         </h2>
-        <div class="sub">⭐ {{ (4.9).toFixed(1) }}（{{ reviews.length * 163 }}条评价）· 已售 {{ route.sales }} · 🔥本周又有 89 人成行</div>
+        <div class="sub">★ {{ (4.9).toFixed(1) }}（{{ reviews.length * 163 }}条评价）· 已售 {{ route.sales }} · 本周又有 89 人成行</div>
         <div class="includes">含：{{ route.includes.join(' / ') }} · {{ route.departure }}集合</div>
       </div>
       <div class="price-box">
         <div class="p">¥{{ route.price }}<span> 起</span></div>
         <button class="btn-primary" @click="onBook">立即订票</button>
-        <div class="tip">💡 {{ route.notice }}</div>
+        <div class="tip"><Icon name="info-circle" :size="13" /> {{ route.notice }}</div>
       </div>
     </section>
 
@@ -70,11 +71,11 @@ function onBook(): void {
     <FootprintMap :stops="stops" variant="chain" :show-counts="true" @select="(id) => router.push(`/scenic/${id}`)" />
 
     <section class="itinerary card">
-      <b>📋 每日行程</b>
+      <b><Icon name="calendar-time" :size="14" /> 每日行程</b>
       <div v-for="s in stops" :key="s.spotId" class="it-row">
         <span class="pill day">D{{ s.dayNo }}</span>
         <b>{{ s.icon }} {{ s.name }}</b>
-        <span class="desc">{{ s.lightCount ? `${s.lightCount} 人点亮过这站` : '🔒 暂无人解锁，等你来' }}</span>
+        <span class="desc">{{ s.lightCount ? `${s.lightCount} 人点亮过这站` : '暂无人解锁 · 等你来' }}</span>
       </div>
       <div class="std">住宿标准：{{ route.hotelStandard }} ｜ 餐饮标准：{{ route.mealStandard }}</div>
     </section>
@@ -104,7 +105,7 @@ function onBook(): void {
     </section>
 
     <section class="reviews card">
-      <b>⭐ 游客评价（{{ reviews.length }}）</b>
+      <b><Icon name="star-filled" :size="13" /> 游客评价（{{ reviews.length }}）</b>
       <div v-for="r in reviews" :key="r.id" class="rv">
         <b>{{ r.avatar }} {{ r.nickname }}</b>
         <span class="stars">{{ '★'.repeat(r.rating) }}</span>

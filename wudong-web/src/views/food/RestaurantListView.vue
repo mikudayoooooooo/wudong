@@ -3,6 +3,7 @@
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { searchRestaurants } from '@/api/food';
+import Icon from '@/components/Icon.vue';
 import type { Restaurant } from '@/api/types';
 
 const route = useRoute();
@@ -109,12 +110,12 @@ onMounted(async () => {
             <h3 class="restaurant-name">{{ r.name }}</h3>
             <p v-if="r.specialty" class="specialty">{{ r.specialty }}</p>
             <div class="meta-row">
-              <span class="rating">⭐ {{ r.rating.toFixed(1) }}</span>
+              <span class="rating">★ {{ r.rating.toFixed(1) }}</span>
               <span class="avg-price">人均 ¥{{ r.avgPrice }}</span>
               <span v-if="r.distance" class="distance">{{ r.distance }}km</span>
             </div>
-            <p class="address">📍 {{ r.address }}</p>
-            <p v-if="r.businessHours" class="hours">🕐 {{ r.businessHours }}</p>
+            <p class="address"><Icon name="map-pin" :size="12" /> {{ r.address }}</p>
+            <p v-if="r.businessHours" class="hours"><Icon name="clock" :size="12" /> {{ r.businessHours }}</p>
           </div>
         </article>
       </div>

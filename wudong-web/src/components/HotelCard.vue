@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { fmtPrice } from '@/utils/format';
+import Icon from '@/components/Icon.vue';
 import type { Hotel } from '@/api/types';
 
 const props = defineProps<{ hotel: Hotel }>();
@@ -20,7 +21,7 @@ function onImgError(e: Event): void {
     <div v-else class="cover placeholder" aria-hidden="true"></div>
     <div class="body">
       <p class="name">{{ hotel.name }}</p>
-      <p class="addr">📍 {{ hotel.address }}</p>
+      <p class="addr"><Icon name="map-pin" :size="12" /> {{ hotel.address }}</p>
       <div class="tags">
         <span v-for="t in hotel.styleTags.slice(0, 4)" :key="t" class="tag">{{ t }}</span>
       </div>

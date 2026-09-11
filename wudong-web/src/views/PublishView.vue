@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { communityApi } from '../api/community'
+import Icon from '../components/Icon.vue'
 
 const router = useRouter()
 const title = ref('')
@@ -61,7 +62,7 @@ async function submit(): Promise<void> {
 <template>
   <div class="container page">
     <div class="card form">
-      <h2>✏️ 发布游记</h2>
+      <h2><Icon name="edit" :size="16" /> 发布游记</h2>
       <input v-model="title" class="title" placeholder="标题（必填）" />
       <textarea v-model="content" rows="8" placeholder="正文 ≤ 5000 字" />
       <div class="label">添加图片（{{ pickedImages.length }}/9）</div>

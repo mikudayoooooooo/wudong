@@ -92,8 +92,8 @@
           </div>
 
           <!-- 删除按钮 -->
-          <button @click="removeItem(item.id)" class="remove-btn">
-            🗑️
+          <button @click="removeItem(item.id)" class="remove-btn" aria-label="删除">
+            <Icon name="trash" :size="14" />
           </button>
         </div>
       </div>
@@ -231,6 +231,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import Icon from '../../components/Icon.vue';
 import {
   getCartList,
   updateCartQuantity,

@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { travelApi } from '../api/travel'
+import Icon from '../components/Icon.vue'
 
 const router = useRouter()
 const KIND: Record<string, string> = { spot: '景区', dining: '餐饮', stay: '住宿', experience: '体验' }
@@ -14,7 +15,7 @@ onMounted(async () => {
 
 <template>
   <div class="container">
-    <h2>🎫 景区与地点</h2>
+    <h2><Icon name="map-pins" :size="16" /> 景区与地点</h2>
     <div class="cards">
       <div v-for="s in spots" :key="s.id" class="card sc" @click="router.push(`/scenic/${s.id}`)">
         <span class="icon"><Icon name="map-pin" :size="16" /></span>

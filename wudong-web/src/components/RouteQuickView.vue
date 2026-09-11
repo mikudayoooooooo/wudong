@@ -33,7 +33,7 @@ watch(
     </header>
     <FootprintMap :stops="route.stops || []" variant="mini" />
     <div class="foot">
-      <div>📷 相关游记 <b>{{ relatedCount }}</b> 篇</div>
+      <div><Icon name="photo" :size="13" /> 相关游记 <b>{{ relatedCount }}</b> 篇</div>
       <div class="btns">
         <button class="ghost" @click="emit('viewPosts', route.id)">看全部游记</button>
         <button class="btn-primary" @click="emit('book', route.id)">预订</button>

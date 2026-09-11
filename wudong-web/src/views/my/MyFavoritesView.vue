@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSession } from '../../stores/session'
 import { favoritePage, favoriteToggle, type FavoriteType } from '../../api/personal'
+import Icon from '../../components/Icon.vue'
 
 const router = useRouter()
 const session = useSession()
@@ -101,7 +102,7 @@ onMounted(async () => {
 
     <div v-if="!session.isLogged" class="card empty">请先在右上角登录后查看收藏</div>
     <div v-else-if="loading" class="card empty">加载中…</div>
-    <div v-else-if="!items.length" class="card empty">暂无收藏，逛逛喜欢的点亮 ⭐</div>
+    <div v-else-if="!items.length" class="card empty">暂无收藏，去逛逛喜欢的站点与路线</div>
     <div v-else class="favs">
       <div v-for="f in items" :key="f.id" class="fav card" @click="go(f)">
         <span class="tag">{{ f.label }}</span>

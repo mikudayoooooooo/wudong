@@ -5,6 +5,7 @@ import { communityApi } from '../api/community'
 import { travelApi, type StopView } from '../api/travel'
 import FootprintMap from '../components/FootprintMap.vue'
 import Waterfall from '../components/Waterfall.vue'
+import Icon from '../components/Icon.vue'
 
 const routeParam = useRoute()
 const router = useRouter()
@@ -49,7 +50,7 @@ const archiveStops = computed<StopView[]>(() =>
         <div class="bio">{{ profile.bio }}</div>
         <div class="stats">游记 {{ profile.postCount }} 篇 · 获赞 {{ totalLikes }}</div>
       </div>
-      <span class="pill badge-chip">🏅 {{ badge }} · 点亮 {{ litCount }}/6 站</span>
+      <span class="pill badge-chip"><Icon name="sparkles" :size="12" /> {{ badge }} · 点亮 {{ litCount }}/6 站</span>
     </section>
 
     <FootprintMap :stops="archiveStops" variant="overview" title="TA 的乌东足迹档案" @select="(id) => router.push(`/scenic/${id}`)" />

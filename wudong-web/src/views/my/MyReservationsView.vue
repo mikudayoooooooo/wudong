@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { useSession } from '../../stores/session'
 import { getMyReservations, cancelReservation } from '../../api/order'
+import Icon from '../../components/Icon.vue'
 
 const session = useSession()
 const loading = ref(true)
@@ -45,7 +46,7 @@ onMounted(async () => {
 
 <template>
   <div class="container page">
-    <h2>🍽 我的餐位预订</h2>
+    <h2><Icon name="tools-kitchen-2" :size="16" /> 我的餐位预订</h2>
 
     <div v-if="!session.isLogged" class="card empty">请先在右上角登录后查看预订</div>
     <div v-else-if="loading" class="card empty">加载中…</div>
@@ -57,8 +58,8 @@ onMounted(async () => {
           <span :class="STATUS_DICT[r.status]?.cls">{{ STATUS_DICT[r.status]?.label ?? r.status }}</span>
         </div>
         <div class="row2">
-          <span>📅 {{ r.reservationDate }}</span>
-          <span>👥 {{ r.guestCount }} 人</span>
+          <span><Icon name="calendar" :size="12" /> {{ r.reservationDate }}</span>
+          <span><Icon name="users" :size="12" /> {{ r.guestCount }} 人</span>
           <span>联系人：{{ r.contactName }}</span>
         </div>
         <div class="row3">

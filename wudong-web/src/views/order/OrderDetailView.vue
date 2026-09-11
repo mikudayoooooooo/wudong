@@ -15,10 +15,10 @@
       <div class="order-status">
         <div class="status-icon">
           <span v-if="order.status === 1">⏰</span>
-          <span v-else-if="order.status === 2">✅</span>
-          <span v-else-if="order.status === 3">📦</span>
-          <span v-else-if="order.status === 4">❌</span>
-          <span v-else-if="order.status === 5">💰</span>
+          <span v-else-if="order.status === 2"><Icon name="check" :size="16" /></span>
+          <span v-else-if="order.status === 3"><Icon name="basket" :size="16" /></span>
+          <span v-else-if="order.status === 4"><Icon name="x" :size="16" /></span>
+          <span v-else-if="order.status === 5"><Icon name="credit-card" :size="16" /></span>
         </div>
         <div class="status-text">
           <h2>{{ getStatusText(order.status) }}</h2>
@@ -74,6 +74,7 @@
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { http } from '@/lib/http';
+import Icon from '@/components/Icon.vue';
 
 const route = useRoute();
 
