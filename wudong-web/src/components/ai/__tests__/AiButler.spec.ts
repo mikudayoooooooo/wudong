@@ -212,16 +212,17 @@ describe('AiButler', () => {
     expect(accBooking).not.toHaveBeenCalled()
   })
 
-  it('同一偏好 chip 重复点击只计一次（不重复计数提前进主线）', async () => {
+  it('偏好 chip 发过即隐藏，剩余的继续递进，集齐三个进主线', async () => {
     const w = await openButler()
     await w.findAll('.chip').find((c) => c.text().includes('带爸妈'))!.trigger('click')
     await settle(w)
+    const chipCount = (label: string) => w.findAll('.chip').filter((c) => c.text().includes(label)).length
     await w.findAll('.chip').find((c) => c.text().includes('预算一千五'))!.trigger('click')
     await settle(w)
-    await w.findAll('.chip').find((c) => c.text().includes('预算一千五'))!.trigger('click')
-    await settle(w)
-    expect(w.find('.pcard').exists()).toBe(false) // 仍在前缀段，未误进主线
-    expect(w.text()).toContain('想吃长桌宴') // r2 chips 仍在等剩余偏好
+    expect(chipCount('预算一千五')).toBe(0) // 发过的隐藏（用户气泡除外，这里只看 chips 条）
+    expect(chipCount('想要安静')).toBe(1)
+    expect(chipCount('想吃长桌宴')).toBe(1)
+    expect(w.find('.pcard').exists()).toBe(false) // 仍在前缀段，未进主线
     for (const label of ['想要安静', '想吃长桌宴']) {
       await w.findAll('.chip').find((c) => c.text().includes(label))!.trigger('click')
       await settle(w)

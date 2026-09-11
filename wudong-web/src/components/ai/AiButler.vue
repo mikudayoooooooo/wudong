@@ -30,6 +30,7 @@ const plansOn = ref(false)
 const aFirst = ref(true)
 const chips = ref<ChipsKey | null>('r1')
 const prefixDone = ref(new Set<Intent>()) // 去重计数：同一偏好点多次只算一次
+const usedIntents = ref(new Set<Intent>()) // 递进去重：发过（点选/输入命中）的建议不再出现在 chips 里
 const loginHint = ref(false)
 // 预订结果：null=未订 ok=真实 demo=降级；orderNo 按业务拆分，防 goto 串单
 const booked = ref<{ hotel: 'ok' | 'demo' | null; meal: 'ok' | 'demo' | null; ticket: 'ok' | 'demo' | null; hotelOrderNo: string; ticketOrderNo: string }>({ hotel: null, meal: null, ticket: null, hotelOrderNo: '', ticketOrderNo: '' })
@@ -39,6 +40,8 @@ let playSeq = 0 // 播放序号防竞态：新播放开始后旧的自动作废
 const bookingBusy = ref(false) // 预订重入门卫：进行中忽略再次触发，防重复真实下单
 
 const showFab = computed(() => route.path === '/')
+/** 当前 chips 组里还没发过的项；发过的隐藏，全发完则整条不显示 */
+const visibleChips = computed(() => (chips.value ? CHIPS[chips.value].filter((c) => !usedIntents.value.has(c.intent)) : []))
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, Math.round(ms * props.pacing)))
 async function scrollBottom() { await nextTick(); bodyEl.value?.scrollTo?.({ top: bodyEl.value.scrollHeight }) }
@@ -86,6 +89,9 @@ function onFabDblClick(): void {
 /** chips/输入 → intent → 分发 */
 async function onIntent(intent: Intent): Promise<void> {
   chips.value = null
+  // main 豁免：r1 的主线 chip 只在开场/DONE 重置后出现（一场内无重复暴露），
+  // 而支线「帮我一起安排」也走 main，计入会把回归 chip 过滤掉
+  if (intent !== 'main') usedIntents.value.add(intent)
   if (intent === 'main') {
     if (stage.value === SCRIPT_STAGE.PLANS) { push('ai', '回到正题～方案就在上面 👆'); chips.value = 'r3'; return }
     if (stage.value === SCRIPT_STAGE.BOOKED) { push('ai', '回到正题～'); chips.value = 'r4'; return }
@@ -119,7 +125,14 @@ async function onIntent(intent: Intent): Promise<void> {
   if (intent === 'bookA') { if (bookingBusy.value) return; stage.value = SCRIPT_STAGE.BOOKED; await play(BOOK_BEATS); return }
   if (intent === 'reorder') { push('user', '换个离梯田更近的'); if (await play(REORDER_BEATS)) chips.value = 'r3'; return }
   if (intent === 'more') { await play(MORE_BEATS); chips.value = 'r4'; return }
-  if (intent === 'thanks') { await play(THANKS_BEATS); stage.value = SCRIPT_STAGE.DONE; chips.value = 'r1'; return }
+  if (intent === 'thanks') {
+    await play(THANKS_BEATS)
+    stage.value = SCRIPT_STAGE.DONE
+    usedIntents.value.clear() // 一场结束：清空发过记录，下一场彩排从全新 r1 开局
+    prefixDone.value.clear()
+    chips.value = 'r1'
+    return
+  }
 }
 function onChip(intent: Intent): void { onIntent(intent) }
 function onEnter(e: KeyboardEvent): void {
@@ -224,8 +237,8 @@ function goto(key: 'hotel' | 'meal' | 'ticket' | 'all'): void {
         <a class="all" @click="goto('all')">全部订单 →</a>
       </div>
 
-      <div class="chips" v-if="chips">
-        <button v-for="c in CHIPS[chips]" :key="c.label" class="chip" @click="onChip(c.intent)">{{ c.label }}</button>
+      <div class="chips" v-if="visibleChips.length">
+        <button v-for="c in visibleChips" :key="c.label" class="chip" @click="onChip(c.intent)">{{ c.label }}</button>
       </div>
       <div class="input-row">
         <input placeholder="说说你的想法…" @keyup.enter="onEnter" />
