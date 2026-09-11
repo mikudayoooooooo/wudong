@@ -109,7 +109,7 @@ onMounted(doSearch);
   border-radius: var(--radius);
 }
 .state-note.error {
-  border-color: #e6b4ad;
+  border-color: var(--cinnabar-300);
   color: var(--gold-600);
 }
 .retry {

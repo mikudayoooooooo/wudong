@@ -52,7 +52,7 @@ const archiveStops = computed<StopView[]>(() =>
       <span class="pill badge-chip">🏅 {{ badge }} · 点亮 {{ litCount }}/6 站</span>
     </section>
 
-    <FootprintMap :stops="archiveStops" variant="overview" title="🧭 TA 的乌东足迹档案" @select="(id) => router.push(`/scenic/${id}`)" />
+    <FootprintMap :stops="archiveStops" variant="overview" title="TA 的乌东足迹档案" @select="(id) => router.push(`/scenic/${id}`)" />
 
     <Waterfall class="feed" :posts="posts" @open="(id) => router.push(`/post/${id}`)" @tag="(rid) => router.push(`/route/${rid}`)" />
   </div>

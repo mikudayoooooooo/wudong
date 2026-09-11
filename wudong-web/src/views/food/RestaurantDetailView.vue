@@ -224,7 +224,7 @@ onMounted(() => {
 .btn-back {
   margin-bottom: 20px;
   padding: 8px 20px;
-  background: #f0f0f0;
+  background: var(--ind-50);
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -232,7 +232,7 @@ onMounted(() => {
 }
 
 .btn-back:hover {
-  background: #e0e0e0;
+  background: var(--ind-100);
 }
 
 .info-section {
@@ -243,7 +243,7 @@ onMounted(() => {
   padding: 30px;
   background: white;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
 }
 
 .cover-image {
@@ -262,15 +262,15 @@ onMounted(() => {
 .restaurant-name {
   font-size: 28px;
   margin: 0;
-  color: #333;
+  color: var(--ink);
 }
 
 .specialty {
   padding: 10px 15px;
-  background: #f0f9f0;
+  background: var(--ind-100);
   border-left: 3px solid var(--green-600);
   border-radius: 4px;
-  color: #555;
+  color: var(--text-1);
   font-size: 14px;
 }
 
@@ -288,18 +288,18 @@ onMounted(() => {
 
 .meta-item .label {
   font-size: 13px;
-  color: #999;
+  color: var(--text-3);
 }
 
 .meta-item .value {
   font-size: 16px;
   font-weight: 500;
-  color: #333;
+  color: var(--ink);
 }
 
 .contact-info {
   padding: 15px;
-  background: #f8f8f8;
+  background: var(--ind-50);
   border-radius: 4px;
 }
 
@@ -307,7 +307,7 @@ onMounted(() => {
 .phone {
   margin: 5px 0;
   font-size: 14px;
-  color: #555;
+  color: var(--text-1);
 }
 
 .btn-reserve {
@@ -329,7 +329,7 @@ onMounted(() => {
 .dishes-section h2 {
   font-size: 22px;
   margin-bottom: 20px;
-  color: #333;
+  color: var(--ink);
 }
 
 .dish-grid {
@@ -339,7 +339,7 @@ onMounted(() => {
 }
 
 .dish-card {
-  border: 1px solid #eee;
+  border: 1px solid var(--line);
   border-radius: 8px;
   overflow: hidden;
   transition: transform 0.2s, box-shadow 0.2s;
@@ -347,7 +347,7 @@ onMounted(() => {
 
 .dish-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
 }
 
 .dish-img {
@@ -363,13 +363,13 @@ onMounted(() => {
 .dish-name {
   font-size: 16px;
   margin: 0 0 8px;
-  color: #333;
+  color: var(--ink);
 }
 
 .dish-desc {
   margin: 0 0 10px;
   font-size: 13px;
-  color: #666;
+  color: var(--text-2);
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -385,7 +385,7 @@ onMounted(() => {
 
 .dish-price {
   font-size: 18px;
-  color: #e74c3c;
+  color: var(--cinnabar);
   font-weight: bold;
 }
 
@@ -400,17 +400,17 @@ onMounted(() => {
 .no-content {
   text-align: center;
   padding: 40px;
-  color: #999;
+  color: var(--text-3);
 }
 
 .state-note {
   text-align: center;
   padding: 60px;
-  color: #666;
+  color: var(--text-2);
 }
 
 .state-note.error {
-  color: #e74c3c;
+  color: var(--cinnabar);
 }
 
 .retry {
@@ -436,7 +436,7 @@ onMounted(() => {
 .booking-mask {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(11, 29, 44, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;

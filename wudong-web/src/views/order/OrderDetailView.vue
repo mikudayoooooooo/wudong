@@ -151,7 +151,7 @@ onMounted(loadOrder);
   margin: 0 auto;
   padding: 20px;
   min-height: 100vh;
-  background: #f5f5f5;
+  background: var(--ind-50);
 }
 
 .order-header {
@@ -161,7 +161,7 @@ onMounted(loadOrder);
   background: white;
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
 }
 
 .back-btn {
@@ -169,7 +169,7 @@ onMounted(loadOrder);
   border: none;
   font-size: 16px;
   cursor: pointer;
-  color: #666;
+  color: var(--text-2);
   margin-right: 20px;
 }
 
@@ -186,8 +186,8 @@ onMounted(loadOrder);
 .spinner {
   width: 40px;
   height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #4CAF50;
+  border: 4px solid var(--ind-50);
+  border-top: 4px solid var(--cinnabar);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 20px;
@@ -219,7 +219,7 @@ onMounted(loadOrder);
 
 .status-text p {
   margin: 0;
-  color: #666;
+  color: var(--text-2);
 }
 
 .order-info-card {
@@ -233,7 +233,7 @@ onMounted(loadOrder);
   display: flex;
   justify-content: space-between;
   padding: 12px 0;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--ind-50);
 }
 
 .info-row:last-child {
@@ -241,7 +241,7 @@ onMounted(loadOrder);
 }
 
 .label {
-  color: #666;
+  color: var(--text-2);
 }
 
 .value {
@@ -249,7 +249,7 @@ onMounted(loadOrder);
 }
 
 .value.amount {
-  color: #e74c3c;
+  color: var(--cinnabar);
   font-size: 20px;
   font-weight: bold;
 }
@@ -271,7 +271,7 @@ onMounted(loadOrder);
   align-items: center;
   gap: 15px;
   padding: 15px 0;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--ind-50);
 }
 
 .order-item:last-child {
@@ -295,13 +295,13 @@ onMounted(loadOrder);
 }
 
 .item-price {
-  color: #666;
+  color: var(--text-2);
   font-size: 14px;
 }
 
 .item-total {
   font-weight: bold;
-  color: #e74c3c;
+  color: var(--cinnabar);
 }
 
 .actions {
@@ -321,26 +321,26 @@ onMounted(loadOrder);
 }
 
 .pay-btn {
-  background: #4CAF50;
+  background: var(--cinnabar);
   color: white;
 }
 
 .pay-btn:hover {
-  background: #45a049;
+  background: var(--cinnabar-700);
 }
 
 .pay-btn:disabled {
-  background: #ccc;
+  background: var(--ind-100);
   cursor: not-allowed;
 }
 
 .cancel-btn {
-  background: #f5f5f5;
-  color: #666;
+  background: var(--ind-50);
+  color: var(--text-2);
 }
 
 .cancel-btn:hover {
-  background: #e0e0e0;
+  background: var(--ind-100);
 }
 
 .error {

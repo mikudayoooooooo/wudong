@@ -45,7 +45,7 @@ function onImgError(e: Event): void {
 }
 .hotel-card:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow);
+  border-color: var(--ind-300);
 }
 .cover {
   height: 170px;
@@ -53,7 +53,7 @@ function onImgError(e: Event): void {
   object-fit: cover;
 }
 .cover.placeholder {
-  background: linear-gradient(135deg, var(--green-300), var(--green-500));
+  background: var(--ind-100);
 }
 .body {
   padding: 14px 16px 16px;
@@ -78,9 +78,9 @@ function onImgError(e: Event): void {
   font-size: 12px;
   color: var(--green-700);
   background: var(--green-100);
-  border: 1px solid #d6e6cf;
+  border: 1px solid var(--line);
   padding: 2px 8px;
-  border-radius: 6px;
+  border-radius: var(--radius);
 }
 .meta {
   display: flex;
@@ -97,7 +97,7 @@ function onImgError(e: Event): void {
 }
 .price em {
   font-style: normal;
-  color: var(--gold-600);
+  color: var(--cinnabar);
   font-size: 20px;
   font-weight: 700;
 }

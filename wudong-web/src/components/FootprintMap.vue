@@ -80,20 +80,20 @@ function segmentClass(i: number): string {
 </template>
 
 <style scoped>
-.fp-map { background: linear-gradient(160deg, var(--map-a), var(--map-b)); border-radius: var(--radius); position: relative; }
+.fp-map { background: var(--ind-100); border-radius: var(--radius); position: relative; }
 .fp-title { position: absolute; top: 8px; left: 12px; font-size: 12px; font-weight: 700; color: var(--amber-text); }
 .fp-svg { width: 100%; display: block; }
 .seg-path { fill: none; stroke-width: 3; stroke-dasharray: 7 5; }
 .seg-path.lit { stroke: var(--orange-500); }
-.seg-path.locked { stroke: #c9c9c9; stroke-dasharray: 4 5; }
+.seg-path.locked { stroke: var(--ind-300); stroke-dasharray: 4 5; }
 .stop { cursor: pointer; }
 .node { fill: #fff; stroke: #bbb; stroke-width: 2; stroke-dasharray: 3 2; }
 .stop.lit .node { fill: var(--orange-500); stroke: var(--orange-300); filter: drop-shadow(0 0 5px rgba(232,150,62,.55)); }
 .icon { font-size: 12px; }
 .label { font-size: 10px; fill: var(--text-2); }
-.stop.locked .label { fill: #aaa; }
+.stop.locked .label { fill: var(--text-3); }
 .count { font-size: 9px; font-weight: 700; fill: var(--amber-text); }
-.memo { font-size: 9px; fill: #888; }
+.memo { font-size: 9px; fill: var(--text-3); }
 .legend { display: flex; gap: 12px; font-size: 11px; color: var(--text-2); padding: 0 12px 8px; }
 .legend .muted { color: var(--text-3); }
 </style>

@@ -22,7 +22,7 @@ const NAMES = ['需求识别', '检索生成', '执行推荐']
 .node.on { color: var(--green-600); }
 .node.on .dot { border-color: var(--green-600); background: var(--ok-bg); }
 .node.running .dot { animation: pulse 1s ease-in-out infinite; }
-.node.running b { background: linear-gradient(90deg, var(--green-600), #9bd4a8, var(--green-600)); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: flow 1.2s linear infinite; }
+.node.running b { color: var(--ind-500); animation: breath 1.2s ease-in-out infinite; }
 .link { width: 18px; height: 2px; background: var(--line); }
 .link.on { background: var(--green-600); }
 @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.25); } }

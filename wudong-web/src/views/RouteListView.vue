@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { travelApi, type RouteDetail } from '../api/travel'
+import Icon from '@/components/Icon.vue'
 
 const router = useRouter()
 const theme = ref('全部')
@@ -21,7 +22,7 @@ function avgLit(r: RouteDetail): { lit: number; total: number } {
 
 <template>
   <div class="container">
-    <h2>🗺️ 路线套餐</h2>
+    <h2 class="font-display"><Icon name="map-pins" :size="20" /> 路线套餐</h2>
     <div class="tabs">
       <span v-for="t in themes" :key="t" class="pill tab" :class="{ on: t === theme }" @click="theme = t">{{ t }}</span>
     </div>
@@ -44,7 +45,7 @@ function avgLit(r: RouteDetail): { lit: number; total: number } {
 <style scoped>
 h2 { margin: 18px 0 10px; }
 .tabs { display: flex; gap: 8px; margin-bottom: 14px; }
-.tab { background: #f2f2f2; cursor: pointer; }
+.tab { background: var(--ind-50); cursor: pointer; }
 .tab.on { background: var(--green-600); color: #fff; }
 .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
 .cover { height: 130px; border-radius: 0; font-size: 13px; font-weight: 700; }

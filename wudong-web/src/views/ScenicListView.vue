@@ -17,7 +17,7 @@ onMounted(async () => {
     <h2>🎫 景区与地点</h2>
     <div class="cards">
       <div v-for="s in spots" :key="s.id" class="card sc" @click="router.push(`/scenic/${s.id}`)">
-        <span class="icon">📍</span>
+        <span class="icon"><Icon name="map-pin" :size="16" /></span>
         <div class="info">
           <b>{{ s.name }} <i class="pill kind">{{ KIND[s.type] }}</i></b>
           <div class="addr">{{ s.address }} · {{ s.openTime }}</div>

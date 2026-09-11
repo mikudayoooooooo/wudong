@@ -82,7 +82,7 @@ onMounted(async () => {
 .row2 { display: flex; gap: 16px; margin: 6px 0; font-size: 13px; color: var(--text-2); }
 .row3 { display: flex; justify-content: space-between; align-items: center; }
 .row3 .no { color: var(--text-3); font-size: 12px; }
-.st-warn { color: #e67e22; font-weight: 700; }
+.st-warn { color: var(--amber-text); font-weight: 700; }
 .st-ok { color: var(--green-600); font-weight: 700; }
 .st-off { color: var(--text-3); }
 .mini { border: 1px solid var(--line-soft); background: #fff; border-radius: 12px; padding: 3px 12px; cursor: pointer; font-size: 12px; }

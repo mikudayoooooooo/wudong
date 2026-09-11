@@ -210,7 +210,7 @@ onMounted(() => {
   margin: 0 auto;
   padding: 20px;
   min-height: 100vh;
-  background: #f5f5f5;
+  background: var(--ind-50);
 }
 
 .detail-header {
@@ -220,14 +220,14 @@ onMounted(() => {
 .back-btn {
   padding: 10px 20px;
   background: white;
-  border: 1px solid #ddd;
+  border: 1px solid var(--line);
   border-radius: 4px;
   cursor: pointer;
   font-size: 14px;
 }
 
 .back-btn:hover {
-  background: #f5f5f5;
+  background: var(--ind-50);
 }
 
 /* 加载状态 */
@@ -239,8 +239,8 @@ onMounted(() => {
 .spinner {
   width: 40px;
   height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #4CAF50;
+  border: 4px solid var(--ind-50);
+  border-top: 4px solid var(--cinnabar);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 20px;
@@ -261,7 +261,7 @@ onMounted(() => {
 .retry-btn {
   margin-top: 20px;
   padding: 10px 30px;
-  background: #4CAF50;
+  background: var(--cinnabar);
   color: white;
   border: none;
   border-radius: 4px;
@@ -276,7 +276,7 @@ onMounted(() => {
   background: white;
   padding: 40px;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
   margin-bottom: 20px;
 }
 
@@ -291,7 +291,7 @@ onMounted(() => {
   height: 500px;
   object-fit: cover;
   border-radius: 8px;
-  border: 1px solid #eee;
+  border: 1px solid var(--line);
 }
 
 .image-thumbnails {
@@ -311,11 +311,11 @@ onMounted(() => {
 }
 
 .thumbnail:hover {
-  border-color: #4CAF50;
+  border-color: var(--cinnabar);
 }
 
 .thumbnail.active {
-  border-color: #4CAF50;
+  border-color: var(--cinnabar);
 }
 
 .product-info-section {
@@ -328,18 +328,18 @@ onMounted(() => {
   font-size: 28px;
   font-weight: bold;
   margin: 0;
-  color: #333;
+  color: var(--ink);
 }
 
 .product-meta {
   display: flex;
   gap: 20px;
   font-size: 14px;
-  color: #666;
+  color: var(--text-2);
 }
 
 .origin {
-  color: #4CAF50;
+  color: var(--cinnabar);
   font-weight: 500;
 }
 
@@ -352,12 +352,12 @@ onMounted(() => {
 .price {
   font-size: 36px;
   font-weight: bold;
-  color: #e74c3c;
+  color: var(--cinnabar);
 }
 
 .unit-label {
   font-size: 16px;
-  color: #999;
+  color: var(--text-3);
 }
 
 .stock-info {
@@ -365,11 +365,11 @@ onMounted(() => {
 }
 
 .in-stock {
-  color: #4CAF50;
+  color: var(--cinnabar);
 }
 
 .out-of-stock {
-  color: #e74c3c;
+  color: var(--cinnabar);
   font-weight: bold;
 }
 
@@ -392,7 +392,7 @@ onMounted(() => {
 .qty-btn {
   width: 36px;
   height: 36px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--line);
   background: white;
   border-radius: 4px;
   cursor: pointer;
@@ -408,14 +408,14 @@ onMounted(() => {
 }
 
 .qty-btn:hover:not(:disabled) {
-  background: #f5f5f5;
+  background: var(--ind-50);
 }
 
 .qty-input {
   width: 80px;
   height: 36px;
   text-align: center;
-  border: 1px solid #ddd;
+  border: 1px solid var(--line);
   border-radius: 4px;
   font-size: 16px;
 }
@@ -440,21 +440,21 @@ onMounted(() => {
 
 .add-to-cart-btn {
   background: #fff;
-  color: #4CAF50;
-  border: 2px solid #4CAF50;
+  color: var(--cinnabar);
+  border: 2px solid var(--cinnabar);
 }
 
 .add-to-cart-btn:hover:not(:disabled) {
-  background: #f0f9f0;
+  background: var(--ind-100);
 }
 
 .buy-now-btn {
-  background: #4CAF50;
+  background: var(--cinnabar);
   color: white;
 }
 
 .buy-now-btn:hover:not(:disabled) {
-  background: #45a049;
+  background: var(--cinnabar-700);
 }
 
 .add-to-cart-btn:disabled,
@@ -468,20 +468,20 @@ onMounted(() => {
   background: white;
   padding: 40px;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
 }
 
 .product-description h2 {
   font-size: 24px;
   margin: 0 0 20px 0;
   padding-bottom: 15px;
-  border-bottom: 2px solid #f0f0f0;
+  border-bottom: 2px solid var(--ind-50);
 }
 
 .description-content {
   font-size: 16px;
   line-height: 1.8;
-  color: #666;
+  color: var(--text-2);
   white-space: pre-wrap;
 }
 

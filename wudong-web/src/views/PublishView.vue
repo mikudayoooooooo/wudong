@@ -91,7 +91,7 @@ input.title, textarea { width: 100%; border: 1px solid var(--line); border-radiu
 .opt { width: 72px; height: 54px; justify-content: center; align-items: center; cursor: pointer; opacity: .55; }
 .opt.picked { opacity: 1; outline: 2px solid var(--green-600); }
 .topics { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
-.tp { background: #f2f2f2; cursor: pointer; }
+.tp { background: var(--ind-50); cursor: pointer; }
 .tp.on { background: var(--green-600); color: #fff; }
 .submit { width: 100%; }
 .toast { background: var(--amber-bg); color: var(--amber-text); border-radius: 8px; padding: 8px 12px; font-size: 12px; margin-top: 10px; }

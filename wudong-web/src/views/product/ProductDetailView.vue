@@ -212,7 +212,7 @@ onMounted(() => {
 .btn-back {
   margin-bottom: 20px;
   padding: 8px 20px;
-  background: #f0f0f0;
+  background: var(--ind-50);
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -220,7 +220,7 @@ onMounted(() => {
 }
 
 .btn-back:hover {
-  background: #e0e0e0;
+  background: var(--ind-100);
 }
 
 .product-detail {
@@ -239,7 +239,7 @@ onMounted(() => {
 .main-image {
   width: 100%;
   height: 400px;
-  border: 1px solid #eee;
+  border: 1px solid var(--line);
   border-radius: 8px;
   overflow: hidden;
   margin-bottom: 15px;
@@ -261,7 +261,7 @@ onMounted(() => {
   width: 80px;
   height: 80px;
   object-fit: cover;
-  border: 2px solid #eee;
+  border: 2px solid var(--line);
   border-radius: 4px;
   cursor: pointer;
   transition: border-color 0.2s;
@@ -279,7 +279,7 @@ onMounted(() => {
 .product-title {
   font-size: 24px;
   margin: 0 0 20px;
-  color: #333;
+  color: var(--ink);
 }
 
 .price-section {
@@ -288,19 +288,19 @@ onMounted(() => {
   gap: 20px;
   margin-bottom: 15px;
   padding: 15px;
-  background: #f8f8f8;
+  background: var(--ind-50);
   border-radius: 4px;
 }
 
 .price {
   font-size: 32px;
-  color: #e74c3c;
+  color: var(--cinnabar);
   font-weight: bold;
 }
 
 .stock {
   font-size: 14px;
-  color: #666;
+  color: var(--text-2);
 }
 
 .rating-section {
@@ -312,19 +312,19 @@ onMounted(() => {
 }
 
 .rating {
-  color: #f39c12;
+  color: var(--cinnabar);
   font-weight: 500;
 }
 
 .review-count,
 .sales {
-  color: #666;
+  color: var(--text-2);
 }
 
 .craft-intro {
   margin-bottom: 25px;
   padding: 15px;
-  background: #f0f9f0;
+  background: var(--ind-100);
   border-left: 3px solid var(--green-600);
   border-radius: 4px;
 }
@@ -338,7 +338,7 @@ onMounted(() => {
 .craft-intro p {
   margin: 0;
   line-height: 1.6;
-  color: #555;
+  color: var(--text-1);
 }
 
 .action-buttons {
@@ -383,7 +383,7 @@ onMounted(() => {
 
 .out-of-stock {
   margin-top: 10px;
-  color: #e74c3c;
+  color: var(--cinnabar);
   text-align: center;
 }
 
@@ -392,19 +392,19 @@ onMounted(() => {
   grid-column: 1 / -1;
   margin-top: 30px;
   padding-top: 30px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--line);
 }
 
 .description-section h2,
 .reviews-section h2 {
   font-size: 20px;
   margin-bottom: 20px;
-  color: #333;
+  color: var(--ink);
 }
 
 .description-content {
   line-height: 1.8;
-  color: #555;
+  color: var(--text-1);
 }
 
 .review-list {
@@ -415,7 +415,7 @@ onMounted(() => {
 
 .review-item {
   padding: 15px;
-  background: #f8f8f8;
+  background: var(--ind-50);
   border-radius: 8px;
 }
 
@@ -428,13 +428,13 @@ onMounted(() => {
 
 .user-name {
   font-weight: 500;
-  color: #333;
+  color: var(--ink);
 }
 
 .review-content {
   margin: 10px 0;
   line-height: 1.6;
-  color: #555;
+  color: var(--text-1);
 }
 
 .review-images {
@@ -452,23 +452,23 @@ onMounted(() => {
 
 .review-time {
   font-size: 12px;
-  color: #999;
+  color: var(--text-3);
 }
 
 .no-content {
   text-align: center;
   padding: 40px;
-  color: #999;
+  color: var(--text-3);
 }
 
 .state-note {
   text-align: center;
   padding: 60px;
-  color: #666;
+  color: var(--text-2);
 }
 
 .state-note.error {
-  color: #e74c3c;
+  color: var(--cinnabar);
 }
 
 .retry {

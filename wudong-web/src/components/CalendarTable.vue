@@ -76,7 +76,7 @@ function weekCN(iso: string): string {
 .calendar-table th,
 .calendar-table td {
   padding: 8px 10px;
-  border-bottom: 1px solid #f0f3ec;
+  border-bottom: 1px solid var(--line-soft);
   text-align: center;
 }
 .calendar-table th {
@@ -87,13 +87,13 @@ function weekCN(iso: string): string {
   top: 0;
 }
 .calendar-table .off {
-  color: #c0392b;
+  color: var(--text-3);
 }
 .calendar-table .full {
   color: var(--muted);
 }
 .money {
-  color: var(--gold-600);
+  color: var(--cinnabar);
   font-weight: 600;
 }
 </style>

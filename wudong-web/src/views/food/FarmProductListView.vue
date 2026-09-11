@@ -175,7 +175,7 @@ onMounted(async () => {
 .search-input {
   flex: 1;
   padding: 10px 15px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--line);
   border-radius: 4px;
   font-size: 14px;
 }
@@ -199,7 +199,7 @@ onMounted(async () => {
   gap: 30px;
   margin-bottom: 30px;
   padding: 15px;
-  background: #f8f8f8;
+  background: var(--ind-50);
   border-radius: 4px;
 }
 
@@ -211,12 +211,12 @@ onMounted(async () => {
 
 .filter-group label {
   font-weight: 500;
-  color: #666;
+  color: var(--text-2);
 }
 
 .filter-group button {
   padding: 6px 15px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--line);
   background: white;
   border-radius: 4px;
   cursor: pointer;
@@ -231,7 +231,7 @@ onMounted(async () => {
 
 .filter-group select {
   padding: 6px 12px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--line);
   border-radius: 4px;
   font-size: 13px;
 }
@@ -243,7 +243,7 @@ onMounted(async () => {
 }
 
 .product-card {
-  border: 1px solid #eee;
+  border: 1px solid var(--line);
   border-radius: 8px;
   overflow: hidden;
   transition: transform 0.2s, box-shadow 0.2s;
@@ -252,7 +252,7 @@ onMounted(async () => {
 
 .product-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
 }
 
 .product-img {
@@ -277,7 +277,7 @@ onMounted(async () => {
   font-size: 12px;
   color: var(--green-700);
   margin-bottom: 10px;
-  background: #f0f9f0;
+  background: var(--ind-100);
   padding: 4px 8px;
   border-radius: 3px;
   display: inline-block;
@@ -292,7 +292,7 @@ onMounted(async () => {
 
 .price {
   font-size: 18px;
-  color: #e74c3c;
+  color: var(--cinnabar);
   font-weight: bold;
 }
 
@@ -303,7 +303,7 @@ onMounted(async () => {
 
 .sales {
   font-size: 12px;
-  color: #999;
+  color: var(--text-3);
 }
 
 .btn-buy {
@@ -321,11 +321,11 @@ onMounted(async () => {
 .state-note {
   text-align: center;
   padding: 40px;
-  color: #666;
+  color: var(--text-2);
 }
 
 .state-note.error {
-  color: #e74c3c;
+  color: var(--cinnabar);
 }
 
 .retry {
@@ -341,7 +341,7 @@ onMounted(async () => {
 .empty-state {
   text-align: center;
   padding: 60px;
-  color: #999;
+  color: var(--text-3);
 }
 
 @media (max-width: 768px) {

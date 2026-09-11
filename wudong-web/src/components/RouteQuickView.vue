@@ -3,6 +3,7 @@ import { ref, watch } from 'vue'
 import { travelApi } from '../api/travel'
 import { communityApi } from '../api/community'
 import FootprintMap from './FootprintMap.vue'
+import Icon from './Icon.vue'
 
 const props = defineProps<{ routeId: number | null }>()
 const emit = defineEmits<{ close: []; viewPosts: [routeId: number]; book: [routeId: number] }>()
@@ -25,7 +26,7 @@ watch(
 
 <template>
   <aside v-if="route" class="drawer card">
-    <i class="close" @click="emit('close')">✕</i>
+    <i class="close" @click="emit('close')"><Icon name="x" :size="14" /></i>
     <header class="head">
       <b class="title">{{ route.title }}</b>
       <div class="meta">{{ route.days }}天{{ route.days > 1 ? '1晚' : '' }} · ¥{{ route.price }}起 · 已售 {{ route.sales }}</div>
@@ -42,9 +43,9 @@ watch(
 </template>
 
 <style scoped>
-.drawer { width: 300px; position: relative; box-shadow: var(--shadow); }
+.drawer { width: 300px; position: relative; border: 1px solid var(--line); }
 .close { position: absolute; top: 8px; right: 10px; background: none; color: #fff; font-size: 14px; z-index: 1; cursor: pointer; }
-.head { background: linear-gradient(110deg, var(--green-900), var(--green-600)); color: #fff; padding: 12px 14px; }
+.head { background: var(--ind-800); color: #fff; padding: 12px 14px; }
 .title { font-size: 15px; }
 .meta { font-size: 11px; opacity: .9; margin-top: 2px; }
 .foot { padding: 10px 12px; font-size: 12px; color: var(--text-2); }

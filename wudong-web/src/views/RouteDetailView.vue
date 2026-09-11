@@ -66,7 +66,7 @@ function onBook(): void {
       </div>
     </section>
 
-    <SectionHeader icon="🧭" title="行程地图" sub="亮色站显示真实点亮人数 · 灰站为行程中未解锁" />
+    <SectionHeader icon="compass" title="行程地图" sub="亮色站显示真实点亮人数 · 灰站为行程中未解锁" />
     <FootprintMap :stops="stops" variant="chain" :show-counts="true" @select="(id) => router.push(`/scenic/${id}`)" />
 
     <section class="itinerary card">
@@ -97,7 +97,7 @@ function onBook(): void {
       <button class="btn-primary go" @click="onBook">立即订票 · 出票后生成足迹地图</button>
     </section>
 
-    <SectionHeader icon="📷" title="走过这条线的人" sub="他们的足迹地图" more="进入社区" @more="router.push('/community')" />
+    <SectionHeader icon="camera" title="走过这条线的人" sub="他们的足迹地图" more="进入社区" @more="router.push('/community')" />
     <section class="linked">
       <PostCard v-for="p in linkedPosts" :key="p.id" :post="p" @open="(id) => router.push(`/post/${id}`)" />
       <div v-if="!linkedPosts.length" class="empty card">还没有游记，走完这条线来写第一篇吧</div>
@@ -123,7 +123,7 @@ h2 { margin: 0 0 6px; }
 .sub, .includes { font-size: 12px; color: var(--text-2); margin-top: 4px; }
 .price-box { text-align: right; }
 .p { font-size: 22px; font-weight: 800; color: var(--orange-700); }
-.tip { font-size: 10px; color: #aaa; max-width: 220px; margin-top: 6px; }
+.tip { font-size: 10px; color: var(--text-3); max-width: 220px; margin-top: 6px; }
 .itinerary, .booking, .reviews { padding: 14px 16px; margin-top: 12px; }
 .it-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px dashed var(--line-soft); font-size: 13px; }
 .day { background: var(--amber-bg); color: var(--amber-text); }
@@ -133,8 +133,8 @@ h2 { margin: 0 0 6px; }
 .date-cell { border: 1px solid var(--line); border-radius: 8px; text-align: center; padding: 6px 14px; cursor: pointer; font-size: 12px; }
 .date-cell span { color: var(--orange-500); display: block; }
 .date-cell.tight { border-color: var(--orange-500); }
-.date-cell.soldout { color: #bbb; border-style: dashed; cursor: not-allowed; }
-.date-cell.soldout span { color: #bbb; }
+.date-cell.soldout { color: var(--text-3); border-style: dashed; cursor: not-allowed; }
+.date-cell.soldout span { color: var(--text-3); }
 .date-cell.picked { border-color: var(--green-600); background: var(--ok-bg); }
 .people { display: flex; align-items: center; gap: 8px; font-size: 13px; }
 .people button { width: 24px; height: 24px; border-radius: 6px; border: 1px solid var(--line); background: #fff; }

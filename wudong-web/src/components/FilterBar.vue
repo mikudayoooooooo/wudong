@@ -157,14 +157,13 @@ watch(
 }
 .btn-primary {
   margin-left: auto;
-  background: var(--gold-500);
+  background: var(--cinnabar);
   color: #fff;
   border: 0;
   padding: 9px 20px;
-  border-radius: 10px;
+  border-radius: var(--radius);
   font-weight: 600;
   font-size: 13px;
   cursor: pointer;
-  box-shadow: 0 6px 16px rgba(232, 150, 62, 0.35);
 }
 </style>

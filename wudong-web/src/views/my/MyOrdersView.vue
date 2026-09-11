@@ -200,16 +200,16 @@ onMounted(async () => {
 .row2 .no { color: var(--text-3); font-size: 12px; }
 .row3 { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; color: var(--text-2); }
 .row3 .time { color: var(--text-3); font-size: 12px; white-space: nowrap; }
-.st-warn { color: #e67e22; font-weight: 700; }
+.st-warn { color: var(--amber-text); font-weight: 700; }
 .st-ok { color: var(--green-600); font-weight: 700; }
 .st-off { color: var(--text-3); }
 .acts { display: flex; gap: 8px; justify-content: flex-end; margin-top: 8px; }
 .mini { border: 1px solid var(--line-soft); background: #fff; border-radius: 12px; padding: 3px 12px; cursor: pointer; font-size: 12px; }
 .mini.primary { background: var(--green-600); color: #fff; border-color: var(--green-600); }
-.mask { position: fixed; inset: 0; background: rgba(0,0,0,.35); display: flex; align-items: center; justify-content: center; z-index: 50; }
+.mask { position: fixed; inset: 0; background: rgba(11, 29, 44, .35); display: flex; align-items: center; justify-content: center; z-index: 50; }
 .dialog { width: 420px; padding: 18px; }
 .stars { margin: 10px 0; font-size: 22px; }
-.star { cursor: pointer; color: #ddd; }
+.star { cursor: pointer; color: var(--line); }
 .star.on { color: var(--orange-500); }
 textarea { width: 100%; box-sizing: border-box; border: 1px solid var(--line-soft); border-radius: 8px; padding: 8px; }
 .d-acts { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }

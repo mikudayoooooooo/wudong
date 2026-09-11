@@ -118,13 +118,13 @@ function onChip(spotId: number): void {
 h1 { font-size: 20px; margin: 12px 0; }
 .imgs { display: flex; gap: 8px; }
 .imgs .ph { flex: 1; height: 150px; border-radius: 8px; }
-.content { font-size: 14px; color: #444; line-height: 1.8; }
-.topic-chip { color: var(--green-600); background: #f0f5f0; cursor: pointer; margin-right: 6px; }
+.content { font-size: 14px; color: var(--ink); line-height: 1.8; }
+.topic-chip { color: var(--green-600); background: var(--ind-100); cursor: pointer; margin-right: 6px; }
 .actions { display: flex; gap: 20px; padding: 10px 0 0; border-top: 1px solid var(--line-soft); color: var(--text-2); font-size: 13px; margin-top: 12px; }
 .spacer { flex: 1; }
 .foot-block { margin-top: 14px; overflow: hidden; }
 .teaser { display: flex; align-items: center; gap: 8px; padding: 11px 14px; cursor: pointer; font-size: 12px; }
-.teaser.auto { background: #f8faf7; }
+.teaser.auto { background: var(--ind-100); }
 .teaser.route { background: var(--amber-bg); }
 .trust { background: var(--ok-bg); color: var(--ok-text); }
 .trust.ok { background: var(--ok-bg); }

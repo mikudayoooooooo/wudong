@@ -42,7 +42,7 @@ async function onBuy(ticketId: number): Promise<void> {
       <div class="meta">📍 {{ spot.address }} · 🕐 {{ spot.openTime }}</div>
     </section>
 
-    <SectionHeader icon="🎫" title="票种" sub="选择日期与票种下单" />
+    <SectionHeader icon="ticket" title="票种" sub="选择日期与票种下单" />
     <section class="tk-grid">
       <div v-for="t in tickets" :key="t.id" class="card tk">
         <b>{{ t.name }}</b>
@@ -54,7 +54,7 @@ async function onBuy(ticketId: number): Promise<void> {
     </section>
 
     <template v-if="relatedRoutes.length">
-      <SectionHeader icon="🗺️" title="从这出发的路线" />
+      <SectionHeader icon="map-pins" title="从这出发的路线" />
       <div class="rr">
         <div v-for="r in relatedRoutes" :key="r.id" class="card rr-card" @click="router.push(`/route/${r.id}`)">
           🗺 {{ r.title }} · ¥{{ r.price }}起 ›
@@ -62,7 +62,7 @@ async function onBuy(ticketId: number): Promise<void> {
       </div>
     </template>
 
-    <SectionHeader icon="⭐" title="用户评价" />
+    <SectionHeader icon="star" title="用户评价" />
     <section class="card rvs">
       <div v-for="r in reviews" :key="r.id" class="rv">
         <b>{{ r.avatar }} {{ r.nickname }}</b>

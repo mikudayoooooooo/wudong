@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useSession } from '../stores/session'
 import { memberApi } from '../api/member'
+import Icon from './Icon.vue'
 
 const props = defineProps<{ open: boolean }>()
 const emit = defineEmits<{ close: [] }>()
@@ -53,8 +54,8 @@ async function submit() {
 <template>
   <div v-if="open" class="mask" @click.self="close">
     <div class="modal card">
-      <button class="close" @click="close">✕</button>
-      <b class="title">🔐 登录乌东文旅</b>
+      <button class="close" @click="close"><Icon name="x" :size="16" /></button>
+      <b class="title font-display">登录乌东文旅</b>
       <div class="tabs">
         <span class="pill t" :class="{ on: tab === 'password' }" @click="tab = 'password'">密码登录</span>
         <span class="pill t" :class="{ on: tab === 'sms' }" @click="tab = 'sms'">验证码登录</span>
@@ -81,7 +82,7 @@ async function submit() {
 </template>
 
 <style scoped>
-.mask { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: flex; align-items: center; justify-content: center; z-index: 60; }
+.mask { position: fixed; inset: 0; background: rgba(11, 29, 44, .5); display: flex; align-items: center; justify-content: center; z-index: 60; }
 .modal { width: 360px; padding: 18px; position: relative; }
 .close { position: absolute; top: 10px; right: 12px; background: none; font-size: 14px; color: var(--text-3); }
 .title { font-size: 15px; }

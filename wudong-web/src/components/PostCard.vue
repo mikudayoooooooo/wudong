@@ -38,7 +38,7 @@ const videoCls = computed(() => (props.post.video ? 'ph-4' : `ph-${props.post.im
 <style scoped>
 .post-card { cursor: pointer; break-inside: avoid; margin-bottom: 12px; }
 .cover { height: 150px; border-radius: 0; position: relative; }
-.video-mark { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,.45); border-radius: 10px; padding: 1px 8px; font-size: 11px; }
+.video-mark { position: absolute; top: 8px; right: 8px; background: rgba(11, 29, 44, .55); border-radius: 10px; padding: 1px 8px; font-size: 11px; }
 .body { padding: 8px 10px; }
 .title { font-size: 13px; }
 .row2 { display: flex; align-items: center; gap: 8px; margin: 6px 0; flex-wrap: wrap; }

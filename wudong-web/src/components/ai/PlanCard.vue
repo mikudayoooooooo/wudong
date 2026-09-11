@@ -28,7 +28,7 @@ const open = ref(false)
 
 <style scoped>
 .pcard { position: relative; border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; background: #fff; }
-.pcard.hi { border-color: var(--green-600); box-shadow: 0 2px 10px rgba(46, 125, 50, .15); }
+.pcard.hi { border-color: var(--green-600); }
 .pcard.booked { opacity: .85; }
 .demo-tag { position: absolute; top: -8px; right: 8px; font-size: 10px; background: var(--amber-bg); color: var(--amber-text); padding: 1px 6px; border-radius: 6px; }
 .head { display: flex; align-items: center; gap: 8px; cursor: pointer; }

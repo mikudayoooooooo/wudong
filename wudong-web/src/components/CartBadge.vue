@@ -64,20 +64,20 @@ defineExpose({
   align-items: center;
   justify-content: center;
   padding: 8px;
-  color: #333;
+  color: var(--ink);
   text-decoration: none;
   transition: color 0.2s;
 }
 
 .cart-badge-icon:hover {
-  color: #4CAF50;
+  color: var(--cinnabar);
 }
 
 .badge {
   position: absolute;
   top: 2px;
   right: 2px;
-  background: #e74c3c;
+  background: var(--cinnabar);
   color: white;
   font-size: 10px;
   font-weight: bold;

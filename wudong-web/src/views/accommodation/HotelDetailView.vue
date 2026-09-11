@@ -309,11 +309,10 @@ watch(
   padding-bottom: 8px;
 }
 .back-btn {
-  border: 0;
+  border: 1px solid var(--line);
   background: #fff;
-  box-shadow: var(--shadow);
   padding: 8px 14px;
-  border-radius: 10px;
+  border-radius: var(--radius);
   margin-top: 18px;
   color: var(--green-700);
   font-size: 14px;
@@ -322,7 +321,7 @@ watch(
   margin-top: 18px;
   border-radius: 18px;
   overflow: hidden;
-  background: linear-gradient(135deg, var(--green-300), var(--green-100));
+  background: var(--ind-100);
 }
 .detail-hero img {
   display: block;
@@ -386,12 +385,12 @@ watch(
   font-size: 12px;
   color: var(--green-700);
   background: var(--green-100);
-  border: 1px solid #d6e6cf;
+  border: 1px solid var(--line);
   padding: 2px 8px;
   border-radius: 6px;
 }
 .tag-facility {
-  background: #fff7ec;
+  background: var(--amber-bg);
   color: var(--gold-600);
   border-color: var(--gold-300);
 }
@@ -412,7 +411,7 @@ watch(
   border-radius: var(--radius);
 }
 .state-note.error {
-  border-color: #e6b4ad;
+  border-color: var(--cinnabar-300);
   color: var(--gold-600);
 }
 .retry {
@@ -462,7 +461,7 @@ watch(
 .bk-mask {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(11, 29, 44, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -528,7 +527,7 @@ watch(
   cursor: pointer;
 }
 .bk-ok:disabled {
-  background: #d8c4ac;
+  background: var(--ind-100);
   cursor: not-allowed;
 }
 </style>

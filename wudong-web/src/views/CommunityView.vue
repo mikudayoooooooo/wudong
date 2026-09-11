@@ -75,7 +75,7 @@ async function clearFilter(): Promise<void> {
         >{{ t.name }}</span>
       </div>
       <div v-if="filteredRoute" class="filter-bar">
-        正在看路线相关游记 <a @click="clearFilter">清除过滤 ✕</a>
+        正在看路线相关游记 <a @click="clearFilter">清除过滤 <Icon name="x" :size="12" /></a>
       </div>
       <Waterfall :posts="shown" @open="(id) => router.push(`/post/${id}`)" @tag="onTag" />
       <div v-if="!shown.length" class="empty card">暂无内容</div>
@@ -94,7 +94,7 @@ async function clearFilter(): Promise<void> {
 .page { display: flex; gap: 16px; margin-top: 16px; }
 .main { flex: 1; }
 .tabs { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
-.tab { background: #f2f2f2; cursor: pointer; }
+.tab { background: var(--ind-50); cursor: pointer; }
 .tab.on { background: var(--green-600); color: #fff; }
 .sep { flex: 1; }
 .topic { background: var(--paper); border: 1px solid var(--line-soft); cursor: pointer; }

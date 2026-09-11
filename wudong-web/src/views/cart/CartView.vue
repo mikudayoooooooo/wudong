@@ -19,7 +19,7 @@
 
     <!-- 购物车为空 -->
     <div v-else-if="cartItems.length === 0" class="empty-cart">
-      <div class="empty-icon">🛒</div>
+      <div class="empty-icon"><Icon name="shopping-cart" :size="40" /></div>
       <p>购物车空空如也</p>
       <button @click="$router.push('/products')" class="go-shopping-btn">
         去逛逛
@@ -444,7 +444,7 @@ onMounted(() => {
   margin: 0 auto;
   padding: 20px;
   min-height: 100vh;
-  background: #f5f5f5;
+  background: var(--ind-50);
 }
 
 .cart-header {
@@ -455,7 +455,7 @@ onMounted(() => {
   background: white;
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
 }
 
 .back-btn {
@@ -463,7 +463,7 @@ onMounted(() => {
   border: none;
   font-size: 16px;
   cursor: pointer;
-  color: #666;
+  color: var(--text-2);
 }
 
 .cart-header h1 {
@@ -475,15 +475,15 @@ onMounted(() => {
 
 .clear-btn {
   padding: 8px 16px;
-  background: #f5f5f5;
+  background: var(--ind-50);
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  color: #666;
+  color: var(--text-2);
 }
 
 .clear-btn:hover {
-  background: #e0e0e0;
+  background: var(--ind-100);
 }
 
 /* 加载状态 */
@@ -495,8 +495,8 @@ onMounted(() => {
 .spinner {
   width: 40px;
   height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #4CAF50;
+  border: 4px solid var(--ind-50);
+  border-top: 4px solid var(--cinnabar);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 20px;
@@ -522,7 +522,7 @@ onMounted(() => {
 
 .go-shopping-btn {
   padding: 12px 40px;
-  background: #4CAF50;
+  background: var(--cinnabar);
   color: white;
   border: none;
   border-radius: 4px;
@@ -552,12 +552,12 @@ onMounted(() => {
   background: white;
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
 }
 
 .cart-item.unavailable {
   opacity: 0.6;
-  background: #f9f9f9;
+  background: var(--ind-50);
 }
 
 .item-image {
@@ -578,7 +578,7 @@ onMounted(() => {
   position: absolute;
   top: 0;
   left: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(11, 29, 44, 0.7);
   color: white;
   padding: 2px 8px;
   font-size: 12px;
@@ -592,12 +592,12 @@ onMounted(() => {
 .item-info h3 {
   margin: 0 0 8px 0;
   font-size: 16px;
-  color: #333;
+  color: var(--ink);
 }
 
 .item-type {
   font-size: 12px;
-  color: #999;
+  color: var(--text-3);
   margin-bottom: 8px;
 }
 
@@ -609,19 +609,19 @@ onMounted(() => {
 
 .current-price {
   font-size: 18px;
-  color: #e74c3c;
+  color: var(--cinnabar);
   font-weight: bold;
 }
 
 .old-price {
   font-size: 14px;
-  color: #999;
+  color: var(--text-3);
   text-decoration: line-through;
 }
 
 .stock-warning {
   margin-top: 8px;
-  color: #f39c12;
+  color: var(--cinnabar);
   font-size: 12px;
 }
 
@@ -634,7 +634,7 @@ onMounted(() => {
 .quantity-btn {
   width: 32px;
   height: 32px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--line);
   background: white;
   border-radius: 4px;
   cursor: pointer;
@@ -650,14 +650,14 @@ onMounted(() => {
   width: 60px;
   height: 32px;
   text-align: center;
-  border: 1px solid #ddd;
+  border: 1px solid var(--line);
   border-radius: 4px;
 }
 
 .item-subtotal {
   font-size: 18px;
   font-weight: bold;
-  color: #e74c3c;
+  color: var(--cinnabar);
   min-width: 100px;
   text-align: right;
 }
@@ -679,7 +679,7 @@ onMounted(() => {
   background: white;
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
   position: sticky;
   top: 20px;
   height: fit-content;
@@ -689,7 +689,7 @@ onMounted(() => {
 .remark-section {
   margin-bottom: 20px;
   padding-bottom: 20px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--line);
 }
 
 .address-section h3,
@@ -702,22 +702,22 @@ onMounted(() => {
 .no-address {
   text-align: center;
   padding: 20px;
-  color: #999;
+  color: var(--text-3);
 }
 
 .add-address-btn {
   width: 100%;
   padding: 10px;
-  background: #f5f5f5;
-  border: 1px dashed #ddd;
+  background: var(--ind-50);
+  border: 1px dashed var(--line);
   border-radius: 4px;
   cursor: pointer;
-  color: #666;
+  color: var(--text-2);
   margin-top: 10px;
 }
 
 .add-address-btn:hover {
-  background: #e0e0e0;
+  background: var(--ind-100);
 }
 
 .address-list {
@@ -731,19 +731,19 @@ onMounted(() => {
   align-items: center;
   gap: 10px;
   padding: 15px;
-  border: 2px solid #eee;
+  border: 2px solid var(--line);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .address-item:hover {
-  border-color: #4CAF50;
+  border-color: var(--cinnabar);
 }
 
 .address-item.selected {
-  border-color: #4CAF50;
-  background: #f0f9f0;
+  border-color: var(--cinnabar);
+  background: var(--ind-100);
 }
 
 .address-info {
@@ -756,7 +756,7 @@ onMounted(() => {
 }
 
 .default-badge {
-  background: #4CAF50;
+  background: var(--cinnabar);
   color: white;
   padding: 2px 8px;
   border-radius: 3px;
@@ -766,18 +766,18 @@ onMounted(() => {
 
 .address-detail {
   font-size: 14px;
-  color: #666;
+  color: var(--text-2);
 }
 
 .address-radio {
   font-size: 20px;
-  color: #4CAF50;
+  color: var(--cinnabar);
 }
 
 .remark-section textarea {
   width: 100%;
   padding: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--line);
   border-radius: 4px;
   font-family: inherit;
   resize: vertical;
@@ -797,19 +797,19 @@ onMounted(() => {
 .total-row.total-amount {
   font-size: 18px;
   font-weight: bold;
-  border-top: 2px solid #eee;
+  border-top: 2px solid var(--line);
   padding-top: 15px;
 }
 
 .total-row .amount {
-  color: #e74c3c;
+  color: var(--cinnabar);
   font-size: 24px;
 }
 
 .checkout-btn {
   width: 100%;
   padding: 15px;
-  background: #4CAF50;
+  background: var(--cinnabar);
   color: white;
   border: none;
   border-radius: 4px;
@@ -819,11 +819,11 @@ onMounted(() => {
 }
 
 .checkout-btn:hover {
-  background: #45a049;
+  background: var(--cinnabar-700);
 }
 
 .checkout-btn:disabled {
-  background: #ccc;
+  background: var(--ind-100);
   cursor: not-allowed;
 }
 
@@ -834,7 +834,7 @@ onMounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(11, 29, 44, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -869,7 +869,7 @@ onMounted(() => {
 .form-group textarea {
   width: 100%;
   padding: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--line);
   border-radius: 4px;
   font-family: inherit;
 }
@@ -902,12 +902,12 @@ onMounted(() => {
 }
 
 .cancel-btn {
-  background: #f5f5f5;
-  color: #666;
+  background: var(--ind-50);
+  color: var(--text-2);
 }
 
 .submit-btn {
-  background: #4CAF50;
+  background: var(--cinnabar);
   color: white;
 }
 

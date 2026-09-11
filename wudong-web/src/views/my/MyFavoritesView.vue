@@ -85,7 +85,7 @@ onMounted(async () => {
 
 <template>
   <div class="container page">
-    <h2>⭐ 我的收藏</h2>
+    <h2 class="font-display"><Icon name="star" :size="20" /> 我的收藏</h2>
 
     <div class="tabs">
       <button

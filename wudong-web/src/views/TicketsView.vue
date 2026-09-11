@@ -52,7 +52,7 @@ async function onRefund(t: any): Promise<void> {
 
 <template>
   <div class="container page">
-    <h2>🎫 我的票务</h2>
+    <h2 class="font-display"><Icon name="ticket" :size="20" /> 我的票务</h2>
     <div v-if="!session.isLogged" class="card empty">请先在右上角登录后查看票务</div>
     <div v-else-if="loading" class="card empty">加载中…</div>
     <div v-else class="wallet">
@@ -89,11 +89,11 @@ h2 { margin-bottom: 14px; }
 .date { font-size: 13px; margin: 4px 0; }
 .meta { display: flex; gap: 10px; align-items: center; margin-top: 6px; }
 .st { background: var(--ok-bg); color: var(--ok-text); font-size: 11px; }
-.st.used, .st.refunded { background: #eee; color: #888; }
+.st.used, .st.refunded { background: var(--line); color: var(--text-3); }
 .write { color: var(--amber-text); font-size: 11px; cursor: pointer; }
 .refund { color: var(--text-3); font-size: 11px; cursor: pointer; text-decoration: underline; }
-.tear { width: 88px; border-left: 1.5px dashed #ccc; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; position: relative; }
-.tear::before, .tear::after { content: ''; position: absolute; left: -7px; width: 12px; height: 12px; border-radius: 50%; background: #f7f7f5; border: 1px solid var(--line); }
+.tear { width: 88px; border-left: 1.5px dashed var(--ind-100); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; position: relative; }
+.tear::before, .tear::after { content: ''; position: absolute; left: -7px; width: 12px; height: 12px; border-radius: 50%; background: var(--ind-50); border: 1px solid var(--line); }
 .tear::before { top: -7px; } .tear::after { bottom: -7px; }
 .qr { width: 54px; height: 54px; border: 3px solid #333; border-radius: 3px; background: repeating-linear-gradient(0deg, #333 0 3px, transparent 3px 6px), repeating-linear-gradient(90deg, #333 0 3px, #fff 3px 6px); }
 .used { filter: grayscale(1); opacity: .62; }
