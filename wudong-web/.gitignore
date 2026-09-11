@@ -25,3 +25,4 @@ dist-ssr
 scripts/.probe/
 wudong-web/shot-*.png
 wudong-web/scripts/.probe/
+vite.config.ts.timestamp-*.mjs
