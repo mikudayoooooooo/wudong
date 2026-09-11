@@ -1,0 +1,742 @@
+{
+  "hero-1": {
+    "kind": "photo",
+    "file": "src\\assets\\img\\hero\\hero-1.jpg",
+    "status": "ok",
+    "source": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4",
+    "license": "Unsplash License",
+    "fetchedAt": "2026-09-11T01:22:28.478Z"
+  },
+  "scenic-waterfall": {
+    "kind": "photo",
+    "file": "src\\assets\\img\\scenic\\waterfall.jpg",
+    "status": "ok",
+    "source": "https://images.pexels.com/photos/2387873/pexels-photo-2387873.jpeg",
+    "license": "Pexels License",
+    "fetchedAt": "2026-09-11T01:23:05.161Z"
+  },
+  "hero-3": {
+    "kind": "photo",
+    "file": "src\\assets\\img\\hero\\hero-3.jpg",
+    "status": "ok",
+    "source": "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1",
+    "license": "Unsplash License",
+    "fetchedAt": "2026-09-11T01:29:02.479Z"
+  },
+  "hero-2": {
+    "kind": "photo",
+    "file": "src\\assets\\img\\hero\\hero-2.jpg",
+    "status": "ok",
+    "source": "https://images.unsplash.com/photo-1493246507139-91e8fad9978e",
+    "license": "Unsplash License",
+    "fetchedAt": "2026-09-11T01:29:02.617Z"
+  },
+  "scenic-lake-cabin": {
+    "kind": "photo",
+    "file": "src\\assets\\img\\scenic\\lake-cabin.jpg",
+    "status": "ok",
+    "source": "https://images.unsplash.com/photo-1470770841072-f978cf4d019e",
+    "license": "Unsplash License",
+    "fetchedAt": "2026-09-11T01:23:34.854Z"
+  },
+  "scenic-forest": {
+    "kind": "photo",
+    "file": "src\\assets\\img\\scenic\\forest.jpg",
+    "status": "ok",
+    "source": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e",
+    "license": "Unsplash License",
+    "fetchedAt": "2026-09-11T01:23:36.917Z"
+  },
+  "hotel-h1": {
+    "kind": "photo",
+    "file": "src\\assets\\img\\hotel\\h1.jpg",
+    "status": "ok",
+    "source": "https://images.unsplash.com/photo-1449158743715-0a90ebb6d2d8",
+    "license": "Unsplash License",
+    "fetchedAt": "2026-09-11T01:29:02.594Z"
+  },
+  "hotel-h1b": {
+    "kind": "photo",
+    "file": "src\\assets\\img\\hotel\\h1b.jpg",
+    "status": "ok",
+    "source": "https://images.unsplash.com/photo-1439066615861-d1af74d74000",
+    "license": "Unsplash License",
+    "fetchedAt": "2026-09-11T01:29:02.788Z"
+  },
+  "hotel-h2": {
+    "kind": "photo",
+    "file": "src\\assets\\img\\hotel\\h2.jpg",
+    "status": "ok",
+    "source": "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1",
+    "license": "Unsplash License",
+    "fetchedAt": "2026-09-11T01:29:03.120Z"
+  },
+  "scenic-field": {
+    "kind": "photo",
+    "file": "src\\assets\\img\\scenic\\field.jpg",
+    "status": "ok",
+    "source": "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07",
+    "license": "Unsplash License",
+    "fetchedAt": "2026-09-11T01:29:02.068Z"
+  },
+  "hotel-h3": {
+    "kind": "photo",
+    "file": "src\\assets\\img\\hotel\\h3.jpg",
+    "status": "ok",
+    "source": "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05",
+    "license": "Unsplash License",
+    "fetchedAt": "2026-09-11T01:29:02.923Z"
+  },
+  "hotel-r1": {
+    "kind": "photo",
+    "file": "src\\assets\\img\\hotel\\r1.jpg",
+    "status": "ok",
+    "source": "https://images.unsplash.com/photo-1590490360182-c33d57733427",
+    "license": "Unsplash License",
+    "fetchedAt": "2026-09-11T01:29:03.098Z"
+  },
+  "hotel-r2": {
+    "kind": "photo",
+    "file": "src\\assets\\img\\hotel\\r2.jpg",
+    "status": "ok",
+    "source": "https://images.unsplash.com/photo-1578683010236-d716f9a3f461",
+    "license": "Unsplash License",
+    "fetchedAt": "2026-09-11T01:29:03.362Z"
+  },
+  "icon:map-pin": {
+    "kind": "icon",
+    "file": "src/assets/icons/map-pin.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/map-pin.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:07.820Z"
+  },
+  "icon:home": {
+    "kind": "icon",
+    "file": "src/assets/icons/home.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/home.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:07.798Z"
+  },
+  "icon:map-pins": {
+    "kind": "icon",
+    "file": "src/assets/icons/map-pins.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/map-pins.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:07.820Z"
+  },
+  "icon:ticket": {
+    "kind": "icon",
+    "file": "src/assets/icons/ticket.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/ticket.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:07.934Z"
+  },
+  "icon:bed": {
+    "kind": "icon",
+    "file": "src/assets/icons/bed.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/bed.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:07.967Z"
+  },
+  "icon:shopping-cart": {
+    "kind": "icon",
+    "file": "src/assets/icons/shopping-cart.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/shopping-cart.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:08.062Z"
+  },
+  "icon:tools-kitchen-2": {
+    "kind": "icon",
+    "file": "src/assets/icons/tools-kitchen-2.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/tools-kitchen-2.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:07.989Z"
+  },
+  "icon:user": {
+    "kind": "icon",
+    "file": "src/assets/icons/user.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/user.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:08.093Z"
+  },
+  "icon:heart": {
+    "kind": "icon",
+    "file": "src/assets/icons/heart.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/heart.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:08.195Z"
+  },
+  "icon:star": {
+    "kind": "icon",
+    "file": "src/assets/icons/star.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/star.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:08.245Z"
+  },
+  "icon:user-circle": {
+    "kind": "icon",
+    "file": "src/assets/icons/user-circle.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/user-circle.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:08.116Z"
+  },
+  "icon:search": {
+    "kind": "icon",
+    "file": "src/assets/icons/search.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/search.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:08.348Z"
+  },
+  "icon:arrow-right": {
+    "kind": "icon",
+    "file": "src/assets/icons/arrow-right.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/arrow-right.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:08.371Z"
+  },
+  "icon:arrow-left": {
+    "kind": "icon",
+    "file": "src/assets/icons/arrow-left.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/arrow-left.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:08.453Z"
+  },
+  "icon:heart-filled": {
+    "kind": "icon",
+    "status": "ok",
+    "note": "HTTP 404",
+    "fetchedAt": "2026-09-11T01:29:08.219Z",
+    "file": "src/assets/icons/heart-filled.svg",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/filled/heart.svg",
+    "license": "MIT (Tabler Icons)"
+  },
+  "icon:arrow-up-right": {
+    "kind": "icon",
+    "file": "src/assets/icons/arrow-up-right.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/arrow-up-right.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:08.475Z"
+  },
+  "icon:minus": {
+    "kind": "icon",
+    "file": "src/assets/icons/minus.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/minus.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:08.595Z"
+  },
+  "icon:plus": {
+    "kind": "icon",
+    "file": "src/assets/icons/plus.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/plus.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:08.498Z"
+  },
+  "icon:check": {
+    "kind": "icon",
+    "file": "src/assets/icons/check.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/check.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:08.640Z"
+  },
+  "icon:x": {
+    "kind": "icon",
+    "file": "src/assets/icons/x.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/x.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:08.618Z"
+  },
+  "icon:calendar-time": {
+    "kind": "icon",
+    "file": "src/assets/icons/calendar-time.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/calendar-time.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:08.746Z"
+  },
+  "icon:calendar": {
+    "kind": "icon",
+    "file": "src/assets/icons/calendar.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/calendar.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:08.724Z"
+  },
+  "icon:phone": {
+    "kind": "icon",
+    "file": "src/assets/icons/phone.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/phone.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:08.849Z"
+  },
+  "icon:star-filled": {
+    "kind": "icon",
+    "status": "ok",
+    "note": "HTTP 404",
+    "fetchedAt": "2026-09-11T01:29:08.324Z",
+    "file": "src/assets/icons/star-filled.svg",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/filled/star.svg",
+    "license": "MIT (Tabler Icons)"
+  },
+  "icon:clock": {
+    "kind": "icon",
+    "file": "src/assets/icons/clock.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/clock.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:08.768Z"
+  },
+  "icon:mail": {
+    "kind": "icon",
+    "file": "src/assets/icons/mail.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/mail.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:08.871Z"
+  },
+  "icon:messages": {
+    "kind": "icon",
+    "file": "src/assets/icons/messages.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/messages.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:08.979Z"
+  },
+  "icon:camera": {
+    "kind": "icon",
+    "file": "src/assets/icons/camera.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/camera.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:09.003Z"
+  },
+  "icon:message-circle": {
+    "kind": "icon",
+    "file": "src/assets/icons/message-circle.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/message-circle.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:08.897Z"
+  },
+  "icon:mountain": {
+    "kind": "icon",
+    "file": "src/assets/icons/mountain.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/mountain.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:09.107Z"
+  },
+  "icon:compass": {
+    "kind": "icon",
+    "file": "src/assets/icons/compass.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/compass.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:09.024Z"
+  },
+  "icon:leaf": {
+    "kind": "icon",
+    "file": "src/assets/icons/leaf.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/leaf.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:09.130Z"
+  },
+  "icon:building": {
+    "kind": "icon",
+    "file": "src/assets/icons/building.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/building.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:09.234Z"
+  },
+  "icon:building-community": {
+    "kind": "icon",
+    "file": "src/assets/icons/building-community.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/building-community.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:09.258Z"
+  },
+  "icon:credit-card": {
+    "kind": "icon",
+    "file": "src/assets/icons/credit-card.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/credit-card.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:09.281Z"
+  },
+  "icon:chef-hat": {
+    "kind": "icon",
+    "file": "src/assets/icons/chef-hat.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/chef-hat.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:09.153Z"
+  },
+  "icon:chevron-down": {
+    "kind": "icon",
+    "file": "src/assets/icons/chevron-down.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/chevron-down.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:09.363Z"
+  },
+  "icon:chevron-right": {
+    "kind": "icon",
+    "file": "src/assets/icons/chevron-right.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/chevron-right.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:09.386Z"
+  },
+  "icon:chevron-left": {
+    "kind": "icon",
+    "file": "src/assets/icons/chevron-left.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/chevron-left.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:09.409Z"
+  },
+  "icon:menu-2": {
+    "kind": "icon",
+    "file": "src/assets/icons/menu-2.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/menu-2.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:09.490Z"
+  },
+  "icon:settings": {
+    "kind": "icon",
+    "file": "src/assets/icons/settings.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/settings.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:09.538Z"
+  },
+  "icon:edit": {
+    "kind": "icon",
+    "file": "src/assets/icons/edit.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/edit.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:09.646Z"
+  },
+  "icon:logout": {
+    "kind": "icon",
+    "file": "src/assets/icons/logout.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/logout.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:09.512Z"
+  },
+  "icon:trash": {
+    "kind": "icon",
+    "file": "src/assets/icons/trash.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/trash.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:09.618Z"
+  },
+  "icon:sparkles": {
+    "kind": "icon",
+    "file": "src/assets/icons/sparkles.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/sparkles.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:09.746Z"
+  },
+  "icon:send": {
+    "kind": "icon",
+    "file": "src/assets/icons/send.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/send.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:09.669Z"
+  },
+  "icon:robot": {
+    "kind": "icon",
+    "file": "src/assets/icons/robot.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/robot.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:09.771Z"
+  },
+  "icon:share": {
+    "kind": "icon",
+    "file": "src/assets/icons/share.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/share.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:09.874Z"
+  },
+  "icon:bookmark": {
+    "kind": "icon",
+    "file": "src/assets/icons/bookmark.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/bookmark.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:09.795Z"
+  },
+  "icon:flag": {
+    "kind": "icon",
+    "file": "src/assets/icons/flag.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/flag.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:09.922Z"
+  },
+  "icon:info-circle": {
+    "kind": "icon",
+    "file": "src/assets/icons/info-circle.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/info-circle.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:10.003Z"
+  },
+  "icon:refresh": {
+    "kind": "icon",
+    "file": "src/assets/icons/refresh.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/refresh.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:10.048Z"
+  },
+  "icon:eye": {
+    "kind": "icon",
+    "file": "src/assets/icons/eye.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/eye.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:09.896Z"
+  },
+  "icon:walk": {
+    "kind": "icon",
+    "file": "src/assets/icons/walk.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/walk.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:10.156Z"
+  },
+  "icon:bus": {
+    "kind": "icon",
+    "file": "src/assets/icons/bus.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/bus.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:10.134Z"
+  },
+  "icon:alert-circle": {
+    "kind": "icon",
+    "file": "src/assets/icons/alert-circle.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/alert-circle.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:10.026Z"
+  },
+  "icon:gift": {
+    "kind": "icon",
+    "file": "src/assets/icons/gift.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/gift.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:10.294Z"
+  },
+  "icon:tent": {
+    "kind": "icon",
+    "file": "src/assets/icons/tent.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/tent.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:10.178Z"
+  },
+  "icon:tag": {
+    "kind": "icon",
+    "file": "src/assets/icons/tag.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/tag.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:10.316Z"
+  },
+  "icon:basket": {
+    "kind": "icon",
+    "file": "src/assets/icons/basket.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/basket.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:10.263Z"
+  },
+  "icon:mood-smile": {
+    "kind": "icon",
+    "file": "src/assets/icons/mood-smile.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/mood-smile.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:10.467Z"
+  },
+  "icon:users": {
+    "kind": "icon",
+    "file": "src/assets/icons/users.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/users.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:10.404Z"
+  },
+  "icon:filter": {
+    "kind": "icon",
+    "file": "src/assets/icons/filter.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/filter.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:10.446Z"
+  },
+  "icon:photo": {
+    "kind": "icon",
+    "file": "src/assets/icons/photo.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/photo.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:10.580Z"
+  },
+  "icon:qrcode": {
+    "kind": "icon",
+    "file": "src/assets/icons/qrcode.svg",
+    "status": "ok",
+    "source": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/qrcode.svg",
+    "license": "MIT (Tabler Icons)",
+    "fetchedAt": "2026-09-11T01:29:10.614Z"
+  },
+  "font:noto-serif-sc-700.woff2": {
+    "kind": "font",
+    "file": "src/assets/fonts/noto-serif-sc-700.woff2",
+    "status": "ok",
+    "source": "https://fonts.google.com/noto/specimen/Noto+Serif+SC",
+    "license": "SIL Open Font License 1.1",
+    "fetchedAt": "2026-09-11T01:24:11.357Z"
+  },
+  "font:noto-serif-sc-500.woff2": {
+    "kind": "font",
+    "file": "src/assets/fonts/noto-serif-sc-500.woff2",
+    "status": "ok",
+    "source": "https://fonts.google.com/noto/specimen/Noto+Serif+SC",
+    "license": "SIL Open Font License 1.1",
+    "fetchedAt": "2026-09-11T01:24:11.379Z"
+  },
+  "pattern:src/assets/pattern/meander-dark.svg": {
+    "kind": "pattern",
+    "file": "src/assets/pattern/meander-dark.svg",
+    "status": "ok",
+    "selfMade": true,
+    "fetchedAt": "2026-09-11T01:24:11.425Z"
+  },
+  "pattern:src/assets/pattern/meander-light.svg": {
+    "kind": "pattern",
+    "file": "src/assets/pattern/meander-light.svg",
+    "status": "ok",
+    "selfMade": true,
+    "fetchedAt": "2026-09-11T01:24:11.448Z"
+  },
+  "pattern:src/assets/pattern/spiral-dark.svg": {
+    "kind": "pattern",
+    "file": "src/assets/pattern/spiral-dark.svg",
+    "status": "ok",
+    "selfMade": true,
+    "fetchedAt": "2026-09-11T01:24:11.469Z"
+  },
+  "pattern:src/assets/pattern/spiral-light.svg": {
+    "kind": "pattern",
+    "file": "src/assets/pattern/spiral-light.svg",
+    "status": "ok",
+    "selfMade": true,
+    "fetchedAt": "2026-09-11T01:24:11.491Z"
+  },
+  "pattern:src/assets/pattern/diamond-dark.svg": {
+    "kind": "pattern",
+    "file": "src/assets/pattern/diamond-dark.svg",
+    "status": "ok",
+    "selfMade": true,
+    "fetchedAt": "2026-09-11T01:24:11.513Z"
+  },
+  "pattern:src/assets/pattern/diamond-light.svg": {
+    "kind": "pattern",
+    "file": "src/assets/pattern/diamond-light.svg",
+    "status": "ok",
+    "selfMade": true,
+    "fetchedAt": "2026-09-11T01:24:11.535Z"
+  },
+  "pattern:src/assets/pattern/fish-dark.svg": {
+    "kind": "pattern",
+    "file": "src/assets/pattern/fish-dark.svg",
+    "status": "ok",
+    "selfMade": true,
+    "fetchedAt": "2026-09-11T01:24:11.556Z"
+  },
+  "pattern:src/assets/pattern/fish-light.svg": {
+    "kind": "pattern",
+    "file": "src/assets/pattern/fish-light.svg",
+    "status": "ok",
+    "selfMade": true,
+    "fetchedAt": "2026-09-11T01:24:11.579Z"
+  },
+  "avatar:avatar-a.svg": {
+    "kind": "avatar",
+    "file": "src/assets/avatar/avatar-a.svg",
+    "status": "ok",
+    "selfMade": true,
+    "fetchedAt": "2026-09-11T01:24:11.604Z"
+  },
+  "avatar:avatar-miao.svg": {
+    "kind": "avatar",
+    "file": "src/assets/avatar/avatar-miao.svg",
+    "status": "ok",
+    "selfMade": true,
+    "fetchedAt": "2026-09-11T01:24:11.626Z"
+  },
+  "avatar:avatar-shan.svg": {
+    "kind": "avatar",
+    "file": "src/assets/avatar/avatar-shan.svg",
+    "status": "ok",
+    "selfMade": true,
+    "fetchedAt": "2026-09-11T01:24:11.648Z"
+  },
+  "avatar:avatar-shui.svg": {
+    "kind": "avatar",
+    "file": "src/assets/avatar/avatar-shui.svg",
+    "status": "ok",
+    "selfMade": true,
+    "fetchedAt": "2026-09-11T01:24:11.670Z"
+  },
+  "avatar:avatar-xiu.svg": {
+    "kind": "avatar",
+    "file": "src/assets/avatar/avatar-xiu.svg",
+    "status": "ok",
+    "selfMade": true,
+    "fetchedAt": "2026-09-11T01:24:11.693Z"
+  },
+  "avatar:avatar-yin.svg": {
+    "kind": "avatar",
+    "file": "src/assets/avatar/avatar-yin.svg",
+    "status": "ok",
+    "selfMade": true,
+    "fetchedAt": "2026-09-11T01:24:11.716Z"
+  }
+}
