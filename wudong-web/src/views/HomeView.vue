@@ -145,7 +145,7 @@ const barWidth = (i: number): string =>
   </div>
 
   <!-- 区块3：手绘地图（全幅浅靛色带，明度翻转） -->
-  <section class="band band-map">
+  <section class="band band-map" v-reveal>
     <div class="container">
       <SectionHeader icon="map-pins" title="乌东村手绘地图" sub="站点大小 = 被点亮次数 · 点击直达" />
       <FootprintMap :stops="overviewStops" variant="overview" @select="(id) => router.push(`/scenic/${id}`)" />
@@ -231,7 +231,7 @@ const barWidth = (i: number): string =>
   </div>
 
   <!-- 区块7：交通攻略 + 平台数据（全幅深靛色带收底） -->
-  <section class="band band-end">
+  <section class="band band-end" v-reveal>
     <div class="container serv-row">
       <div class="guides">
         <b class="side-title"><Icon name="bus" :size="15" /> 怎么来乌东？</b>
@@ -302,9 +302,12 @@ const barWidth = (i: number): string =>
 .link { color: var(--cinnabar-300); font-size: 12px; cursor: pointer; }
 .notice { font-size: 12px; color: var(--ind-100); line-height: 1.9; opacity: .85; }
 
-/* ── 区块5：真实足迹 ── */
-.hl-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+/* ── 区块5：真实足迹（1 大 2 小不对称栅格，规范 §3.0 B.2） ── */
+.hl-row { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; }
 .hl { overflow: hidden; cursor: pointer; }
+.hl:first-child { grid-row: span 2; display: flex; flex-direction: column; }
+.hl:first-child .hl-img { height: 316px; }  /* 150*2 + 16 gap */
+.hl:first-child .hl-body { flex: 1; }
 .hl-img { height: 150px; }
 .hl-title { position: absolute; left: 12px; bottom: 10px; z-index: 1; color: var(--paper); font-size: 14px; }
 .hl-body { padding: 12px 14px; font-size: 12px; }
@@ -340,5 +343,8 @@ const barWidth = (i: number): string =>
   .board-row, .serv-row, .feed-row { flex-direction: column; gap: 20px; }
   .side { width: auto; }
   .stats { gap: 12px; }
+  .hl-row { grid-template-columns: 1fr; }
+  .hl:first-child { grid-row: auto; }
+  .hl:first-child .hl-img { height: 150px; }
 }
 </style>

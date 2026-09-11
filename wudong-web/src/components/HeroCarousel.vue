@@ -56,9 +56,9 @@ defineExpose({ current })
       <span class="slide-mask" aria-hidden="true" />
       <div class="card">
         <div class="card-inner">
-          <span class="pill badge">{{ s.badge }}</span>
-          <div class="title font-display">{{ s.title }}</div>
-          <div class="subtitle">{{ s.subtitle }}</div>
+          <span v-reveal class="pill badge">{{ s.badge }}</span>
+          <div v-reveal="90" class="title font-display">{{ s.title }}</div>
+          <div v-reveal="180" class="subtitle">{{ s.subtitle }}</div>
         </div>
       </div>
     </div>

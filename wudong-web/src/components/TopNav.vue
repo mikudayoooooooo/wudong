@@ -64,7 +64,7 @@ function goMenu(m: { label: string; path: () => string }) {
     <div class="container nav-inner">
       <b class="logo"><span class="seal font-display">乌</span><span class="brand font-display">乌东文旅</span></b>
       <div class="links">
-        <RouterLink v-for="it in items" :key="it.path" :to="it.path" class="item">
+        <RouterLink v-for="it in items" :key="it.path" :to="it.path" class="item link-slide">
           {{ it.label }}
         </RouterLink>
       </div>
@@ -126,6 +126,8 @@ function goMenu(m: { label: string; path: () => string }) {
 .links { display: flex; align-items: center; gap: 14px; min-width: 0; overflow: hidden; }
 .item { color: var(--text-2); font-size: 13px; white-space: nowrap; flex-shrink: 0; padding: 2px 0; border-bottom: 2px solid transparent; }
 .item.router-link-exact-active { color: var(--ind-700); font-weight: 700; border-bottom-color: var(--cinnabar); }
+/* 激活项已有 2px 朱红下划线，禁用 link-slide 的 1px 滑入线避免双线 */
+.item.router-link-exact-active::after { content: none; }
 .spacer { flex: 1; min-width: 8px; }
 .search-wrap { position: relative; display: flex; align-items: center; flex-shrink: 1; }
 .search-icon { position: absolute; left: 10px; color: var(--text-3); pointer-events: none; }

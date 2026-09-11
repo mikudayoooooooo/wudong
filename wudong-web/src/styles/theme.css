@@ -50,3 +50,26 @@ button { cursor: pointer; font: inherit; border: none; }
 .pill { font-size: 12px; border-radius: 2px; padding: 2px 8px; display: inline-block; }
 .card { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
 .container { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+
+/* ── 入场编排（v-reveal，规范 §3.0 A） ── */
+.reveal { opacity: 0; transform: translateY(14px); transition: opacity .5s ease, transform .5s ease; }
+.reveal-in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+}
+
+/* ── 微交互（规范 §3.0 C） ── */
+/* 实景图缓放（hover 由宿主卡片或自身触发） */
+.img-frame > img { transition: transform .35s ease; }
+.card:hover .img-frame > img, .hl:hover .img-frame > img, .img-frame:hover > img { transform: scale(1.04); }
+/* 文字链接下划线滑入 */
+.link-slide { position: relative; }
+.link-slide::after { content: ""; position: absolute; left: 0; bottom: -2px; width: 0; height: 1px; background: currentColor; transition: width .2s ease; }
+.link-slide:hover::after { width: 100%; }
+/* 主按钮内 icon 微位移 */
+.btn-primary .icon, .publish .icon { transition: transform .2s ease; }
+.btn-primary:hover .icon, .publish:hover .icon { transform: translateX(2px); }
+@media (prefers-reduced-motion: reduce) {
+  .img-frame > img, .link-slide::after, .btn-primary .icon, .publish .icon { transition: none !important; }
+  .card:hover .img-frame > img, .hl:hover .img-frame > img, .img-frame:hover > img { transform: none !important; }
+}

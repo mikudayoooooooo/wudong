@@ -16,7 +16,7 @@ const isIconName = (v?: string): boolean => !!v && /^[a-z0-9-]+$/.test(v)
       <b class="title font-display">{{ title }}</b>
       <span v-if="sub" class="sub">{{ sub }}</span>
     </div>
-    <a v-if="more" class="more" @click="emit('more')">{{ more }} ›</a>
+    <a v-if="more" class="more link-slide" @click="emit('more')">{{ more }} ›</a>
   </div>
 </template>
 
