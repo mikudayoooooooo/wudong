@@ -111,7 +111,24 @@ SELECT NOW(), NOW(), m.id, '看板统计', 'order:stats', 2, 98, 1, 1
 FROM base_sys_menu m WHERE m.router = '/order' AND m.type = 1
   AND NOT EXISTS (SELECT 1 FROM (SELECT id FROM base_sys_menu WHERE perms = 'order:stats' AND type = 2) t);
 
--- 3.6 详情/编辑弹窗取数 :info（cl-crud 编辑前先调 info，缺了点编辑直接 403）
+-- 3.7 操作按钮节点自包含补建（setup-demo.sh 的 *menus*.sql 通配符扫不到
+--     2026-09-11-admin-perms-nodes.sql，全新机器重建必须在此建齐，否则新增/批量按钮隐藏）
+INSERT INTO base_sys_menu (createTime, updateTime, parentId, name, perms, type, orderNum, keepAlive, isShow)
+SELECT NOW(), NOW(), m.id, x.name, x.perms, 2, 99, 1, 1
+FROM base_sys_menu m
+JOIN (
+  SELECT '新增' AS name, 'accommodation/hotel:add' AS perms, '/accommodation/hotel' AS router
+  UNION ALL SELECT '编辑', 'accommodation/hotel:update', '/accommodation/hotel'
+  UNION ALL SELECT '新增', 'accommodation/room-type:add', '/accommodation/room-type'
+  UNION ALL SELECT '编辑', 'accommodation/room-type:update', '/accommodation/room-type'
+  UNION ALL SELECT '批量操作', 'accommodation/room-calendar:batch', '/accommodation/room-calendar'
+  UNION ALL SELECT '价格日历', 'accommodation/room-calendar:range', '/accommodation/room-calendar'
+) x ON m.router = x.router AND m.type = 1
+WHERE NOT EXISTS (
+  SELECT 1 FROM (SELECT id FROM base_sys_menu WHERE perms = x.perms AND type = 2) t
+);
+
+-- 3.8 详情/编辑弹窗取数 :info（cl-crud 编辑前先调 info，缺了点编辑直接 403）
 INSERT INTO base_sys_menu (createTime, updateTime, parentId, name, perms, type, orderNum, keepAlive, isShow)
 SELECT NOW(), NOW(), m.id, '详情查询', 'travel/eTicket:info', 2, 98, 1, 1
 FROM base_sys_menu m WHERE m.router = '/e-ticket' AND m.type = 1
