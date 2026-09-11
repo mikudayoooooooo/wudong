@@ -77,7 +77,8 @@ defineExpose({ current })
 .slide-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; transform: translateZ(0); }
 /* 平色靛蓝罩（非渐变）：压暗画面保证宋体大标题可读 */
 .slide-mask { position: absolute; inset: 0; background: rgba(11, 29, 44, .5); z-index: 1; }
-.card { position: relative; height: 100%; display: flex; align-items: flex-end; z-index: 2; }
+/* 仅作标题容器：覆盖全局 .card 工具类的白底/边框（v2.2 §3.1 勘误——撞类致整幅轮播变白） */
+.card { position: relative; height: 100%; display: flex; align-items: flex-end; z-index: 2; background: transparent; border: none; border-radius: 0; overflow: visible; }
 .card-inner { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 16px 64px; color: var(--paper); }
 .badge { background: transparent; border: 1px solid rgba(251, 247, 238, .45); color: var(--paper); width: fit-content; margin-bottom: 14px; }
 .title { font-size: 40px; font-weight: 700; line-height: 1.25; max-width: 640px; }
