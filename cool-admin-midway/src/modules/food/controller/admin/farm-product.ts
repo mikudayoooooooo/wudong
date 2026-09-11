@@ -3,23 +3,29 @@ import { CoolController, BaseController } from '@cool-midway/core';
 import { Context } from '@midwayjs/koa';
 import { FarmProductEntity } from '../../entity/farm-product';
 import { FarmProductService } from '../../service/farm-product';
+import { MerchantAdminScopeService } from '../../../merchant/service/admin-scope';
 
 /**
  * 商家端-农产品管理
+ * 数据权限：绑定 merchant.adminUserId 的账号只看本商家；平台管理员不受限
  */
 @CoolController({
   prefix: '/admin/food/farm-product',
   api: ['page', 'list', 'info', 'update', 'delete'],
   entity: FarmProductEntity,
-  pageQueryOp: {
-    fieldEq: ['a.status', 'a.categoryId'],
-    keyWordLikeFields: ['a.name'],
-    // 自动过滤：只显示当前商家的农产品
-    where: async ctx => {
-      return [
-        ['a.merchantId = :merchantId', { merchantId: ctx.admin.userId }],
-      ];
-    },
+  // 注意：EPS 构建期会零参调用本函数，ctx 缺席时只返回静态配置（启动不崩）；请求期才注入商家 where
+  pageQueryOp: async (ctx?: any, app?: any) => {
+    const base = {
+      fieldEq: ['a.status', 'a.categoryId'],
+      keyWordLikeFields: ['a.name'],
+    };
+    if (!ctx) {
+      return base;
+    }
+    const scope = await (ctx.requestContext ?? app.getApplicationContext())
+      .getAsync(MerchantAdminScopeService)
+      .then(s => s.whereFor(ctx.admin?.userId));
+    return { ...base, where: scope };
   },
 })
 export class AdminFarmProductController extends BaseController {

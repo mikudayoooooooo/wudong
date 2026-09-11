@@ -27,15 +27,9 @@ import { useCool } from '/@/cool';
 
 const { service } = useCool();
 
-// CRUD 配置
+// CRUD 配置（后端无平台侧新增接口，仅商家 create，隐藏新增按钮）
 const Crud = useCrud(
-	{
-		service: service.request({
-			namespace: 'farm-product',
-			method: 'POST',
-			url: '/admin/food/farm-product/page'
-		})
-	},
+	{ service: service.food.farmProduct, permission: { add: false } },
 	(app) => {
 		app.refresh();
 	}

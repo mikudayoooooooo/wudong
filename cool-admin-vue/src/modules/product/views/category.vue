@@ -28,18 +28,9 @@ import { useCool } from '/@/cool';
 const { service } = useCool();
 
 // CRUD 配置
-const Crud = useCrud(
-	{
-		service: service.request({
-			namespace: 'product-category',
-			method: 'POST',
-			url: '/admin/product/category/page'
-		})
-	},
-	(app) => {
-		app.refresh();
-	}
-);
+const Crud = useCrud({ service: service.product.category }, (app) => {
+	app.refresh();
+});
 
 // 表格配置
 const Table = useTable({
