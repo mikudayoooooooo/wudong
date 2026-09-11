@@ -95,7 +95,8 @@ check "餐厅（长桌宴）" "$REST" 1
 check "路线" "$ROUTE" 2
 check "国庆路线库存" "$INV" 1
 check "长桌宴时段" "$SLOT" 2
-check "管理端业务菜单" "$MENU" 40
+# 当前 7 个 *menus*.sql 的页签存量即 31（type=1 且 viewPath=modules/%）；按钮级权限见 type=2（101 条）
+check "管理端业务菜单" "$MENU" 31
 check "演示商家（wangapo 已绑定）" "$MERCHANT" 1
 check "看板权限节点 order:stats" "$STATS" 1
 
