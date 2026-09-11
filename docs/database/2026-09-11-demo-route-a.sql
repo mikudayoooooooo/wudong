@@ -105,7 +105,13 @@ SELECT NOW(), NOW(), m.id, '编辑', 'travel/eTicket:update', 2, 99, 1, 1
 FROM base_sys_menu m WHERE m.router = '/e-ticket' AND m.type = 1
   AND NOT EXISTS (SELECT 1 FROM (SELECT id FROM base_sys_menu WHERE perms = 'travel/eTicket:update' AND type = 2) t);
 
--- 3.5 详情/编辑弹窗取数 :info（cl-crud 编辑前先调 info，缺了点编辑直接 403）
+-- 3.5 看板统计接口 /admin/order/stats（工作台首页真实数据；admin 天然放行，商家角色需此节点）
+INSERT INTO base_sys_menu (createTime, updateTime, parentId, name, perms, type, orderNum, keepAlive, isShow)
+SELECT NOW(), NOW(), m.id, '看板统计', 'order:stats', 2, 98, 1, 1
+FROM base_sys_menu m WHERE m.router = '/order' AND m.type = 1
+  AND NOT EXISTS (SELECT 1 FROM (SELECT id FROM base_sys_menu WHERE perms = 'order:stats' AND type = 2) t);
+
+-- 3.6 详情/编辑弹窗取数 :info（cl-crud 编辑前先调 info，缺了点编辑直接 403）
 INSERT INTO base_sys_menu (createTime, updateTime, parentId, name, perms, type, orderNum, keepAlive, isShow)
 SELECT NOW(), NOW(), m.id, '详情查询', 'travel/eTicket:info', 2, 98, 1, 1
 FROM base_sys_menu m WHERE m.router = '/e-ticket' AND m.type = 1
@@ -135,8 +141,8 @@ INSERT INTO base_sys_role_menu (createTime, updateTime, roleId, menuId)
 SELECT NOW(), NOW(), @role, m.id
 FROM base_sys_menu m
 WHERE (
-        -- 页面菜单：住宿管理三项 + 订单/流水 + 电子票
-        m.router IN ('/accommodation/hotel', '/accommodation/room-type', '/accommodation/room-calendar',
+        -- 页面菜单：工作台首页(42, isShow=0 默认路由) + 住宿管理三项 + 订单/流水 + 电子票
+        m.router IN ('/', '/accommodation/hotel', '/accommodation/room-type', '/accommodation/room-calendar',
                      '/order', '/pay-record', '/e-ticket')
         OR m.perms IN (
              -- 住宿：列表/取数/详情/新增/编辑/批量设价/价格日历（不给 delete）
@@ -146,8 +152,8 @@ WHERE (
              'accommodation/room-type:add', 'accommodation/room-type:update',
              'accommodation/room-calendar:page', 'accommodation/room-calendar:info',
              'accommodation/room-calendar:batch', 'accommodation/room-calendar:range',
-             -- 订单/流水只读
-             'order:page', 'pay:record:page',
+             -- 订单/流水只读 + 看板统计
+             'order:page', 'order:stats', 'pay:record:page',
              -- 电子票：取数/详情/核销/编辑（核销兜底用）
              'travel/eTicket:page', 'travel/eTicket:info', 'travel/eTicket:verify', 'travel/eTicket:update'
            )
