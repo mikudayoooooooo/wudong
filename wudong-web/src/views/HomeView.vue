@@ -115,43 +115,49 @@ const barWidth = (i: number): string =>
 </script>
 
 <template>
-  <div class="container">
-    <!-- 区块1：轮播 + 快捷订票 -->
-    <section class="hero-row">
-      <HeroCarousel class="hero" @open="(t, id) => router.push(t === 'route' ? `/route/${id}` : `/scenic/${id}`)" />
-      <aside class="quick card">
-        <b class="quick-title"><Icon name="ticket" :size="16" /> 快捷订票</b>
-        <div class="field"><input v-model="bookDate" type="date" /></div>
-        <div class="field steppers">
-          <span>出行人数</span>
-          <button @click="bookPeople = Math.max(1, bookPeople - 1)">−</button>
-          <b>{{ bookPeople }}</b>
-          <button @click="bookPeople++">＋</button>
-        </div>
-        <button class="btn-primary go" @click="router.push('/route')">查询路线</button>
-      </aside>
-    </section>
+  <!-- 区块1：全幅 Hero 色带 + 悬浮快捷订票 -->
+  <section class="hero-band">
+    <HeroCarousel class="hero" @open="(t, id) => router.push(t === 'route' ? `/route/${id}` : `/scenic/${id}`)" />
+    <aside class="quick">
+      <b class="quick-title"><Icon name="ticket" :size="16" /> 快捷订票</b>
+      <div class="field"><input v-model="bookDate" type="date" /></div>
+      <div class="field steppers">
+        <span>出行人数</span>
+        <button @click="bookPeople = Math.max(1, bookPeople - 1)">−</button>
+        <b>{{ bookPeople }}</b>
+        <button @click="bookPeople++">＋</button>
+      </div>
+      <button class="btn-primary go" @click="router.push('/route')">查询路线</button>
+    </aside>
+  </section>
 
-    <!-- 区块2：金刚区 -->
+  <!-- 区块2：金刚区（发丝线长条，无卡片） -->
+  <div class="container">
     <section class="kingkong">
       <div
-        v-for="k in kingkong" :key="k.label" class="kk card"
+        v-for="k in kingkong" :key="k.label" class="kk"
         :class="{ disabled: k.disabled }"
         @click="!k.disabled && router.push(k.to)"
       >
-        <b class="kk-ic"><Icon :name="k.icon" :size="22" /></b>
+        <b class="kk-ic"><Icon :name="k.icon" :size="20" /></b>
         <span>{{ k.label }}</span>
         <i v-if="k.disabled">即将上线</i>
       </div>
     </section>
+  </div>
 
-    <!-- 区块3：手绘地图总览 -->
-    <SectionHeader icon="map-pins" title="乌东村手绘地图" sub="站点大小 = 被点亮次数 · 点击直达" />
-    <FootprintMap :stops="overviewStops" variant="overview" @select="(id) => router.push(`/scenic/${id}`)" />
+  <!-- 区块3：手绘地图（全幅浅靛色带，明度翻转） -->
+  <section class="band band-map">
+    <div class="container">
+      <SectionHeader icon="map-pins" title="乌东村手绘地图" sub="站点大小 = 被点亮次数 · 点击直达" />
+      <FootprintMap :stops="overviewStops" variant="overview" @select="(id) => router.push(`/scenic/${id}`)" />
+    </div>
+  </section>
 
+  <div class="container">
     <!-- 区块4：足迹榜 + 节庆倒计时 -->
     <section class="board-row">
-      <div class="board card">
+      <div class="board">
         <SectionHeader icon="flag" title="本周足迹榜" sub="被点亮最多的站与线" />
         <table>
           <tr v-for="(b, i) in board" :key="b.spotId">
@@ -161,11 +167,11 @@ const barWidth = (i: number): string =>
           </tr>
         </table>
       </div>
-      <aside class="festival card">
+      <aside class="festival">
         <b class="fest-title"><Icon name="clock" :size="15" /> 节庆倒计时</b>
         <div class="fest">
-          <b class="name">苗年 · 芦笙节</b>
-          <div><span class="days">23</span> 天后开幕</div>
+          <b class="name font-display">苗年 · 芦笙节</b>
+          <div><span class="days font-display">23</span> 天后开幕</div>
           <a class="link" @click="router.push('/route')">节庆主题路线已上线 ›</a>
         </div>
         <b class="fest-title"><Icon name="info-circle" :size="15" /> 公告</b>
@@ -224,10 +230,12 @@ const barWidth = (i: number): string =>
         </div>
       </aside>
     </section>
+  </div>
 
-    <!-- 区块7：交通攻略 + 平台数据 -->
-    <section class="serv-row">
-      <div class="card guides">
+  <!-- 区块7：交通攻略 + 平台数据（全幅深靛色带收底） -->
+  <section class="band band-end">
+    <div class="container serv-row">
+      <div class="guides">
         <b class="side-title"><Icon name="bus" :size="15" /> 怎么来乌东？</b>
         <div class="guide-cards">
           <div v-for="g in guides" :key="g.id" class="g-card">
@@ -241,31 +249,44 @@ const barWidth = (i: number): string =>
         <div class="stat"><CountUp :value="186542" /><span>次足迹点亮</span></div>
         <div class="stat"><CountUp :value="98" suffix="%" /><span>行程完成率</span></div>
       </div>
-    </section>
-  </div>
+    </div>
+  </section>
 </template>
 
 <style scoped>
-.hero-row { display: flex; gap: 12px; margin-top: 16px; }
-.hero { flex: 1; }
-.quick { width: 240px; padding: 14px; background: var(--paper); }
+/* ── 区块1：全幅 Hero + 悬浮订票 ── */
+.hero-band { position: relative; }
+.quick { position: absolute; top: 50%; transform: translateY(-50%); right: max(16px, calc((100vw - 1200px) / 2)); width: 260px; padding: 18px; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); z-index: 3; }
 .quick-title, .fest-title, .side-title { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ind-800); }
-.field { margin: 8px 0; }
-.field input { width: 100%; border: 1px solid var(--line); border-radius: var(--radius); padding: 6px 8px; background: #fff; }
+.field { margin: 10px 0; }
+.field input { width: 100%; border: 1px solid var(--line); border-radius: var(--radius); padding: 7px 8px; background: #fff; }
 .steppers { display: flex; align-items: center; gap: 8px; }
 .steppers button { width: 24px; height: 24px; border-radius: var(--radius); border: 1px solid var(--line); background: #fff; }
-.go { width: 100%; margin-top: 6px; }
-.kingkong { display: flex; gap: 10px; margin: 16px 0; }
-.kk { flex: 1; text-align: center; padding: 12px 0 10px; cursor: pointer; background: #fff; transition: background .15s; }
+.go { width: 100%; margin-top: 8px; }
+
+/* ── 区块2：金刚区长条 ── */
+.kingkong { display: flex; margin: 0; border-bottom: 1px solid var(--line); }
+.kk { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 20px 0 16px; cursor: pointer; border-right: 1px solid var(--line); transition: background .15s; }
+.kk:last-child { border-right: none; }
 .kk:hover { background: var(--ind-50); }
-.kk-ic { display: flex; justify-content: center; color: var(--ind-700); margin-bottom: 4px; }
+.kk-ic { color: var(--ind-700); }
 .kk span { font-size: 12px; }
-.kk i { display: block; font-style: normal; font-size: 10px; color: var(--text-3); }
+.kk i { font-style: normal; font-size: 10px; color: var(--text-3); }
 .kk.disabled { opacity: .55; cursor: not-allowed; }
-.board-row { display: flex; gap: 12px; margin: 16px 0; }
-.board { flex: 1.6; padding: 12px 16px; }
+
+/* ── 全幅色带 ── */
+.band { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 40px 0 44px; margin-top: 44px; }
+.band-map { background: var(--ind-50); }
+.band-end { background: var(--ind-950) url("../assets/pattern/meander-dark.svg") center/720px repeat; color: var(--paper); margin-bottom: 0; }
+.band .sec-head { margin-top: 0; }
+
+/* ── 区块4：足迹榜 + 节庆 ── */
+.board-row { display: flex; gap: 40px; margin: 44px 0 8px; }
+.board { flex: 1.6; }
 .board table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.board td { padding: 5px 0; }
+.board tr { border-bottom: 1px solid var(--line-soft); }
+.board tr:last-child { border-bottom: none; }
+.board td { padding: 9px 0; }
 .board .bar-cell { width: 40%; }
 .board .bar { height: 6px; background: var(--ind-500); border-radius: 3px; }
 .board .cnt { color: var(--text-3); font-size: 12px; text-align: right; }
@@ -274,32 +295,52 @@ const barWidth = (i: number): string =>
 .no-1 { background: var(--ind-700); color: var(--paper); }
 .no-2 { background: var(--ind-500); color: var(--paper); }
 .kind { color: var(--text-3); font-size: 11px; }
-.festival { flex: 1; padding: 12px 16px; }
-.fest { margin: 8px 0 14px; }
-.days { font-size: 26px; font-weight: 700; font-family: var(--font-display); color: var(--cinnabar); }
-.link { color: var(--cinnabar-700); font-size: 12px; cursor: pointer; }
-.notice { font-size: 12px; color: var(--text-2); line-height: 1.8; }
-.hl-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.festival { flex: 1; padding: 20px; background: var(--ind-800) url("../assets/pattern/spiral-dark.svg") center/560px repeat; border-radius: var(--radius); }
+.festival .fest-title { color: var(--ind-100); }
+.fest { margin: 12px 0 20px; }
+.fest .name { color: var(--paper); font-size: 17px; }
+.fest div { color: var(--ind-100); font-size: 12px; margin-top: 4px; }
+.days { font-size: 32px; font-weight: 700; color: var(--paper); }
+.link { color: var(--cinnabar-300); font-size: 12px; cursor: pointer; }
+.notice { font-size: 12px; color: var(--ind-100); line-height: 1.9; opacity: .85; }
+
+/* ── 区块5：真实足迹 ── */
+.hl-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .hl { overflow: hidden; cursor: pointer; }
-.hl-img { height: 130px; }
-.hl-title { position: absolute; left: 10px; bottom: 8px; z-index: 1; color: var(--paper); font-size: 14px; }
-.hl-body { padding: 10px 12px; font-size: 12px; }
+.hl-img { height: 150px; }
+.hl-title { position: absolute; left: 12px; bottom: 10px; z-index: 1; color: var(--paper); font-size: 14px; }
+.hl-body { padding: 12px 14px; font-size: 12px; }
 .chain-line { color: var(--text-3); margin-top: 4px; font-size: 11px; }
-.feed-row { display: flex; gap: 12px; margin-top: 16px; }
+
+/* ── 区块6：信息流 ── */
+.feed-row { display: flex; gap: 24px; margin-top: 20px; }
 .feed-main { flex: 1; }
-.tabs { display: flex; gap: 8px; margin-bottom: 10px; }
+.tabs { display: flex; gap: 8px; margin-bottom: 12px; }
 .tab { background: #fff; border: 1px solid var(--line); cursor: pointer; }
 .tab.on { background: var(--ind-700); border-color: var(--ind-700); color: var(--paper); }
-.side { width: 240px; display: flex; flex-direction: column; gap: 12px; }
-.side-card { padding: 12px 14px; }
-.side-list { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--text-2); margin-top: 8px; }
+.side { width: 250px; display: flex; flex-direction: column; gap: 14px; }
+.side-card { padding: 14px 16px; }
+.side-list { display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: var(--text-2); margin-top: 10px; }
 .side-list span { cursor: pointer; }
-.serv-row { display: flex; gap: 12px; margin: 16px 0 30px; }
-.guides { flex: 1.4; padding: 12px 16px; }
-.guide-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; font-size: 12px; }
-.g-card { background: var(--ind-50); border-radius: var(--radius); padding: 8px 10px; line-height: 1.7; }
-.cost { color: var(--cinnabar-700); }
-.stats { flex: 1; display: flex; gap: 10px; }
-.stat { flex: 1; background: var(--ind-800); color: var(--paper); border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; font-size: 12px; }
-.stat :deep(.num), .stat b { font-family: var(--font-display); letter-spacing: -0.02em; }
+
+/* ── 区块7：攻略 + 数据 ── */
+.serv-row { display: flex; gap: 40px; align-items: stretch; }
+.guides { flex: 1.4; }
+.band-end .side-title { color: var(--ind-100); }
+.guide-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 14px; font-size: 12px; }
+.g-card { border: 1px solid rgba(251, 247, 238, .18); border-radius: var(--radius); padding: 10px 12px; line-height: 1.8; color: var(--paper); }
+.cost { color: var(--cinnabar-300); }
+.stats { flex: 1; display: flex; gap: 24px; }
+.stat { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; font-size: 12px; color: var(--ind-100); border-left: 1px solid rgba(251, 247, 238, .18); }
+.stat:first-child { border-left: none; }
+.stat :deep(.num), .stat b { font-family: var(--font-display); font-size: 30px; letter-spacing: -0.02em; color: var(--paper); }
+
+@media (max-width: 900px) {
+  .quick { position: static; transform: none; width: auto; margin: 12px 16px 0; }
+  .kingkong { flex-wrap: wrap; }
+  .kk { flex: 1 1 25%; }
+  .board-row, .serv-row, .feed-row { flex-direction: column; gap: 20px; }
+  .side { width: auto; }
+  .stats { gap: 12px; }
+}
 </style>
