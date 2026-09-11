@@ -4,6 +4,7 @@ import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { searchRestaurants } from '@/api/food';
 import Icon from '@/components/Icon.vue';
+import { RESTAURANT_COVERS } from '@/data/photos';
 import type { Restaurant } from '@/api/types';
 
 const route = useRoute();
@@ -105,7 +106,8 @@ onMounted(async () => {
           class="restaurant-card"
           @click="goDetail(r.id)"
         >
-          <img :src="r.coverImage" :alt="r.name" class="restaurant-img" />
+          <img v-if="RESTAURANT_COVERS[r.id]" :src="RESTAURANT_COVERS[r.id]" :alt="r.name" class="restaurant-img" />
+          <div v-else class="restaurant-img ph" :class="'ph-' + (r.id % 6)" />
           <div class="restaurant-info">
             <h3 class="restaurant-name">{{ r.name }}</h3>
             <p v-if="r.specialty" class="specialty">{{ r.specialty }}</p>

@@ -157,9 +157,9 @@ const increaseQuantity = () => {
   }
 };
 
-/** 加入购物车 */
-const handleAddToCart = async () => {
-  if (!product.value) return;
+/** 加入购物车，返回是否成功 */
+const handleAddToCart = async (): Promise<boolean> => {
+  if (!product.value) return false;
 
   purchasing.value = true;
   try {
@@ -169,22 +169,20 @@ const handleAddToCart = async () => {
 
     // 触发购物车更新事件
     window.dispatchEvent(new Event('cart-updated'));
+    return true;
   } catch (e: any) {
-    if (e.message?.includes('登录')) {
-      alert('请先登录后再购买');
-      router.push('/login');
-    } else {
-      alert('加入购物车失败：' + (e.message || '请稍后重试'));
-    }
+    // /login 路由不存在，保持当前页仅提示；登录走顶栏入口
+    alert(e.message?.includes('登录') ? '请先登录后再购买' : '加入购物车失败：' + (e.message || '请稍后重试'));
+    return false;
   } finally {
     purchasing.value = false;
   }
 };
 
-/** 立即购买（跳转到购物车结算） */
+/** 立即购买（加购成功后跳转到购物车结算） */
 const handleBuyNow = async () => {
-  await handleAddToCart();
-  if (!purchasing.value) {
+  const ok = await handleAddToCart();
+  if (ok) {
     router.push('/cart');
   }
 };

@@ -3,6 +3,7 @@
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { searchFarmProducts, getFarmProductCategories } from '@/api/food';
+import { FARM_COVERS } from '@/data/photos';
 import type { FarmProduct } from '@/api/types';
 
 const route = useRoute();
@@ -134,7 +135,8 @@ onMounted(async () => {
           class="product-card"
           @click="router.push({ name: 'farm-product-detail', params: { id: p.id } })"
         >
-          <img :src="p.coverImage" :alt="p.name" class="product-img" />
+          <img v-if="FARM_COVERS[p.id]" :src="FARM_COVERS[p.id]" :alt="p.name" class="product-img" />
+          <div v-else class="product-img ph" :class="'ph-' + (p.id % 6)" />
           <div class="product-info">
             <h3 class="product-name">{{ p.name }}</h3>
             <div v-if="p.origin" class="origin">产地：{{ p.origin }}</div>

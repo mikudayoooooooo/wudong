@@ -3,6 +3,7 @@
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { searchProducts, getProductCategories } from '@/api/product';
+import { PRODUCT_COVERS } from '@/data/photos';
 import type { Product, ProductCategory } from '@/api/types';
 
 const route = useRoute();
@@ -139,7 +140,8 @@ onMounted(async () => {
           class="product-card"
           @click="goDetail(p.id)"
         >
-          <img :src="p.coverImage" :alt="p.name" class="product-img" />
+          <img v-if="PRODUCT_COVERS[p.id]" :src="PRODUCT_COVERS[p.id]" :alt="p.name" class="product-img" />
+          <div v-else class="product-img ph" :class="'ph-' + (p.id % 6)" />
           <div class="product-info">
             <h3 class="product-name">{{ p.name }}</h3>
             <div class="product-meta">

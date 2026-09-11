@@ -3,7 +3,8 @@
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { productDetail, getProductReviews } from '@/api/product';
-import { addToCart, createOrder } from '@/api/order';
+import { addToCart } from '@/api/order';
+import { PRODUCT_COVERS } from '@/data/photos';
 import type { ProductDetail } from '@/api/types';
 
 const route = useRoute();
@@ -23,7 +24,7 @@ const loadProduct = async () => {
   try {
     const id = Number(route.params.id);
     product.value = await productDetail(id);
-    currentImage.value = product.value.coverImage;
+    currentImage.value = PRODUCT_COVERS[product.value.id] || product.value.coverImage;
 
     // 加载评价
     const reviewData = await getProductReviews(id);
@@ -55,26 +56,14 @@ const handleAddToCart = async () => {
   }
 };
 
-/** 立即购买 */
+/** 立即购买（加购后去结算；后端 /app/order/create 直创缺 skuId 支持暂不可用，统一走购物车） */
 const handleBuyNow = async () => {
   if (!product.value) return;
 
   purchasing.value = true;
   try {
-    const order = await createOrder({
-      module: 'product',
-      orderType: 1,
-      items: [
-        {
-          productId: product.value.id,
-          quantity: 1,
-          price: product.value.price
-        }
-      ]
-    });
-    alert('订单创建成功！订单号：' + order.orderNo);
-    // 可以跳转到订单详情页
-    // router.push({ name: 'order-detail', params: { orderNo: order.orderNo } });
+    await addToCart(product.value.id, 1, 1); // itemType=1(非遗商品)
+    router.push('/cart');
   } catch (e: any) {
     if (e.message?.includes('登录')) {
       alert('请先登录后再购买');

@@ -4,6 +4,7 @@ import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { restaurantDetail, getAvailableTimeSlots, createReservation } from '@/api/food';
 import Icon from '@/components/Icon.vue';
+import { RESTAURANT_COVERS } from '@/data/photos';
 import type { RestaurantDetail } from '@/api/types';
 
 const route = useRoute();
@@ -115,7 +116,7 @@ onMounted(() => {
     <article v-else-if="detail" class="restaurant-detail">
       <!-- 餐厅基本信息 -->
       <section class="info-section">
-        <img :src="detail.info.coverImage" :alt="detail.info.name" class="cover-image" />
+        <img :src="RESTAURANT_COVERS[detail.info.id] || detail.info.coverImage" :alt="detail.info.name" class="cover-image" />
 
         <div class="info-content">
           <h1 class="restaurant-name">{{ detail.info.name }}</h1>

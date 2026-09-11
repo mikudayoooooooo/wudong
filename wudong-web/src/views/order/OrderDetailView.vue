@@ -46,7 +46,8 @@
       <div class="items-section">
         <h3>商品清单</h3>
         <div v-for="item in order.items" :key="item.id" class="order-item">
-          <img :src="item.productImage" :alt="item.productName" class="item-image" />
+          <img v-if="PRODUCT_COVERS[item.productId]" :src="PRODUCT_COVERS[item.productId]" :alt="item.productName" class="item-image" />
+          <div v-else class="item-image ph" :class="'ph-' + ((item.productId || 0) % 6)" />
           <div class="item-info">
             <div class="item-name">{{ item.productName }}</div>
             <div class="item-price">¥{{ item.price }} × {{ item.quantity }}</div>
@@ -75,6 +76,7 @@ import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { http } from '@/lib/http';
 import Icon from '@/components/Icon.vue';
+import { PRODUCT_COVERS } from '@/data/photos';
 
 const route = useRoute();
 
