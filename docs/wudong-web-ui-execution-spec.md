@@ -1,7 +1,8 @@
 # 乌东苗寨 C 端 UI 定稿规范与执行清单（交接版）
 
-> 版本 v2.0 · 2026-09-11 · 供后续执行模型使用，**自包含**，无需其他上下文。
+> 版本 v2.2 · 2026-09-11 · 供后续执行模型使用，**自包含**，无需其他上下文。
 > 前置方案文档：`docs/wudong-web-ui-optimization-plan.md`（色板/资源方案已定稿）。
+> v2.2 修订（2026-09-11 规范符合性评审）：§3.0 撤销 B.1 序号、收敛 A.3 应用面；§3.1 勘误真根因（.card 撞类）；§3.6 增补 emoji 巡检；新增 §3.7 地图点亮叙事。
 
 ---
 
@@ -66,22 +67,18 @@ VITE_USE_MOCK=true "$N" node_modules/vite/bin/vite.js --port 5173 --strictPort  
 
 ## 3. 待执行清单
 
-### 3.0 动效与细节升级（对照 frontend-design skill 后拍板，四项全做）
+### 3.0 动效与细节升级（v2.2 修订：对照 frontend-design skill 评审后收敛）
 
-> 原则：一次精心编排的入场 > 散碎微交互；全部过渡 150–350ms ease；`prefers-reduced-motion` 一律降级为静态；禁卡片浮起/位移。
+> 原则：一次精心编排的入场 > 散碎微交互；微交互过渡 150–350ms ease（入场编排的 reveal 可至 500ms）；`prefers-reduced-motion` 一律降级为静态；禁卡片浮起/位移。
+> **v2.2 修订**（评审结论）：① B.1 的 01–07 序号属「模板默认特征」——编号标记仅适用于真实序列（步骤/时间线），首页区块是并列内容，**撤销**；② A.3 逐 section 全量 reveal 属 AI 默认入场，收敛为「Hero 编排 + 色带结构转折点」；③ 微交互补 `.hl:hover`（原实现遗漏）。
 
-**A. 入场编排**
-1. 新增 `src/lib/reveal.ts`：`v-reveal` 指令——挂载时加 `.reveal`，IntersectionObserver 进入视口后加 `.reveal-in` 并 unobserve。
-2. `theme.css` 增加：
-   ```css
-   .reveal { opacity: 0; transform: translateY(14px); transition: opacity .5s ease, transform .5s ease; }
-   .reveal-in { opacity: 1; transform: none; }
-   @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1 !important; transform: none !important; transition: none !important; } }
-   ```
-3. 编排点：Hero `.card-inner` 三元素（badge/title/subtitle）依次 delay 0/90/180ms；kingkong 各项、真实足迹卡、侧栏卡按序 `transition-delay: ${i * 60}ms`；各 section 外层统一 `v-reveal`。首页之外，列表页/详情页首屏元素同法。
+**A. 入场编排**（应用面收敛后）
+1. `src/lib/reveal.ts`：`v-reveal` 指令（已实现，质量达标：一次性触发 + reduced-motion 双保险）。
+2. `theme.css` 的 `.reveal/.reveal-in` 样式（已实现）。
+3. **应用面（收敛版）**：Hero `.card-inner` 三元素（badge/title/subtitle）依次 delay 0/90/180ms——这是全页唯一的入场编排时刻；首屏以下只给「明度翻转色带」加 `v-reveal`（地图带 / 节庆深底带 / 页脚），普通纸底 section、卡片网格、列表一律不加。
 
 **B. 编辑化构图**
-1. `SectionHeader` 增加可选 `index?: string`：标题前渲染淡色宋体大序号 `.sec-index { font-family: var(--font-display); font-size: 28px; color: var(--ind-100); margin-right: 4px; }`（深色色带内用 `rgba(251,247,238,.25)`）；首页区块依次 01–07。
+1. ~~SectionHeader 序号~~（v2.2 撤销：SectionHeader 移除 `index` prop，theme.css 删 `.sec-index`）。
 2. 首页「真实足迹」改 1 大 2 小不对称栅格：
    ```css
    .hl-row { grid-template-columns: 1.4fr 1fr; }
@@ -103,7 +100,7 @@ VITE_USE_MOCK=true "$N" node_modules/vite/bin/vite.js --port 5173 --strictPort  
 .btn-primary .icon, .publish .icon { transition: transform .2s ease; }
 .btn-primary:hover .icon, .publish:hover .icon { transform: translateX(2px); }
 ```
-应用面：TopNav 的 `.item`、SectionHeader 的 `.more`、各列表/详情文字链接加 `.link-slide`；含 Icon 的主按钮自动生效。
+应用面：TopNav 的 `.item`、SectionHeader 的 `.more`、各列表/详情文字链接加 `.link-slide`；含 Icon 的主按钮自动生效。**注意：theme.css 落地时 `.hl:hover` 曾遗漏，需补上。**
 
 **D. 点睛字体 + 印章母题**
 1. 霞鹜文楷（LXGW WenKai，OFL 1.1 可商用）自托管子集。简体版不在 Google Fonts，走 GitHub release + pyftsubset：
@@ -120,13 +117,15 @@ VITE_USE_MOCK=true "$N" node_modules/vite/bin/vite.js --port 5173 --strictPort  
 3. 印章母题扩展（仅 1 处，避免滥用）：节庆卡右上角加 28×28 朱红印章角标（白字「节」，radius 2px，rotate(-4deg)）。
 4. 新增全局页脚 `src/components/AppFooter.vue`（现在没有页脚）：`--ind-950` 底 + `meander-dark` 纹样；左列印章 + slogan（文楷）+ 一行简介；中列两栏站点链接（发丝线分隔）；右列「素材版权 CREDITS」链接（指向 /CREDITS.md 说明页或仓库）。在 `App.vue` 挂载。页脚也执行 `v-reveal` 入场。
 
-### 3.1 【BUG】Hero 画面过曝（优先）
-现象：dev 截图中 Hero 接近全白、标题不可读。确诊：图片正常加载（404 会显示 carousel 深色底而非白色），原因是 hero-1（雪山云海）亮部占比过大 + 色罩偏弱。
-执行（`HeroCarousel.vue`）：
-1. `.slide::before` 色罩 `rgba(11,29,44,.46)` → `rgba(11,29,44,.56)`。
-2. `heroImgs` 的 hero-1 `pos: 'center 62%'` → `'center 75%'`（裁向山脊暗部）；hero-3 `pos` → `'center 60%'`。
-3. 若仍偏亮：用抓取脚本把 hero-1 换成下龙湾喀斯特图——`assets.config.mjs` 中 hero-1 的 candidates 第一项改为 `U('1528127269322-539801943592', 1920)`，然后 `node scripts/fetch-assets.mjs --force --ids hero-1`。
-4. 验收：截图中 40px 纸色宋体标题在任何一张轮播图上都清晰可读（目测对比度足够即可）。
+### 3.1 【BUG】Hero 画面全白（已确诊，v2.2 勘误）
+> v2.0 原诊断「hero-1 亮部占比过大 + 色罩偏弱」是**误诊**：实测 hero-1 平均亮度仅 117/255、亮部占比 11%，与 0.5 遮罩合成应为深色 rgb(64,73,76)。
+**真根因**：`HeroCarousel.vue` 标题容器类名 `.card` 与 `theme.css` 全局工具类 `.card { background:#fff; border:1px solid var(--line) }` **撞类**——白底卡片以 z-2 铺满整张轮播（img z-0、遮罩 z-1 全被盖住），纸色标题落在白底上不可读。
+执行（`HeroCarousel.vue` scoped 样式，`.card` 类名被测试引用不可删，只覆盖）：
+```css
+.slide .card { background: transparent; border: none; border-radius: 0; overflow: visible; }
+```
+遮罩维持 `rgba(11,29,44,.5)` 不动；d17a8a0 的 object-position 调整无害，保留。换图备选方案作废。
+验收：截图中 40px 纸色宋体标题在**三张**轮播图上都清晰可读（点圆点逐张确认，修复后从未做过验收截图）。
 
 ### 3.2 列表页版式（6 个，结构同构）
 文件：`RouteListView / ScenicListView / ProductListView / RestaurantListView / FarmProductListView / accommodation/HotelListView`（RouteList 封面已接入实景图，其余按同法复用 photos.ts：product-* / food-* / EXTRA_COVERS）
@@ -153,10 +152,20 @@ VITE_USE_MOCK=true "$N" node_modules/vite/bin/vite.js --port 5173 --strictPort  
 ### 3.6 全局巡检（收尾必做）
 ```bash
 grep -rn "linear-gradient\|box-shadow\|#33523e\|#4a7a5c\|#e8963e\|#7fae8e\|picsum" src/   # 应只剩 .qr 例外与注释
+```
+**v2.2 增补——emoji 当图标检查**（v1 巡检盲区，ScenicListView 标题 🎫、RouteDetailView ⭐/🔥、mock badge 🔥📷、RouteQuickView 📷 等残留）：`grep -rPn "[\x{1F300}-\x{1FAFF}\x{2600}-\x{27BF}]" src/ --exclude-dir=__tests__`（`*.spec.ts` 按纪律豁免；AiButler 演示脚本文案与用户头像 emoji 属内容非图标，豁免）。命中项改为 `<Icon name>` 或纯文字。
+```bash
 "$N" node_modules/vitest/vitest.mjs run    # 123 全绿
 "$N" node_modules/vite/bin/vite.js build   # 通过
 ```
 截图巡检（agent-browser，mock 模式 dev）：首页（首屏+滚到底）、线路列表、线路详情、民宿列表、民宿详情、社区、我的订单。逐张确认：无绿色/橙色残留、无投影、标题宋体生效、图片非远程。
+
+### 3.7 地图点亮叙事（v2.2 新增，2026-09-11 排查结论）
+排查确认：全亮不是 bug——判定链 `FootprintMap s.lit` ← `footprint.ts lit = spotLightCounts > 0`（≥1 人持已核销票即亮），mock 里 3 用户已核销票覆盖路线并集全部 5 站，数字与截图逐一吻合（3/2/2/3/2）。**填充真实数据库不会带来暗站**（数据越多越全亮），暗站只出现在从未被核销的新站。
+1. **A 兑现「站点大小 = 被点亮次数」**（HomeView 副标题已如此承诺，实现是固定半径）：`FootprintMap` 节点半径随 `lightCount` 缩放（如 node `r = 9 + min(count, 8)`，halo 同步放大；mini 变体用小系数）。纯组件层，不改交互。
+2. **B mock 演示灰态**：蜡染坊（spot 5）现不属于任何路线故地图不显示；mock 新增路线 3「蜡染体验半日游」行程仅含 spot 5、无人核销 → 首页地图出现灰站 + 虚线段，演示冷启动叙事。注意 footprint.spec 断言的是路线 1/2，不受影响；新增后跑全量测试。
+3. **C（待拍板，不做）**：登录用户首页地图切个人语义（你的点亮 vs 未解锁），与订票弹窗「核销自动点亮」闭环。动交互逻辑，超出换肤批次。
+4. 附带：全亮时 5 站同时无限脉冲偏吵，做 A 时顺手收敛——仅 `lightCount` 最高的站点保留 `fp-pulse`，其余静态 halo。
 
 ## 4. 工作纪律（执行模型必读）
 
