@@ -32,6 +32,16 @@ button { cursor: pointer; font: inherit; border: none; }
 /* 展示字体（思源宋体子集，见 assets/fonts/fonts.css；抓取失败时回退系统宋体） */
 .font-display { font-family: var(--font-display); letter-spacing: -0.02em; }
 
+/* 列表页页头（规范 §3.2.1）：宋体标题 + 一行 sub + 底部发丝线 */
+.page-head { margin-top: 24px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+.page-head h1 { margin: 0; font-size: 24px; color: var(--ind-800); display: flex; align-items: center; gap: 6px; }
+.page-sub { margin: 6px 0 0; font-size: 12px; color: var(--text-3); }
+
+/* 筛选条（规范 §3.2.2）：无底色块，贴发丝线底边；激活实底靛蓝 */
+.filter-row { display: flex; align-items: center; gap: 8px; padding: 12px 0; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.chip { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 3px 12px; font-size: 12px; cursor: pointer; color: var(--text-2); }
+.chip.on { background: var(--ind-700); border-color: var(--ind-700); color: var(--paper); }
+
 /* 图片占位工具类：本地蜡染纹样（替代原渐变占位，零外链零版权风险） */
 .ph { display: flex; align-items: flex-end; padding: 6px 8px; color: var(--paper); font-size: 12px; border-radius: var(--radius); background-color: var(--ind-800); background-size: cover; background-position: center; }
 .ph-0 { background-image: url("../assets/pattern/meander-dark.svg"); }

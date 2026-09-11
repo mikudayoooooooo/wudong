@@ -66,7 +66,10 @@ onMounted(async () => {
 
 <template>
   <main class="container">
-    <h1 class="page-title">特色餐厅</h1>
+    <header class="page-head">
+      <h1 class="font-display">特色餐厅</h1>
+      <p class="page-sub">长桌宴与苗家家常菜 · 支持订座</p>
+    </header>
 
     <!-- 搜索栏 -->
     <section class="search-bar">
@@ -133,16 +136,10 @@ onMounted(async () => {
   padding: 20px;
 }
 
-.page-title {
-  font-size: 28px;
-  color: var(--green-900);
-  margin-bottom: 20px;
-}
-
 .search-bar {
   display: flex;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-top: 16px;
 }
 
 .search-input {
@@ -155,8 +152,8 @@ onMounted(async () => {
 
 .btn-search {
   padding: 10px 30px;
-  background: var(--green-600);
-  color: white;
+  background: var(--ind-700);
+  color: var(--paper);
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -164,16 +161,16 @@ onMounted(async () => {
 }
 
 .btn-search:hover {
-  background: var(--green-700);
+  background: var(--ind-800);
 }
 
 .filter-bar {
   display: flex;
   gap: 30px;
-  margin-bottom: 30px;
-  padding: 15px;
-  background: var(--ind-50);
-  border-radius: 4px;
+  padding: 12px 0;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
 }
 
 .filter-group {
@@ -205,21 +202,19 @@ onMounted(async () => {
   gap: 20px;
   padding: 20px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius);
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .restaurant-card:hover {
-  transform: translateY(-2px);
-  box-shadow: none;
+  border-color: var(--ind-300);
 }
 
 .restaurant-img {
   width: 250px;
-  height: 180px;
+  aspect-ratio: 16 / 10;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: var(--radius);
   flex-shrink: 0;
 }
 
@@ -238,7 +233,7 @@ onMounted(async () => {
 
 .specialty {
   margin: 0;
-  color: var(--green-700);
+  color: var(--ind-700);
   font-size: 14px;
 }
 
@@ -283,8 +278,8 @@ onMounted(async () => {
 .retry {
   margin-left: 10px;
   padding: 5px 15px;
-  background: var(--green-600);
-  color: white;
+  background: var(--ind-700);
+  color: var(--paper);
   border: none;
   border-radius: 4px;
   cursor: pointer;

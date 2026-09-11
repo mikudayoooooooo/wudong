@@ -80,7 +80,10 @@ onMounted(async () => {
 
 <template>
   <main class="container">
-    <h1 class="page-title">非遗商品</h1>
+    <header class="page-head">
+      <h1 class="font-display">非遗商品</h1>
+      <p class="page-sub">匠人手作 · 寨内自提或快递到家</p>
+    </header>
 
     <!-- 搜索栏 -->
     <section class="search-bar">
@@ -166,16 +169,10 @@ onMounted(async () => {
   padding: 20px;
 }
 
-.page-title {
-  font-size: 28px;
-  color: var(--green-900);
-  margin-bottom: 20px;
-}
-
 .search-bar {
   display: flex;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-top: 16px;
 }
 
 .search-input {
@@ -188,8 +185,8 @@ onMounted(async () => {
 
 .btn-search {
   padding: 10px 30px;
-  background: var(--green-600);
-  color: white;
+  background: var(--ind-700);
+  color: var(--paper);
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -197,16 +194,16 @@ onMounted(async () => {
 }
 
 .btn-search:hover {
-  background: var(--green-700);
+  background: var(--ind-800);
 }
 
 .filter-bar {
   display: flex;
   gap: 30px;
-  margin-bottom: 30px;
-  padding: 15px;
-  background: var(--ind-50);
-  border-radius: 4px;
+  padding: 12px 0;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
 }
 
 .filter-group {
@@ -230,9 +227,9 @@ onMounted(async () => {
 }
 
 .filter-group button.active {
-  background: var(--green-600);
-  color: white;
-  border-color: var(--green-600);
+  background: var(--ind-700);
+  color: var(--paper);
+  border-color: var(--ind-700);
 }
 
 .filter-group select {
@@ -245,25 +242,24 @@ onMounted(async () => {
 .product-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  gap: 16px;
+  padding-bottom: 44px;
 }
 
 .product-card {
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius);
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .product-card:hover {
-  transform: translateY(-4px);
-  box-shadow: none;
+  border-color: var(--ind-300);
 }
 
 .product-img {
   width: 100%;
-  height: 200px;
+  aspect-ratio: 16 / 10;
   object-fit: cover;
 }
 
@@ -289,7 +285,8 @@ onMounted(async () => {
 .price {
   font-size: 18px;
   color: var(--cinnabar);
-  font-weight: bold;
+  font-family: var(--font-display);
+  font-weight: 700;
 }
 
 .sales {
