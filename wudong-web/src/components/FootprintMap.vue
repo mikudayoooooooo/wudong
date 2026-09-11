@@ -33,6 +33,18 @@ const viewBox = computed(() => {
 function segmentClass(i: number): string {
   return props.stops[i]?.lit && props.stops[i + 1]?.lit ? 'seg lit' : 'seg locked'
 }
+
+/** 站点半径随点亮人数缩放（兑现「站点大小 = 被点亮次数」，规范 §3.7 A） */
+function nodeR(s: FootprintStopView): number {
+  const c = Math.min(s.lightCount || 0, 8)
+  if (props.variant === 'overview') return s.lit ? 9 + c : 9
+  return s.lit ? 7 + c / 2 : 7
+}
+/** 仅榜一站点保留脉冲动画（§3.7.4：全亮时避免全员脉冲的动效噪音） */
+const maxCount = computed(() => Math.max(0, ...props.stops.map((s) => s.lightCount || 0)))
+function isTopPulse(s: FootprintStopView): boolean {
+  return !!s.lit && (s.lightCount || 0) > 0 && s.lightCount === maxCount.value
+}
 </script>
 
 <template>
@@ -61,11 +73,11 @@ function segmentClass(i: number): string {
       </template>
       <!-- 站点（规范：节点内不放 emoji 图标，靠形状/色彩区分状态，语义由站名承载） -->
       <g
-        v-for="(s, i) in stops" :key="s.spotId" class="stop" :class="s.lit ? 'lit' : 'locked'"
+        v-for="(s, i) in stops" :key="s.spotId" class="stop" :class="{ lit: s.lit, locked: !s.lit, pulse: isTopPulse(s) }"
         :transform="`translate(${points[i].x},${points[i].y})`" @click="emit('select', s.spotId)"
       >
-        <circle v-if="s.lit" :r="variant === 'overview' ? 21 : 16" class="halo" />
-        <circle :r="variant === 'overview' ? 13 : 10" class="node" />
+        <circle v-if="s.lit" :r="nodeR(s) + 8" class="halo" />
+        <circle :r="nodeR(s)" class="node" />
         <circle v-if="s.lit" :r="4" class="core" />
         <text class="label" :class="{ 'font-display': variant === 'overview' }" :y="variant === 'overview' ? 32 : 25" text-anchor="middle">{{ s.name }}</text>
         <text v-if="showCount && s.lit && s.lightCount" class="count" :y="variant === 'overview' ? -26 : -18" text-anchor="middle">
@@ -101,9 +113,10 @@ function segmentClass(i: number): string {
 .node { fill: #fff; stroke: var(--ind-300); stroke-width: 1.5; stroke-dasharray: 3 2; }
 .stop.lit .node { fill: var(--cinnabar); stroke: var(--paper); stroke-width: 2; stroke-dasharray: none; }
 .stop.lit .core { fill: var(--paper); }
-.halo { fill: none; stroke: var(--cinnabar-300); stroke-width: 1; opacity: .7; transform-origin: center; transform-box: fill-box; animation: fp-pulse 2.6s ease-out infinite; }
+.halo { fill: none; stroke: var(--cinnabar-300); stroke-width: 1; opacity: .45; transform-origin: center; transform-box: fill-box; }
+.stop.pulse .halo { opacity: .7; animation: fp-pulse 2.6s ease-out infinite; }
 @keyframes fp-pulse { 0% { transform: scale(.72); opacity: .8; } 70% { transform: scale(1.12); opacity: 0; } 100% { transform: scale(1.12); opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .halo { animation: none; opacity: .5; } }
+@media (prefers-reduced-motion: reduce) { .stop.pulse .halo { animation: none; } }
 .label { font-size: 10px; fill: var(--text-2); }
 .overview .label { font-size: 12px; fill: var(--ind-800); }
 .stop.locked .label { fill: var(--text-3); }
