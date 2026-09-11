@@ -3,6 +3,7 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import { createAppRouter } from './router'
 import { useSession } from './stores/session'
+import './assets/fonts/fonts.css'
 import './styles/theme.css'
 import './styles/accommodation.css'
 

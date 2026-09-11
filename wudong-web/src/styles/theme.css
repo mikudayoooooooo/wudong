@@ -1,23 +1,52 @@
+/*
+ * 乌东苗寨 C 端全局主题 —— 蜡染靛蓝 · 克制编辑化
+ * 新语义 token：--ind-* / --cinnabar / --paper / --ink / --font-display
+ * 旧变量名（--green-* / --orange-* 等）保留为新值的别名，组件可渐进迁移。
+ * 纪律：零渐变、零投影；分隔一律 1px 发丝线；朱红仅作 ≤5% 点缀。
+ */
 :root {
-  --green-900: #33523e; --green-600: #4a7a5c; --green-300: #7fae8e;
-  --orange-500: #e8963e; --orange-300: #f6c26b; --orange-700: #d97b2a;
-  --amber-text: #b26a1b; --amber-bg: #fdf1de;
+  /* ── 新 token：靛蓝色阶 ── */
+  --ind-950: #0b1d2c; --ind-800: #14324a; --ind-700: #1b425f; --ind-500: #35648a;
+  --ind-300: #8fb0c6; --ind-100: #dfeaf1; --ind-50: #f4f8fa;
+  /* ── 新 token：点缀与底色 ── */
+  --cinnabar: #b23a32; --cinnabar-700: #8f2d27; --cinnabar-300: #d98d85; --cinnabar-100: #f3e2df;
+  --paper: #fbf7ee; --ink: #16232d; --ink-2: #4a5b66;
+  --font-display: "Noto Serif SC", "Songti SC", "STSong", "SimSun", serif;
+
+  /* ── 旧变量别名（值为新色板，名字待组件迁移后移除）── */
+  --green-900: var(--ind-800); --green-600: var(--ind-700); --green-300: var(--ind-300);
+  --orange-500: var(--cinnabar); --orange-300: var(--cinnabar-300); --orange-700: var(--cinnabar-700);
+  --amber-text: var(--cinnabar-700); --amber-bg: var(--cinnabar-100);
   --ok-text: #2e7d4f; --ok-bg: #e7f4ec;
-  --paper: #fffdf8; --map-a: #eef5ea; --map-b: #dfeccc;
-  --text-1: #333; --text-2: #666; --text-3: #999;
-  --line: #e2e2e2; --line-soft: #f0f0f0;
-  --radius: 10px; --shadow: 0 2px 8px rgba(0,0,0,.08);
+  --map-a: var(--ind-50); --map-b: var(--ind-100);
+  --text-1: var(--ink); --text-2: var(--ink-2); --text-3: #8496a1;
+  --line: rgba(27, 66, 95, .14); --line-soft: rgba(27, 66, 95, .08);
+  --radius: 4px; --shadow: none;
 }
 * { box-sizing: border-box; }
-body { margin: 0; color: var(--text-1); font: 14px/1.6 "PingFang SC","Microsoft YaHei",sans-serif; background: #f7f7f5; }
+body { margin: 0; color: var(--text-1); font: 14px/1.6 "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--paper); }
 a { color: inherit; text-decoration: none; }
 button { cursor: pointer; font: inherit; border: none; }
-/* 渐变占位图工具类（mock 照片） */
-.ph { display: flex; align-items: flex-end; padding: 6px 8px; color: #fff; font-size: 12px; text-shadow: 0 1px 2px rgba(0,0,0,.5); border-radius: 8px; }
-.ph-0 { background: linear-gradient(130deg,#9dbf8e,#5c8a5c); } .ph-1 { background: linear-gradient(130deg,#d9b98e,#a97b3f); }
-.ph-2 { background: linear-gradient(130deg,#b39ddb,#5c4a7a); } .ph-3 { background: linear-gradient(130deg,#8faebf,#3f6a96); }
-.ph-4 { background: linear-gradient(130deg,#ef9a9a,#c25c5c); } .ph-5 { background: linear-gradient(130deg,#a5d6a7,#2e7d4f); }
-.btn-primary { background: linear-gradient(90deg,var(--orange-500),var(--orange-700)); color: #fff; border-radius: 8px; padding: 8px 18px; font-weight: 700; box-shadow: 0 2px 6px rgba(217,123,42,.4); }
-.pill { font-size: 12px; border-radius: 12px; padding: 2px 10px; display: inline-block; }
+
+/* 展示字体（思源宋体子集，见 assets/fonts/fonts.css；抓取失败时回退系统宋体） */
+.font-display { font-family: var(--font-display); letter-spacing: -0.02em; }
+
+/* 图片占位工具类：本地蜡染纹样（替代原渐变占位，零外链零版权风险） */
+.ph { display: flex; align-items: flex-end; padding: 6px 8px; color: var(--paper); font-size: 12px; border-radius: var(--radius); background-color: var(--ind-800); background-size: cover; background-position: center; }
+.ph-0 { background-image: url("../assets/pattern/meander-dark.svg"); }
+.ph-1 { background-image: url("../assets/pattern/spiral-dark.svg"); }
+.ph-2 { background-image: url("../assets/pattern/diamond-dark.svg"); }
+.ph-3 { background-image: url("../assets/pattern/fish-dark.svg"); }
+.ph-4 { background-image: url("../assets/pattern/meander-light.svg"); color: var(--ind-700); }
+.ph-5 { background-image: url("../assets/pattern/diamond-light.svg"); color: var(--ind-700); }
+
+/* 实景图统一处理：满幅裁切 + 8% 靛蓝色罩（配合 .img-frame > img 使用） */
+.img-frame { position: relative; overflow: hidden; background: var(--ind-100); }
+.img-frame > img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.img-frame::after { content: ""; position: absolute; inset: 0; background: rgba(27, 66, 95, .08); pointer-events: none; }
+
+.btn-primary { background: var(--cinnabar); color: var(--paper); border-radius: var(--radius); padding: 8px 18px; font-weight: 700; }
+.btn-primary:hover { background: var(--cinnabar-700); }
+.pill { font-size: 12px; border-radius: 2px; padding: 2px 8px; display: inline-block; }
 .card { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
 .container { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
