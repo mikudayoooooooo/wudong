@@ -105,7 +105,7 @@ npm test
 2. `npm run dev`，打开 http://localhost:5175 ，右上角登录测试账号（13800000001 / abc123456）
 3. 首页右下角 🤖 → 点 chips 按剧本走 7 拍；双击悬浮圈可跳过铺垫直达预订拍（彩排用）
 4. 台词金额台账：632+168+598=1398，预算剩 102
-5. 彩排后清理脏订单：`cool-admin-midway/scripts/cleanup-demo-orders.sql`
+5. 彩排后复位（清脏单 → 重灌，一条命令）：`bash cool-admin-midway/scripts/reset-demo.sh`（等价手工操作：先对库执行 `cleanup-demo-orders.sql`，再跑 `node scripts/seed.js`）
 6. 现场保险：后端/数据异常时对应项自动降级「演示数据」，戏不断
 
 **演示硬过期**：预订接口要求日期晚于今天——2026-10-01 之后住宿/路线两项会永远降级「演示数据」。路演若改期，同步改 `src/components/ai/script.ts` 的 `DEMO` 日期与 `cool-admin-midway/scripts/seed.js` 的 `travel_inventory`/`time_slot` 日期。
