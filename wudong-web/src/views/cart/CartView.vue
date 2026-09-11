@@ -208,7 +208,7 @@
               v-model="addressForm.address"
               required
               placeholder="请输入详细地址"
-              rows="3"
+              rows="2"
             ></textarea>
           </div>
           <div class="form-group checkbox">
@@ -850,8 +850,8 @@ onMounted(() => {
 
 .address-form-modal {
   background: white;
-  padding: 30px;
-  border-radius: 8px;
+  padding: 24px;
+  border-radius: var(--radius);
   width: 90%;
   max-width: 500px;
   max-height: 90vh;
@@ -863,7 +863,7 @@ onMounted(() => {
 }
 
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 12px;
 }
 
 .form-group label {
@@ -891,12 +891,18 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
+  white-space: nowrap;
 }
 
 .form-actions {
   display: flex;
   gap: 10px;
-  margin-top: 20px;
+  margin-top: 16px;
+  /* 弹窗内容超高时操作行钉在底部，保存按钮不再被裁出可视区 */
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  padding: 12px 0 2px;
 }
 
 .form-actions button {
