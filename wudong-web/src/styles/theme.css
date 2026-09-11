@@ -12,6 +12,7 @@
   --cinnabar: #b23a32; --cinnabar-700: #8f2d27; --cinnabar-300: #d98d85; --cinnabar-100: #f3e2df;
   --paper: #fbf7ee; --ink: #16232d; --ink-2: #4a5b66;
   --font-display: "Noto Serif SC", "Songti SC", "STSong", "SimSun", serif;
+  --font-accent: "LXGW WenKai", "Noto Serif SC", serif;
 
   /* ── 旧变量别名（值为新色板，名字待组件迁移后移除）── */
   --green-900: var(--ind-800); --green-600: var(--ind-700); --green-300: var(--ind-300);

@@ -166,6 +166,7 @@ const barWidth = (i: number): string =>
         </table>
       </div>
       <aside class="festival">
+        <span class="seal" aria-hidden="true">节</span>
         <b class="fest-title"><Icon name="clock" :size="15" /> 节庆倒计时</b>
         <div class="fest">
           <b class="name font-display">苗年 · 芦笙节</b>
@@ -293,10 +294,12 @@ const barWidth = (i: number): string =>
 .no-1 { background: var(--ind-700); color: var(--paper); }
 .no-2 { background: var(--ind-500); color: var(--paper); }
 .kind { color: var(--text-3); font-size: 11px; }
-.festival { flex: 1; padding: 20px; background: var(--ind-800) url("../assets/pattern/spiral-dark.svg") center/560px repeat; border-radius: var(--radius); }
+.festival { position: relative; flex: 1; padding: 20px; background: var(--ind-800) url("../assets/pattern/spiral-dark.svg") center/560px repeat; border-radius: var(--radius); }
+/* 印章母题（规范 §3.0 D.3：全站仅此一处） */
+.seal { position: absolute; top: 14px; right: 14px; width: 28px; height: 28px; display: grid; place-items: center; background: var(--cinnabar); color: var(--paper); font-family: var(--font-accent); font-size: 15px; border-radius: 2px; transform: rotate(-4deg); }
 .festival .fest-title { color: var(--ind-100); }
 .fest { margin: 12px 0 20px; }
-.fest .name { color: var(--paper); font-size: 17px; }
+.fest .name { color: var(--paper); font-size: 17px; font-family: var(--font-accent); letter-spacing: .02em; }
 .fest div { color: var(--ind-100); font-size: 12px; margin-top: 4px; }
 .days { font-size: 32px; font-weight: 700; color: var(--paper); }
 .link { color: var(--cinnabar-300); font-size: 12px; cursor: pointer; }

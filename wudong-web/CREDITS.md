@@ -103,3 +103,4 @@
 | src/assets/img/post/post-2.jpg | photo | http://n.sinaimg.cn/sinacn10101/424/w915h1109/20190721/86e2-iaantfh9373275.jpg | 网络抓取（个人学习用途，商用前须替换为正版图） |
 | src/assets/img/route/route-leigong.jpg | photo | http://n.sinaimg.cn/sinakd10009/132/w1999h1333/20230120/449c-e50c95f86a400256ffb6e686449d1d21.jpg | 网络抓取（个人学习用途，商用前须替换为正版图） |
 | src/assets/img/product/product-brocade.jpg | photo | https://img95.699pic.com/photo/50656/2415.jpg_wh860.jpg | 网络抓取（个人学习用途，商用前须替换为正版图） |
+| src/assets/fonts/lxgw-wenkai-400.woff2 | font (subset) | https://github.com/lxgw/LxgwWenKai | OFL 1.1（可商用，自托管子集） |

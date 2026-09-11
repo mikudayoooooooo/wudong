@@ -13,3 +13,12 @@
   font-display: swap;
   src: url('./noto-serif-sc-700.woff2') format('woff2');
 }
+
+/* 霞鹜文楷（OFL 1.1）：点睛字体，仅用于少量强调文本（规范 §3.0 D） */
+@font-face {
+  font-family: 'LXGW WenKai';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./lxgw-wenkai-400.woff2') format('woff2');
+}

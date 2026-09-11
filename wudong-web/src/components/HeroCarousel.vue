@@ -82,7 +82,7 @@ defineExpose({ current })
 .card-inner { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 16px 64px; color: var(--paper); }
 .badge { background: transparent; border: 1px solid rgba(251, 247, 238, .45); color: var(--paper); width: fit-content; margin-bottom: 14px; }
 .title { font-size: 40px; font-weight: 700; line-height: 1.25; max-width: 640px; }
-.subtitle { font-size: 14px; opacity: .88; margin-top: 10px; }
+.subtitle { font-family: var(--font-accent); font-size: 15px; opacity: .88; margin-top: 10px; letter-spacing: .02em; }
 .arrow { position: absolute; top: 46%; width: 34px; height: 34px; border-radius: 50%; background: transparent; border: 1px solid rgba(251, 247, 238, .5); color: var(--paper); font-size: 18px; z-index: 2; }
 .arrow:hover { background: rgba(251, 247, 238, .15); }
 .arrow.left { left: 18px; } .arrow.right { right: 18px; }
