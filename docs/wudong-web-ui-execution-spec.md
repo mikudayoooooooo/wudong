@@ -64,6 +64,60 @@ VITE_USE_MOCK=true "$N" node_modules/vite/bin/vite.js --port 5173 --strictPort  
 
 ## 3. 待执行清单
 
+### 3.0 动效与细节升级（对照 frontend-design skill 后拍板，四项全做）
+
+> 原则：一次精心编排的入场 > 散碎微交互；全部过渡 150–350ms ease；`prefers-reduced-motion` 一律降级为静态；禁卡片浮起/位移。
+
+**A. 入场编排**
+1. 新增 `src/lib/reveal.ts`：`v-reveal` 指令——挂载时加 `.reveal`，IntersectionObserver 进入视口后加 `.reveal-in` 并 unobserve。
+2. `theme.css` 增加：
+   ```css
+   .reveal { opacity: 0; transform: translateY(14px); transition: opacity .5s ease, transform .5s ease; }
+   .reveal-in { opacity: 1; transform: none; }
+   @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1 !important; transform: none !important; transition: none !important; } }
+   ```
+3. 编排点：Hero `.card-inner` 三元素（badge/title/subtitle）依次 delay 0/90/180ms；kingkong 各项、真实足迹卡、侧栏卡按序 `transition-delay: ${i * 60}ms`；各 section 外层统一 `v-reveal`。首页之外，列表页/详情页首屏元素同法。
+
+**B. 编辑化构图**
+1. `SectionHeader` 增加可选 `index?: string`：标题前渲染淡色宋体大序号 `.sec-index { font-family: var(--font-display); font-size: 28px; color: var(--ind-100); margin-right: 4px; }`（深色色带内用 `rgba(251,247,238,.25)`）；首页区块依次 01–07。
+2. 首页「真实足迹」改 1 大 2 小不对称栅格：
+   ```css
+   .hl-row { grid-template-columns: 1.4fr 1fr; }
+   .hl:first-child { grid-row: span 2; }
+   .hl:first-child .hl-img { height: 316px; }  /* 150*2 + 16 gap */
+   ```
+3. 详情页正文首卡向上重叠头图：`margin-top: -24px; position: relative; z-index: 1; background: var(--paper); border: 1px solid var(--line);`。
+
+**C. 微交互**
+```css
+/* 实景图缓放 */
+.img-frame > img { transition: transform .35s ease; }
+.card:hover .img-frame > img, .hl:hover .img-frame > img, .img-frame:hover > img { transform: scale(1.04); }
+/* 文字链接下划线滑入（nav item / more / 正文链接） */
+.link-slide { position: relative; }
+.link-slide::after { content: ""; position: absolute; left: 0; bottom: -2px; width: 0; height: 1px; background: currentColor; transition: width .2s ease; }
+.link-slide:hover::after { width: 100%; }
+/* 按钮内 icon 微位移 */
+.btn-primary .icon, .publish .icon { transition: transform .2s ease; }
+.btn-primary:hover .icon, .publish:hover .icon { transform: translateX(2px); }
+```
+应用面：TopNav 的 `.item`、SectionHeader 的 `.more`、各列表/详情文字链接加 `.link-slide`；含 Icon 的主按钮自动生效。
+
+**D. 点睛字体 + 印章母题**
+1. 霞鹜文楷（LXGW WenKai，OFL 1.1 可商用）自托管子集。简体版不在 Google Fonts，走 GitHub release + pyftsubset：
+   ```bash
+   PY="C:\Users\cja\.workbuddy\binaries\python\envs\default\Scripts\python.exe"   # 无则先建 venv
+   "$PY" -m pip install fonttools brotli
+   curl -sL -o src/assets/fonts/LXGWWenKai-Regular.ttf "https://github.com/lxgw/LxgwWenKai/releases/download/v1.522/LXGWWenKai-Regular.ttf"
+   "$PY" -m fontTools.subset src/assets/fonts/LXGWWenKai-Regular.ttf \
+     --output-file=src/assets/fonts/lxgw-wenkai-400.woff2 --flavor=woff2 \
+     --text="乌东苗寨文旅雷公山麓百年蜡染银饰梯田云海诗意栖居苗年芦笙节鼓藏节风雨桥鼓楼山歌米酒酸汤鱼糍粑刺绣织锦靛蓝染缸云上人家心之所向素履以往山河远阔人间烟火节庆团圆迎宾敬酒歌十二道拦门酒0123456789·，。、：？！—…「」 《》（）"
+   ```
+   成功后删除源 TTF（约 20MB，勿入库）；fonts.css 加 `@font-face { font-family: 'LXGW WenKai'; font-weight: 400; font-display: swap; src: url('./lxgw-wenkai-400.woff2') format('woff2'); }`；token 加 `--font-accent: "LXGW WenKai", "Noto Serif SC", serif;`；CREDITS.md 手动补一行（LXGW WenKai / OFL 1.1 / https://github.com/lxgw/LxgwWenKai）。**兜底**：子集化失败则放弃文楷，用 `--font-display` + 加大字距实现同类效果，不阻塞其余项。
+2. 应用面（克制，仅 3 处）：Hero `.subtitle`、节庆卡 `.name`、页脚 slogan——`font-family: var(--font-accent); font-size: 15–18px;`。
+3. 印章母题扩展（仅 1 处，避免滥用）：节庆卡右上角加 28×28 朱红印章角标（白字「节」，radius 2px，rotate(-4deg)）。
+4. 新增全局页脚 `src/components/AppFooter.vue`（现在没有页脚）：`--ind-950` 底 + `meander-dark` 纹样；左列印章 + slogan（文楷）+ 一行简介；中列两栏站点链接（发丝线分隔）；右列「素材版权 CREDITS」链接（指向 /CREDITS.md 说明页或仓库）。在 `App.vue` 挂载。页脚也执行 `v-reveal` 入场。
+
 ### 3.1 【BUG】Hero 画面过曝（优先）
 现象：dev 截图中 Hero 接近全白、标题不可读。确诊：图片正常加载（404 会显示 carousel 深色底而非白色），原因是 hero-1（雪山云海）亮部占比过大 + 色罩偏弱。
 执行（`HeroCarousel.vue`）：
