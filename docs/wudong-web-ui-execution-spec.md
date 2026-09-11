@@ -16,7 +16,9 @@
   | c575ef1 | P-1 token 迁移蜡染靛蓝 + 字体接入 + 住宿并轨 |
   | e86c6a9 + 9c4c00c | P-2 首页/TopNav/HeroCarousel 换肤 + Icon.vue + mocks 图片本地化 |
   | c358517 | P-3 38 文件逐页清理（渐变/投影/硬编码色/emoji 图标） |
+  | 7a2a6d0 | 本规范文档 |
   | a468385 | 首页版式升级（全幅 Hero 色带/悬浮订票/明度翻转区块） |
+  | 2dcddd4 | 顶栏登录后拥挤修复（去重退出/nowrap/≤1180px 汉堡折叠） |
 - 验证基线：`vitest run` = **31 文件 123 用例全绿**；`vite build` 通过。任何改动后必须保持。
 
 ### 常用命令（Node 用 managed 绝对路径）
@@ -56,7 +58,7 @@ VITE_USE_MOCK=true "$N" node_modules/vite/bin/vite.js --port 5173 --strictPort  
 
 ## 2. 已落地样板（参照标准）
 
-- **TopNav**：纸色底 + 发丝线；朱红印章 logo；激活项 `--ind-700` 加粗 + 2px 朱红下划线；高 56px。
+- **TopNav**（已定稿，勿再改）：纸色底 + 发丝线，高 56px；朱红印章 logo；激活项 `--ind-700` 加粗 + 2px 朱红下划线；导航项包 `.links`（nowrap，不折行）；用户名 120px 省略号；退出只在用户菜单内（无外挂重复项）；**≤1180px 折叠为汉堡（menu-2）+ 纵向发丝线菜单**，≤720px 隐藏搜索框。
 - **首页版式**（a468385，`HomeView.vue`）：全幅 420px Hero 色带 + 右侧悬浮订票面板（`right: max(16px, calc((100vw - 1200px)/2))`）；金刚区 = 发丝线长条（无卡片，行间 1px 分隔，hover `--ind-50`）；手绘地图 = 全幅 `--ind-50` 色带；节庆 = `--ind-800` + `spiral-dark` 纹样块；底部攻略+数据 = 全幅 `--ind-950` + `meander-dark` 纹样收底；区块节奏 margin 44px / band padding 40-44px；移动端 <900px 降级。
 - 后续所有页面按此密度与节奏对齐。
 
