@@ -1,7 +1,7 @@
 # CREDITS · 第三方素材版权出处
 
-> 本文件由 `scripts/fetch-assets.mjs` 自动生成，请勿手改。
-> 本地生成的纹样/头像/占位图为项目自制，随项目协议使用，未列入本清单。
+> 本文件由抓取脚本自动维护。本地生成的纹样/头像/占位图为项目自制，未列入。
+> ⚠️ 标注「网络抓取」的素材仅作个人学习用途，商用前必须替换为正版图或取得授权。
 
 | 文件 | 类型 | 来源 | 协议 |
 |---|---|---|---|
@@ -85,3 +85,21 @@
 | src/assets/icons/qrcode.svg | icon | https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/icons/outline/qrcode.svg | MIT (Tabler Icons) |
 | src/assets/fonts/noto-serif-sc-700.woff2 | font | https://fonts.google.com/noto/specimen/Noto+Serif+SC | SIL Open Font License 1.1 |
 | src/assets/fonts/noto-serif-sc-500.woff2 | font | https://fonts.google.com/noto/specimen/Noto+Serif+SC | SIL Open Font License 1.1 |
+| src/assets/img/route/route-festival.jpg | photo | http://n.sinaimg.cn/sinacn10101/424/w915h1109/20190721/86e2-iaantfh9373275.jpg | 网络抓取（个人学习用途，商用前须替换为正版图） |
+| src/assets/img/scenic/scenic-terrace.jpg | photo | http://img1.qunarzz.com/travel/d1/1611/3d/5fb1f57269a06cb5.jpg | 网络抓取（个人学习用途，商用前须替换为正版图） |
+| src/assets/img/scenic/scenic-cloud.jpg | photo | http://n.sinaimg.cn/sinacn/20171110/8b0b-fynstfh3397676.jpg | 网络抓取（个人学习用途，商用前须替换为正版图） |
+| src/assets/img/scenic/scenic-bridge.jpg | photo | http://qianfanyun-dz169.qiniudn.com/20180309_668168_1520564634920.jpg | 网络抓取（个人学习用途，商用前须替换为正版图） |
+| src/assets/img/food/food-sourfish.jpg | photo | http://k.sinaimg.cn/n/sinacn09/260/w640h420/20181007/b0e5-hktxqah9233669.jpg/w700d1q75cms.jpg | 网络抓取（个人学习用途，商用前须替换为正版图） |
+| src/assets/img/food/food-ciba.jpg | photo | https://pic.nximg.cn/file/20230305/29159477_115259191100_2.jpg | 网络抓取（个人学习用途，商用前须替换为正版图） |
+| src/assets/img/product/product-silver.jpg | photo | https://k.sinaimg.cn/n/history/transform/20170830/BV47-fykiuaz1955105.jpg/w700d1q75cms.jpg?by=cms_fixed_width | 网络抓取（个人学习用途，商用前须替换为正版图） |
+| src/assets/img/product/product-batik.jpg | photo | https://d.ifengimg.com/q100/img1.ugc.ifeng.com/newugc/20191111/10/wemedia/52e67b84a443a7354f3366d9af5613dd5adee07d_size232_w1022_h588.png | 网络抓取（个人学习用途，商用前须替换为正版图） |
+| src/assets/img/product/product-embroidery.jpg | photo | https://pic.nximg.cn/file/20240310/9679092_104254562107_2.jpg | 网络抓取（个人学习用途，商用前须替换为正版图） |
+| src/assets/img/post/post-1.jpg | photo | http://images.xjqhmz.com/image/2023/04/28/1651775923013394433.jpg | 网络抓取（个人学习用途，商用前须替换为正版图） |
+| src/assets/img/post/post-4.jpg | photo | http://n.sinaimg.cn/sinakd20210723ac/513/w750h563/20210723/55d8-73a5aa19d9100fdd2a8c5a3b6ca461b5.jpg | 网络抓取（个人学习用途，商用前须替换为正版图） |
+| src/assets/img/post/post-6.jpg | photo | https://so1.360tres.com/t0140070f4a048de1c0.jpg | 网络抓取（个人学习用途，商用前须替换为正版图） |
+| src/assets/img/route/route-wudong.jpg | photo | http://img1.qunarzz.com/travel/d1/1611/3d/5fb1f57269a06cb5.jpg | 网络抓取（个人学习用途，商用前须替换为正版图） |
+| src/assets/img/route/route-xijiang.jpg | photo | https://youimg1.c-ctrip.com/target/0102h120004uu4iirB5D1_W_10000_1200.jpg?proc=autoorient | 网络抓取（个人学习用途，商用前须替换为正版图） |
+| src/assets/img/scenic/scenic-falls.jpg | photo | https://youimg1.c-ctrip.com/target/1001060000001uplq3784.jpg | 网络抓取（个人学习用途，商用前须替换为正版图） |
+| src/assets/img/post/post-2.jpg | photo | http://n.sinaimg.cn/sinacn10101/424/w915h1109/20190721/86e2-iaantfh9373275.jpg | 网络抓取（个人学习用途，商用前须替换为正版图） |
+| src/assets/img/route/route-leigong.jpg | photo | http://n.sinaimg.cn/sinakd10009/132/w1999h1333/20230120/449c-e50c95f86a400256ffb6e686449d1d21.jpg | 网络抓取（个人学习用途，商用前须替换为正版图） |
+| src/assets/img/product/product-brocade.jpg | photo | https://img95.699pic.com/photo/50656/2415.jpg_wh860.jpg | 网络抓取（个人学习用途，商用前须替换为正版图） |

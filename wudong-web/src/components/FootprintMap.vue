@@ -59,15 +59,15 @@ function segmentClass(i: number): string {
           :d="`M ${p.x} ${p.y} C ${(p.x + points[i + 1].x) / 2} ${p.y}, ${(p.x + points[i + 1].x) / 2} ${points[i + 1].y}, ${points[i + 1].x} ${points[i + 1].y}`"
         />
       </template>
-      <!-- 站点 -->
+      <!-- 站点（规范：节点内不放 emoji 图标，靠形状/色彩区分状态，语义由站名承载） -->
       <g
         v-for="(s, i) in stops" :key="s.spotId" class="stop" :class="s.lit ? 'lit' : 'locked'"
         :transform="`translate(${points[i].x},${points[i].y})`" @click="emit('select', s.spotId)"
       >
         <circle v-if="s.lit" :r="variant === 'overview' ? 21 : 16" class="halo" />
-        <circle :r="variant === 'overview' ? 15 : 11" class="node" />
-        <text class="icon" y="4" text-anchor="middle">{{ s.lit ? s.icon : '🔒' }}</text>
-        <text class="label" :class="{ 'font-display': variant === 'overview' }" :y="variant === 'overview' ? 34 : 26" text-anchor="middle">{{ s.name }}</text>
+        <circle :r="variant === 'overview' ? 13 : 10" class="node" />
+        <circle v-if="s.lit" :r="4" class="core" />
+        <text class="label" :class="{ 'font-display': variant === 'overview' }" :y="variant === 'overview' ? 32 : 25" text-anchor="middle">{{ s.name }}</text>
         <text v-if="showCount && s.lit && s.lightCount" class="count" :y="variant === 'overview' ? -26 : -18" text-anchor="middle">
           {{ s.lightCount }}人点亮
         </text>
@@ -100,10 +100,10 @@ function segmentClass(i: number): string {
 .stop { cursor: pointer; }
 .node { fill: #fff; stroke: var(--ind-300); stroke-width: 1.5; stroke-dasharray: 3 2; }
 .stop.lit .node { fill: var(--cinnabar); stroke: var(--paper); stroke-width: 2; stroke-dasharray: none; }
+.stop.lit .core { fill: var(--paper); }
 .halo { fill: none; stroke: var(--cinnabar-300); stroke-width: 1; opacity: .7; transform-origin: center; transform-box: fill-box; animation: fp-pulse 2.6s ease-out infinite; }
 @keyframes fp-pulse { 0% { transform: scale(.72); opacity: .8; } 70% { transform: scale(1.12); opacity: 0; } 100% { transform: scale(1.12); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .halo { animation: none; opacity: .5; } }
-.icon { font-size: 12px; }
 .label { font-size: 10px; fill: var(--text-2); }
 .overview .label { font-size: 12px; fill: var(--ind-800); }
 .stop.locked .label { fill: var(--text-3); }

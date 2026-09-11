@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { travelApi, type RouteDetail } from '../api/travel'
 import Icon from '@/components/Icon.vue'
+import { ROUTE_COVERS } from '../data/photos'
 
 const router = useRouter()
 const theme = ref('全部')
@@ -28,7 +29,11 @@ function avgLit(r: RouteDetail): { lit: number; total: number } {
     </div>
     <div class="cards">
       <div v-for="r in routes" :key="r.id" class="card rc" @click="router.push(`/route/${r.id}`)">
-        <div class="ph cover ph-1">{{ r.days }}天 · {{ r.theme }}</div>
+        <div v-if="ROUTE_COVERS[r.id]" class="cover img-frame">
+          <img :src="ROUTE_COVERS[r.id]" :alt="r.title" loading="lazy" />
+          <span class="cover-tag">{{ r.days }}天 · {{ r.theme }}</span>
+        </div>
+        <div v-else class="ph cover ph-1">{{ r.days }}天 · {{ r.theme }}</div>
         <div class="body">
           <b>{{ r.title }}</b>
           <div class="meta">⭐ 好评 {{ r.notice.includes('24小时') ? '98%' : '96%' }} · 已售 {{ r.sales }}</div>
@@ -48,7 +53,8 @@ h2 { margin: 18px 0 10px; }
 .tab { background: var(--ind-50); cursor: pointer; }
 .tab.on { background: var(--green-600); color: #fff; }
 .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-.cover { height: 130px; border-radius: 0; font-size: 13px; font-weight: 700; }
+.cover { height: 150px; border-radius: 0; font-size: 13px; font-weight: 700; }
+.cover-tag { position: absolute; left: 10px; bottom: 8px; z-index: 1; color: var(--paper); }
 .body { padding: 10px 12px; }
 .meta { font-size: 11px; color: var(--text-3); margin: 4px 0; }
 .lit-badge { background: var(--amber-bg); color: var(--amber-text); }

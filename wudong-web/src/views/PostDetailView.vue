@@ -5,6 +5,7 @@ import { communityApi } from '../api/community'
 import { travelApi } from '../api/travel'
 import FootprintMap from '../components/FootprintMap.vue'
 import RouteQuickView from '../components/RouteQuickView.vue'
+import { postPhoto } from '../data/photos'
 
 const routeParam = useRouteParam()
 const router = useRouter()
@@ -57,7 +58,10 @@ function onChip(spotId: number): void {
       </header>
       <h1>{{ post.title }}</h1>
       <div class="imgs">
-        <div v-for="(img, i) in post.images" :key="i" class="ph" :class="`ph-${img}`" />
+        <template v-for="(img, i) in post.images" :key="i">
+          <div v-if="postPhoto(img)" class="img-frame post-img"><img :src="postPhoto(img)" :alt="post.title" loading="lazy" /></div>
+          <div v-else class="ph" :class="`ph-${img}`" />
+        </template>
       </div>
       <p class="content">{{ post.content }}</p>
       <div class="topics">
@@ -117,7 +121,8 @@ function onChip(spotId: number): void {
 .date { font-size: 11px; color: var(--text-3); }
 h1 { font-size: 20px; margin: 12px 0; }
 .imgs { display: flex; gap: 8px; }
-.imgs .ph { flex: 1; height: 150px; border-radius: 8px; }
+.imgs .ph { flex: 1; height: 150px; border-radius: var(--radius); }
+.imgs .post-img { flex: 1; height: 180px; border-radius: var(--radius); }
 .content { font-size: 14px; color: var(--ink); line-height: 1.8; }
 .topic-chip { color: var(--green-600); background: var(--ind-100); cursor: pointer; margin-right: 6px; }
 .actions { display: flex; gap: 20px; padding: 10px 0 0; border-top: 1px solid var(--line-soft); color: var(--text-2); font-size: 13px; margin-top: 12px; }

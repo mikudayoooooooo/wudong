@@ -10,9 +10,7 @@ import Icon from '../components/Icon.vue'
 import { travelApi, type StopView } from '../api/travel'
 import { communityApi } from '../api/community'
 import { operateApi } from '../api/operate'
-import imgWaterfall from '../assets/img/scenic/waterfall.jpg'
-import imgLakeCabin from '../assets/img/scenic/lake-cabin.jpg'
-import imgForest from '../assets/img/scenic/forest.jpg'
+import { HL_COVERS } from '../data/photos'
 
 const router = useRouter()
 const bookDate = ref('2026-09-13')
@@ -29,8 +27,8 @@ const kingkong = [
   { icon: 'compass', label: '交通攻略', to: '/guide', disabled: false },
 ]
 
-// 真实足迹精选封面（本地实景，Unsplash License，见 CREDITS.md）
-const hlImgs = [imgWaterfall, imgLakeCabin, imgForest]
+// 真实足迹精选封面（本地苗寨实景，来源见 CREDITS.md）
+const hlImgs = HL_COVERS
 
 // —— 异步数据 ——
 const overviewStops = ref<StopView[]>([])

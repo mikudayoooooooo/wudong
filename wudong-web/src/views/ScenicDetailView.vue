@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { travelApi } from '../api/travel'
 import SectionHeader from '../components/SectionHeader.vue'
 import BookingModal from '../components/BookingModal.vue'
+import { SCENIC_COVERS } from '../data/photos'
 
 const routeParam = useRoute()
 const router = useRouter()
@@ -36,7 +37,11 @@ async function onBuy(ticketId: number): Promise<void> {
 
 <template>
   <div v-if="spot" class="container">
-    <div class="ph cover ph-0">📍 {{ spot.name }}</div>
+    <div v-if="SCENIC_COVERS[spot.id]" class="cover img-frame hero">
+      <img :src="SCENIC_COVERS[spot.id]" :alt="spot.name" />
+      <b class="cover-name font-display">{{ spot.name }}</b>
+    </div>
+    <div v-else class="ph cover ph-0">📍 {{ spot.name }}</div>
     <section class="card info">
       <h2>{{ spot.name }} <span class="pill chip">{{ spot.intro }}</span></h2>
       <div class="meta">📍 {{ spot.address }} · 🕐 {{ spot.openTime }}</div>
@@ -76,7 +81,9 @@ async function onBuy(ticketId: number): Promise<void> {
 </template>
 
 <style scoped>
-.cover { height: 180px; margin-top: 16px; font-size: 20px; font-weight: 800; }
+.cover { height: 260px; margin-top: 16px; font-size: 20px; font-weight: 800; }
+.cover.hero::after { background: rgba(11, 29, 44, .38); }
+.cover-name { position: absolute; left: 20px; bottom: 16px; z-index: 1; color: var(--paper); font-size: 28px; }
 .info { padding: 14px 16px; margin-top: -20px; position: relative; }
 h2 { margin: 0 0 6px; }
 .chip { background: var(--amber-bg); color: var(--amber-text); font-weight: 400; }

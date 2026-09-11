@@ -738,5 +738,149 @@
     "status": "ok",
     "selfMade": true,
     "fetchedAt": "2026-09-11T01:24:11.716Z"
+  },
+  "route-festival": {
+    "kind": "photo",
+    "file": "src/assets/img/route/route-festival.jpg",
+    "status": "ok",
+    "fetchedAt": "2026-09-11T04:11:39.128Z",
+    "source": "http://n.sinaimg.cn/sinacn10101/424/w915h1109/20190721/86e2-iaantfh9373275.jpg",
+    "license": "网络抓取（个人学习用途，商用前须替换为正版图）"
+  },
+  "scenic-terrace": {
+    "kind": "photo",
+    "file": "src/assets/img/scenic/scenic-terrace.jpg",
+    "status": "ok",
+    "fetchedAt": "2026-09-11T04:11:39.153Z",
+    "source": "http://img1.qunarzz.com/travel/d1/1611/3d/5fb1f57269a06cb5.jpg",
+    "license": "网络抓取（个人学习用途，商用前须替换为正版图）"
+  },
+  "scenic-cloud": {
+    "kind": "photo",
+    "file": "src/assets/img/scenic/scenic-cloud.jpg",
+    "status": "ok",
+    "fetchedAt": "2026-09-11T04:11:39.176Z",
+    "source": "http://n.sinaimg.cn/sinacn/20171110/8b0b-fynstfh3397676.jpg",
+    "license": "网络抓取（个人学习用途，商用前须替换为正版图）"
+  },
+  "scenic-bridge": {
+    "kind": "photo",
+    "file": "src/assets/img/scenic/scenic-bridge.jpg",
+    "status": "ok",
+    "fetchedAt": "2026-09-11T04:11:39.201Z",
+    "source": "http://qianfanyun-dz169.qiniudn.com/20180309_668168_1520564634920.jpg",
+    "license": "网络抓取（个人学习用途，商用前须替换为正版图）"
+  },
+  "food-sourfish": {
+    "kind": "photo",
+    "file": "src/assets/img/food/food-sourfish.jpg",
+    "status": "ok",
+    "fetchedAt": "2026-09-11T04:11:39.225Z",
+    "source": "http://k.sinaimg.cn/n/sinacn09/260/w640h420/20181007/b0e5-hktxqah9233669.jpg/w700d1q75cms.jpg",
+    "license": "网络抓取（个人学习用途，商用前须替换为正版图）"
+  },
+  "food-ciba": {
+    "kind": "photo",
+    "file": "src/assets/img/food/food-ciba.jpg",
+    "status": "ok",
+    "fetchedAt": "2026-09-11T04:11:39.248Z",
+    "source": "https://pic.nximg.cn/file/20230305/29159477_115259191100_2.jpg",
+    "license": "网络抓取（个人学习用途，商用前须替换为正版图）"
+  },
+  "product-silver": {
+    "kind": "photo",
+    "file": "src/assets/img/product/product-silver.jpg",
+    "status": "ok",
+    "fetchedAt": "2026-09-11T04:11:39.271Z",
+    "source": "https://k.sinaimg.cn/n/history/transform/20170830/BV47-fykiuaz1955105.jpg/w700d1q75cms.jpg?by=cms_fixed_width",
+    "license": "网络抓取（个人学习用途，商用前须替换为正版图）"
+  },
+  "product-batik": {
+    "kind": "photo",
+    "file": "src/assets/img/product/product-batik.jpg",
+    "status": "ok",
+    "fetchedAt": "2026-09-11T04:11:39.293Z",
+    "source": "https://d.ifengimg.com/q100/img1.ugc.ifeng.com/newugc/20191111/10/wemedia/52e67b84a443a7354f3366d9af5613dd5adee07d_size232_w1022_h588.png",
+    "license": "网络抓取（个人学习用途，商用前须替换为正版图）"
+  },
+  "product-embroidery": {
+    "kind": "photo",
+    "file": "src/assets/img/product/product-embroidery.jpg",
+    "status": "ok",
+    "fetchedAt": "2026-09-11T04:11:39.319Z",
+    "source": "https://pic.nximg.cn/file/20240310/9679092_104254562107_2.jpg",
+    "license": "网络抓取（个人学习用途，商用前须替换为正版图）"
+  },
+  "post-1": {
+    "kind": "photo",
+    "file": "src/assets/img/post/post-1.jpg",
+    "status": "ok",
+    "fetchedAt": "2026-09-11T04:11:39.343Z",
+    "source": "http://images.xjqhmz.com/image/2023/04/28/1651775923013394433.jpg",
+    "license": "网络抓取（个人学习用途，商用前须替换为正版图）"
+  },
+  "post-4": {
+    "kind": "photo",
+    "file": "src/assets/img/post/post-4.jpg",
+    "status": "ok",
+    "fetchedAt": "2026-09-11T04:11:39.366Z",
+    "source": "http://n.sinaimg.cn/sinakd20210723ac/513/w750h563/20210723/55d8-73a5aa19d9100fdd2a8c5a3b6ca461b5.jpg",
+    "license": "网络抓取（个人学习用途，商用前须替换为正版图）"
+  },
+  "post-6": {
+    "kind": "photo",
+    "file": "src/assets/img/post/post-6.jpg",
+    "status": "ok",
+    "fetchedAt": "2026-09-11T04:11:39.391Z",
+    "source": "https://so1.360tres.com/t0140070f4a048de1c0.jpg",
+    "license": "网络抓取（个人学习用途，商用前须替换为正版图）"
+  },
+  "route-wudong": {
+    "kind": "photo",
+    "file": "src/assets/img/route/route-wudong.jpg",
+    "status": "ok",
+    "fetchedAt": "2026-09-11T04:11:39.413Z",
+    "source": "http://img1.qunarzz.com/travel/d1/1611/3d/5fb1f57269a06cb5.jpg",
+    "license": "网络抓取（个人学习用途，商用前须替换为正版图）"
+  },
+  "route-xijiang": {
+    "kind": "photo",
+    "file": "src/assets/img/route/route-xijiang.jpg",
+    "status": "ok",
+    "fetchedAt": "2026-09-11T04:11:39.436Z",
+    "source": "https://youimg1.c-ctrip.com/target/0102h120004uu4iirB5D1_W_10000_1200.jpg?proc=autoorient",
+    "license": "网络抓取（个人学习用途，商用前须替换为正版图）"
+  },
+  "scenic-falls": {
+    "kind": "photo",
+    "file": "src/assets/img/scenic/scenic-falls.jpg",
+    "status": "ok",
+    "fetchedAt": "2026-09-11T04:11:39.461Z",
+    "source": "https://youimg1.c-ctrip.com/target/1001060000001uplq3784.jpg",
+    "license": "网络抓取（个人学习用途，商用前须替换为正版图）"
+  },
+  "post-2": {
+    "kind": "photo",
+    "file": "src/assets/img/post/post-2.jpg",
+    "status": "ok",
+    "fetchedAt": "2026-09-11T04:11:39.481Z",
+    "source": "http://n.sinaimg.cn/sinacn10101/424/w915h1109/20190721/86e2-iaantfh9373275.jpg",
+    "license": "网络抓取（个人学习用途，商用前须替换为正版图）"
+  },
+  "route-leigong": {
+    "kind": "photo",
+    "file": "src/assets/img/route/route-leigong.jpg",
+    "status": "ok",
+    "fetchedAt": "2026-09-11T04:11:39.505Z",
+    "source": "http://n.sinaimg.cn/sinakd10009/132/w1999h1333/20230120/449c-e50c95f86a400256ffb6e686449d1d21.jpg",
+    "license": "网络抓取（个人学习用途，商用前须替换为正版图）"
+  },
+  "product-brocade": {
+    "kind": "photo",
+    "file": "src/assets/img/product/product-brocade.jpg",
+    "status": "ok",
+    "fetchedAt": "2026-09-11T04:11:39.526Z",
+    "source": "https://img95.699pic.com/photo/50656/2415.jpg_wh860.jpg",
+    "license": "网络抓取（个人学习用途，商用前须替换为正版图）"
   }
 }

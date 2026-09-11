@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import MiniChain from './MiniChain.vue'
+import { postPhoto } from '../data/photos'
 
 /** post：后端 feed/detail 行（含 author、footprintLit/footprintTotal、routeTitle 可选） */
 const props = defineProps<{ post: any }>()
@@ -13,12 +14,17 @@ const chain = computed(() => {
   if (!total) return null
   return { lit, total }
 })
+// 封面：优先本地实景图（images[0] 索引池），视频帖/缺索引用纹样占位
+const cover = computed(() => (props.post.video ? undefined : postPhoto(props.post.images?.[0])))
 const videoCls = computed(() => (props.post.video ? 'ph-4' : `ph-${props.post.images?.[0] ?? 0}`))
 </script>
 
 <template>
   <div class="card post-card" @click="emit('open', post.id)">
-    <div class="ph cover" :class="videoCls">
+    <div v-if="cover" class="cover img-frame">
+      <img :src="cover" :alt="post.title" loading="lazy" />
+    </div>
+    <div v-else class="ph cover" :class="videoCls">
       <span v-if="post.video" class="video-mark">▶ 视频</span>
     </div>
     <div class="body">
