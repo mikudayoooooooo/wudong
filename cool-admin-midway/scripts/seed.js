@@ -30,6 +30,7 @@ async function main() {
     'banner', 'announcement',
     'hotel', 'room_type', 'room_calendar',
     'restaurant', 'time_slot',
+    'farm_product_category', 'farm_product',
   ]) {
     await conn.query(`TRUNCATE TABLE \`${t}\``);
   }
@@ -282,6 +283,36 @@ async function main() {
     [
       [301, 3, '2026-10-01', '午市 11:00-13:00', '11:00', '13:00', 20, 0, 1, now, now],
       [302, 3, '2026-10-01', '晚市 17:00-20:00', '17:00', '20:00', 20, 0, 1, now, now],
+    ]);
+
+  // ---- 非遗商品 + 农产品（含分类；封面由 C 端 photos.ts 按 id 映射本地实景）----
+  await ins('product_category',
+    ['id', 'name', 'sort', 'status', 'createTime', 'updateTime'],
+    [
+      [1, '织染绣品', 1, 1, now, now],
+      [2, '竹木编织', 2, 1, now, now],
+    ]);
+  await ins('product',
+    ['id', 'merchantId', 'categoryId', 'name', 'coverImage', 'price', 'stock', 'sales', 'status', 'rating', 'reviewCount', 'createTime', 'updateTime'],
+    [
+      [1, 1, 1, '苗族银饰手镯', 'https://dummyimage.com/200x200/eee/888.png&text=yin', 328, 50, 12, 1, 5, 0, now, now],
+      [2, 1, 1, '蜡染方巾', 'https://dummyimage.com/200x200/eee/888.png&text=ran', 68, 200, 45, 1, 5, 0, now, now],
+      [3, 1, 2, '手工竹编果篮', 'https://dummyimage.com/200x200/eee/888.png&text=zhu', 128, 30, 8, 1, 5, 0, now, now],
+    ]);
+  await ins('farm_product_category',
+    ['id', 'name', 'sort', 'status', 'createTime', 'updateTime'],
+    [
+      [1, '茶叶', 1, 1, now, now],
+      [2, '腊肉', 2, 1, now, now],
+      [3, '米酒', 3, 1, now, now],
+      [4, '酸食', 4, 1, now, now],
+      [5, '其他特产', 5, 1, now, now],
+    ]);
+  await ins('farm_product',
+    ['id', 'merchantId', 'categoryId', 'name', 'coverImage', 'price', 'unit', 'stock', 'origin', 'status', 'createTime', 'updateTime'],
+    [
+      [1, 1, 1, '高山云雾茶', 'https://dummyimage.com/200x200/eee/888.png&text=cha', 88, '盒', 120, '乌东村茶山', 1, now, now],
+      [2, 1, 5, '土蜂蜜', 'https://dummyimage.com/200x200/eee/888.png&text=feng', 65.5, '瓶', 60, '乌东村蜂场', 1, now, now],
     ]);
 
   const [rows] = await conn.query(`SELECT
