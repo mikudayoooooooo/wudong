@@ -1,11 +1,21 @@
 import { Provide } from '@midwayjs/core';
 import { InjectEntityModel } from '@midwayjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { TravelETicketEntity } from '../entity/e-ticket';
 import { TravelTicketTypeEntity } from '../entity/ticket-type';
 import { TravelRouteItineraryEntity } from '../entity/route-itinerary';
 
 const DAY_MS = 24 * 3600 * 1000;
+
+/** 路线站点视图（行程站 + 点亮状态） */
+export interface StopView {
+  spotId: number;
+  dayNo: number;
+  description?: string;
+  lit: boolean;
+  locked: boolean;
+  lightCount: number;
+}
 
 interface Graph {
   /** spotId → 点亮用户集合 */
@@ -109,22 +119,47 @@ export class TravelFootprintService {
   }
 
   /** 路线各站点的视图数据（行程站 + 点亮人数 + lit/locked） */
-  async routeStopsView(routeId: number) {
+  async routeStopsView(routeId: number): Promise<StopView[]> {
     const stops = await this.itineraryEntity.find({
       where: { routeId },
       order: { dayNo: 'ASC', sort: 'ASC' },
     });
     const counts = await this.spotLightCountsMap();
-    return stops.map((stop) => {
-      const count = counts.get(stop.scenicSpotId) || 0;
-      return {
-        spotId: stop.scenicSpotId,
-        dayNo: stop.dayNo,
-        description: stop.description,
-        lit: count > 0,
-        locked: count === 0,
-        lightCount: count,
-      };
-    });
+    return stops.map((stop) => this.toStopView(stop, counts));
+  }
+
+  /** 多条路线的站点视图（列表页用：2 次查询覆盖全部路线，避免逐条 N+1） */
+  async routesStopsView(routeIds: number[]): Promise<Map<number, StopView[]>> {
+    const empty = new Map<number, StopView[]>();
+    if (!routeIds.length) return empty;
+    const [stops, counts] = await Promise.all([
+      this.itineraryEntity.find({
+        where: { routeId: In(routeIds) },
+        order: { routeId: 'ASC', dayNo: 'ASC', sort: 'ASC' },
+      }),
+      this.spotLightCountsMap(),
+    ]);
+    const byRoute = new Map<number, StopView[]>();
+    for (const stop of stops) {
+      const arr = byRoute.get(stop.routeId) || [];
+      arr.push(this.toStopView(stop, counts));
+      byRoute.set(stop.routeId, arr);
+    }
+    return byRoute;
+  }
+
+  private toStopView(
+    stop: TravelRouteItineraryEntity,
+    counts: Map<number, number>
+  ): StopView {
+    const count = counts.get(stop.scenicSpotId) || 0;
+    return {
+      spotId: stop.scenicSpotId,
+      dayNo: stop.dayNo,
+      description: stop.description,
+      lit: count > 0,
+      locked: count === 0,
+      lightCount: count,
+    };
   }
 }

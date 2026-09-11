@@ -58,7 +58,13 @@ export class AppTravelRouteController extends BaseController {
       where,
       order: { sales: 'DESC', id: 'DESC' },
     });
-    return this.ok(list);
+    // 附行程站点点亮视图（列表页"平均点亮 x/y 站"）
+    const stopsMap = await this.footprintService.routesStopsView(
+      list.map((r) => r.id)
+    );
+    return this.ok(
+      list.map((r) => ({ ...r, stops: stopsMap.get(r.id) || [] }))
+    );
   }
 
   @CoolTag(TagTypes.IGNORE_TOKEN)

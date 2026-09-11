@@ -66,6 +66,11 @@ describe('travel 浏览与足迹', () => {
       `/app/travel/route/list?theme=${encodeURIComponent('摄影')}`
     );
     expect(list.body.data.some((r) => r.id === 9101)).toBe(true);
+    // 列表附行程站点（列表页"平均点亮 x/y 站"数据源）
+    const listed = list.body.data.find((r) => r.id === 9101);
+    expect(listed.stops).toHaveLength(1);
+    expect(listed.stops[0].spotId).toBe(9101);
+    expect(listed.stops[0].lit).toBe(false);
     const detail = await createHttpRequest(app).get('/app/travel/route/detail?id=9101');
     expect(detail.body.data.title).toBe('测试摄影一日游T');
     expect(detail.body.data.stops).toHaveLength(1);
