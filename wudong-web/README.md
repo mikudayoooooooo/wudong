@@ -101,6 +101,7 @@ npm test
 
 ## AI管家演示（feature/ai-butler-demo）
 
+0. **全新环境一键初始化**：仓库根目录 `bash setup-demo.sh`（起库/起服务/建表/灌演示数据/灌管理端菜单/自检，幂等可重跑；需 Docker Desktop）
 1. 起后端 + `node scripts/seed.js` 重灌演示数据（新增：云上人家/长桌宴时段/国庆路线库存）
 2. `npm run dev`，打开 http://localhost:5175 ，右上角登录测试账号（13800000001 / abc123456）
 3. 首页右下角 🤖 → 点 chips 按剧本走 7 拍；双击悬浮圈可跳过铺垫直达预订拍（彩排用）
