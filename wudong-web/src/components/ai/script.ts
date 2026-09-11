@@ -3,7 +3,7 @@
 export const SCRIPT_STAGE = { IDLE: 'idle', PREFIX: 'prefix', MAIN: 'main', PLANS: 'plans', BOOKED: 'booked', DONE: 'done' } as const
 export type Stage = (typeof SCRIPT_STAGE)[keyof typeof SCRIPT_STAGE]
 
-export type Intent = 'main' | 'budget' | 'quiet' | 'banquet' | 'foodSide' | 'staySide' | 'bookA' | 'reorder' | 'more' | 'thanks'
+export type Intent = 'main' | 'budget' | 'quiet' | 'banquet' | 'enough' | 'foodSide' | 'staySide' | 'bookA' | 'reorder' | 'more' | 'thanks'
 
 export type ChipsKey = 'r1' | 'r2' | 'r3' | 'r4' | 'foodEnd' | 'stayEnd'
 export interface Chip { label: string; intent: Intent }
@@ -18,6 +18,7 @@ export const CHIPS: Record<ChipsKey, Chip[]> = {
     { label: '预算一千五', intent: 'budget' },
     { label: '想要安静', intent: 'quiet' },
     { label: '想吃长桌宴', intent: 'banquet' },
+    { label: '👌 可以了', intent: 'enough' },
   ],
   r3: [
     { label: '就按 A 方案订', intent: 'bookA' },
@@ -78,6 +79,7 @@ export function matchInput(text: string, stage: string): Intent | 'unknown' {
   const t = text.trim()
   if (stage === SCRIPT_STAGE.PLANS && (/换|梯田.*近|近.*梯田/.test(t))) return 'reorder'
   if (stage === SCRIPT_STAGE.PLANS && /订|就按|安排/.test(t)) return 'bookA'
+  if (stage === SCRIPT_STAGE.PREFIX && /可以了|先这样|就这样吧|够了/.test(t)) return 'enough'
   if (stage === SCRIPT_STAGE.BOOKED && /谢谢|辛苦/.test(t)) return 'thanks'
   if (stage === SCRIPT_STAGE.BOOKED && /别的|还看|再看看/.test(t)) return 'more'
   if (/爸妈|带.*玩|国庆|十一|两晚/.test(t)) return 'main'

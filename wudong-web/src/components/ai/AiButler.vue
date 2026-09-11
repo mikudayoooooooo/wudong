@@ -120,6 +120,15 @@ async function onIntent(intent: Intent): Promise<void> {
     }
     return
   }
+  if (intent === 'enough') {
+    // 截止细化轮：带已说的偏好直接进主线，剩余细节管家补全
+    push('user', '可以了')
+    stage.value = SCRIPT_STAGE.MAIN
+    removeThinking()
+    push('ai', '行～细节我来补全：两位老人 + 两晚 + 长桌宴 + 预算 ¥1500 + 要安静——看我的 👀')
+    if (await play(MAIN_BEATS)) stage.value = SCRIPT_STAGE.PLANS
+    return
+  }
   if (intent === 'foodSide') { push('user', '乌东有什么好吃的'); await play(FOOD_SIDE_BEATS); chips.value = 'foodEnd'; return }
   if (intent === 'staySide') { push('user', '住哪里比较安静'); await play(STAY_SIDE_BEATS); chips.value = 'stayEnd'; return }
   if (intent === 'bookA') { if (bookingBusy.value) return; stage.value = SCRIPT_STAGE.BOOKED; await play(BOOK_BEATS); return }

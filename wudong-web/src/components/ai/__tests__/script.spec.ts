@@ -25,6 +25,11 @@ describe('matchInput 关键词路由', () => {
   it('任意未命中 → unknown', () => {
     expect(matchInput('今天天气怎么样', SCRIPT_STAGE.IDLE)).toBe('unknown')
   })
+  it('细化轮输入「可以了/够了」→ enough 截止', () => {
+    expect(matchInput('可以了', SCRIPT_STAGE.PREFIX)).toBe('enough')
+    expect(matchInput('够了，先这些', SCRIPT_STAGE.PREFIX)).toBe('enough')
+    expect(matchInput('可以了', SCRIPT_STAGE.IDLE)).toBe('unknown') // 仅细化轮有效
+  })
 })
 
 describe('剧本数据完整性', () => {

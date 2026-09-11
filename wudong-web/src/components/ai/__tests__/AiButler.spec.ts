@@ -229,4 +229,18 @@ describe('AiButler', () => {
     }
     expect(w.findAll('.pcard')).toHaveLength(2) // 3 个不同偏好集齐 → 主线出方案
   })
+
+  it('「可以了」截止细化轮：未点满也进主线出方案', async () => {
+    const w = await openButler()
+    await w.findAll('.chip').find((c) => c.text().includes('带爸妈'))!.trigger('click')
+    await settle(w)
+    await w.findAll('.chip').find((c) => c.text().includes('预算一千五'))!.trigger('click')
+    await settle(w)
+    await w.findAll('.chip').find((c) => c.text().includes('可以了'))!.trigger('click')
+    await settle(w)
+    expect(w.text()).toContain('细节我来补全')
+    expect(w.findAll('.pcard')).toHaveLength(2)
+    expect(w.findAll('.node.on')).toHaveLength(3)
+    expect(w.findAll('.chip').filter((c) => c.text().includes('可以了')).length).toBe(0) // 发过即隐藏
+  })
 })
