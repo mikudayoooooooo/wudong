@@ -1,6 +1,9 @@
 import { CoolController, BaseController } from '@cool-midway/core';
+import { Get, Inject } from '@midwayjs/core';
+import { Context } from '@midwayjs/koa';
 import { OrderEntity } from '../../entity/order';
 import { MerchantAdminScopeService } from '../../../merchant/service/admin-scope';
+import { OrderStatsService } from '../../service/stats';
 
 /**
  * 统一订单管理
@@ -25,4 +28,17 @@ import { MerchantAdminScopeService } from '../../../merchant/service/admin-scope
     return { ...base, where: scope };
   },
 })
-export class AdminOrderController extends BaseController {}
+export class AdminOrderController extends BaseController {
+  @Inject()
+  ctx: Context;
+
+  @Inject()
+  orderStatsService: OrderStatsService;
+
+  @Get('/stats', { summary: '工作台看板统计（真实聚合；商家账号只统计本商家）' })
+  async stats() {
+    return this.ok(
+      await this.orderStatsService.adminStats(this.ctx.admin?.userId)
+    );
+  }
+}
