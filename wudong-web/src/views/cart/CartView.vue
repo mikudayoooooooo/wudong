@@ -38,7 +38,8 @@
         >
           <!-- 商品图片 -->
           <div class="item-image">
-            <img :src="item.coverImage" :alt="item.itemName" />
+            <img v-if="itemImg(item)" :src="itemImg(item)" :alt="item.itemName" />
+            <div v-else class="ph" :class="'ph-' + ((item.itemId || 0) % 6)" style="width:100%;height:100%;border-radius:4px" />
             <span v-if="!item.isAvailable" class="unavailable-badge">已下架</span>
           </div>
 
@@ -232,6 +233,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import Icon from '../../components/Icon.vue';
+import { PRODUCT_COVERS, FARM_COVERS } from '@/data/photos';
 import {
   getCartList,
   updateCartQuantity,
@@ -242,6 +244,10 @@ import {
 import { http } from '@/lib/http';
 
 const router = useRouter();
+
+/** 购物车商品封面：本地实景优先（itemType 1-非遗商品 2-农产品）；未命中用纹样占位 */
+const itemImg = (item: any): string | undefined =>
+  item.itemType === 1 ? PRODUCT_COVERS[item.itemId] : item.itemType === 2 ? FARM_COVERS[item.itemId] : undefined;
 
 // 购物车数据
 const loading = ref(false);
@@ -297,7 +303,7 @@ const loadCart = async () => {
 /** 加载地址列表 */
 const loadAddresses = async () => {
   try {
-    const result = await http.get('/app/user/address/list');
+    const result = await http.post('/app/user/address/list');
     addresses.value = result || [];
 
     // 自动选择默认地址
