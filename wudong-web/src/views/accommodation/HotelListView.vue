@@ -55,13 +55,12 @@ onMounted(doSearch);
 
 <template>
   <main class="container acc-scope">
+    <header class="page-head">
+      <h1 class="font-display">乌东民宿</h1>
+      <p class="page-sub">吊脚楼特色住宿<span v-if="!loading && !failed"> · 共 {{ list.length }} 家</span></p>
+    </header>
     <section class="section">
       <FilterBar v-model="query" :styles="styleOptions" @search="doSearch" />
-
-      <div class="list-head">
-        <h2>乌东民宿</h2>
-        <span v-if="!loading && !failed" class="count">共 {{ list.length }} 家</span>
-      </div>
 
       <div v-if="loading" class="state-note">正在加载民宿…</div>
       <div v-else-if="failed" class="state-note error">
@@ -77,25 +76,12 @@ onMounted(doSearch);
 </template>
 
 <style scoped>
-.list-head {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  margin: 22px 0 14px;
-}
-.list-head h2 {
-  margin: 0;
-  font-size: 22px;
-  color: var(--green-900);
-}
-.count {
-  font-size: 13px;
-  color: var(--muted);
-}
 .hotel-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
+  gap: 16px;
+  margin-top: 16px;
+  padding-bottom: 44px;
 }
 .state-note,
 .empty-state {
@@ -109,14 +95,14 @@ onMounted(doSearch);
   border-radius: var(--radius);
 }
 .state-note.error {
-  border-color: #e6b4ad;
-  color: var(--gold-600);
+  border-color: var(--cinnabar-300);
+  color: var(--cinnabar-700);
 }
 .retry {
   margin-left: 6px;
   border: 0;
   background: none;
-  color: var(--green-500);
+  color: var(--ind-700);
   cursor: pointer;
   text-decoration: underline;
   font-size: 13px;

@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue'
 import { useSession } from '../stores/session'
 import { travelApi } from '../api/travel'
 import { orderApi } from '../api/operate'
+import Icon from './Icon.vue'
 
 const props = defineProps<{ open: boolean; itemType: 'ticket' | 'route'; itemId: number }>()
 const emit = defineEmits<{ close: []; success: [orderNo: string] }>()
@@ -58,10 +59,10 @@ async function confirm(): Promise<void> {
 <template>
   <div v-if="open" class="mask" @click.self="emit('close')">
     <div class="modal card">
-      <button class="close" @click="emit('close')">✕</button>
+      <button class="close" @click="emit('close')"><Icon name="x" :size="16" /></button>
 
       <template v-if="!done">
-        <b class="title">🎫 预订</b>
+        <b class="title font-display"><Icon name="ticket" :size="16" /> 预订</b>
         <div v-if="!session.isLogged" class="login-tip">请先登录（右上角登录）</div>
         <div class="dates">
           <div
@@ -82,10 +83,10 @@ async function confirm(): Promise<void> {
 
       <template v-else>
         <div class="done">
-          <div class="ok-icon">✅</div>
+          <div class="ok-icon"><Icon name="check" :size="18" /></div>
           <b>出票成功</b>
           <div class="ono">订单号 {{ orderNo }}</div>
-          <div class="hint">🧭 使用日后核销，你的足迹地图将自动点亮这一站</div>
+          <div class="hint"><Icon name="compass" :size="12" /> 使用日后核销，你的足迹地图将自动点亮这一站</div>
           <button class="btn-primary" @click="emit('close')">好的，期待成行</button>
         </div>
       </template>
@@ -94,16 +95,16 @@ async function confirm(): Promise<void> {
 </template>
 
 <style scoped>
-.mask { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: flex; align-items: center; justify-content: center; z-index: 50; }
+.mask { position: fixed; inset: 0; background: rgba(11, 29, 44, .5); display: flex; align-items: center; justify-content: center; z-index: 50; }
 .modal { width: 380px; padding: 18px; position: relative; }
 .close { position: absolute; top: 10px; right: 12px; background: none; font-size: 14px; color: var(--text-3); }
 .title { font-size: 15px; }
-.login-tip { background: var(--amber-bg); color: var(--amber-text); border-radius: 8px; padding: 8px 12px; font-size: 12px; margin-top: 10px; }
+.login-tip { background: var(--cinnabar-100); color: var(--cinnabar-700); border-radius: var(--radius); padding: 8px 12px; font-size: 12px; margin-top: 10px; }
 .dates { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
-.date-cell { border: 1px solid var(--line); border-radius: 8px; text-align: center; padding: 6px 12px; cursor: pointer; font-size: 12px; }
-.date-cell span { color: var(--orange-500); display: block; }
-.date-cell.soldout { color: #bbb; border-style: dashed; cursor: not-allowed; }
-.date-cell.picked { border-color: var(--green-600); background: var(--ok-bg); }
+.date-cell { border: 1px solid var(--line); border-radius: var(--radius); text-align: center; padding: 6px 12px; cursor: pointer; font-size: 12px; }
+.date-cell span { color: var(--cinnabar); display: block; }
+.date-cell.soldout { color: var(--text-3); border-style: dashed; cursor: not-allowed; }
+.date-cell.picked { border-color: var(--ind-700); background: var(--ind-50); }
 .people { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-bottom: 12px; }
 .people button { width: 24px; height: 24px; border-radius: 6px; border: 1px solid var(--line); background: #fff; }
 .confirm { width: 100%; }
@@ -111,5 +112,5 @@ async function confirm(): Promise<void> {
 .done { text-align: center; padding: 12px 0 4px; }
 .ok-icon { font-size: 34px; }
 .ono { font-size: 12px; color: var(--text-3); margin: 6px 0; }
-.hint { background: var(--amber-bg); color: var(--amber-text); border-radius: 8px; padding: 8px 10px; font-size: 12px; margin-bottom: 12px; }
+.hint { background: var(--cinnabar-100); color: var(--cinnabar-700); border-radius: var(--radius); padding: 8px 10px; font-size: 12px; margin-bottom: 12px; }
 </style>

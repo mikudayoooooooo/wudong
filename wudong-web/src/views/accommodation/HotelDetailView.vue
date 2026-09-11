@@ -10,6 +10,7 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import RoomCard from '@/components/RoomCard.vue';
 import CalendarTable from '@/components/CalendarTable.vue';
+import Icon from '@/components/Icon.vue';
 import { hotelDetail, roomCalendar, bookingCreate } from '@/api/accommodation';
 import { addDaysISO, todayISO } from '@/utils/date';
 import { useSession } from '../../stores/session';
@@ -196,9 +197,7 @@ watch(
 </script>
 
 <template>
-  <main class="container detail acc-scope">
-    <button type="button" class="back-btn" @click="router.push('/hotels')">← 返回民宿列表</button>
-
+  <main class="detail acc-scope">
     <div v-if="loading" class="state-note">正在加载民宿详情…</div>
 
     <div v-else-if="failed" class="state-note error">
@@ -207,69 +206,77 @@ watch(
     </div>
 
     <template v-else-if="info">
-      <div v-if="heroImage" class="detail-hero">
-        <img :src="heroImage" :alt="info.name" />
-      </div>
-
-      <div class="detail-head">
-        <h1>{{ info.name }}</h1>
-        <span class="rate">★ {{ info.rating.toFixed(1) }}（{{ info.reviewCount || 0 }} 条评价）</span>
-      </div>
-      <p class="addr-line">📍 {{ info.address }} · 入住 {{ info.checkInTime }} / 离店 {{ info.checkOutTime }}</p>
-
-      <!-- 简介 / 风格 / 设施 + 入住信息（§5.4；入住/离店时刻已在上方 subtitle，此处补早餐/宠物政策） -->
-      <section class="intro-box">
-        <p class="intro">{{ info.intro }}</p>
-        <div class="tags">
-          <span v-for="t in info.styleTags || []" :key="`s-${t}`" class="tag">{{ t }}</span>
-          <span v-for="t in info.facilityTags || []" :key="`f-${t}`" class="tag tag-facility">{{ t }}</span>
-        </div>
-        <p class="stay-info">
-          <b>入住信息</b>
-          <span>{{ info.hasBreakfast === 1 ? '含早餐' : '不含早餐' }}</span>
-          <span>宠物：{{ info.petPolicy || '未提供' }}</span>
-        </p>
-      </section>
-
-      <!-- 房型列表：预订 → 弹窗走公共订单；点查看房态 → 日历 -->
-      <section class="section">
-        <div class="section-title"><h2>房型与房态</h2></div>
-        <div v-if="roomTypes.length" class="room-grid">
-          <RoomCard
-            v-for="rt in roomTypes"
-            :key="rt.id"
-            :room="rt"
-            @book="openBooking(rt)"
-            @viewCalendar="selectRoomType(rt.id)"
-          />
-        </div>
-        <p v-else class="empty-state">该民宿暂无启用房型，敬请期待。</p>
-      </section>
-
-      <!-- 房态日历面板（选中房型后显示） -->
-      <section v-if="selectedRoomType" class="section">
-        <div class="calendar-toolbar">
-          <b class="cal-room">{{ selectedRoomType.name }}</b>
-          <span class="cal-title">房态日历</span>
-          <div class="chips">
-            <button
-              v-for="n in RANGE_OPTIONS"
-              :key="n"
-              type="button"
-              class="chip"
-              :class="{ on: range === n }"
-              @click="changeRange(n)"
-            >
-              {{ n }} 天
-            </button>
+      <!-- 页头：全幅 320px 封面，宋体纸色标题压图（规范 §3.3.1） -->
+      <section class="detail-hero img-frame" :class="{ 'no-cover': !heroImage }">
+        <img v-if="heroImage" :src="heroImage" :alt="info.name" />
+        <div class="hero-mask" aria-hidden="true" />
+        <div class="hero-inner">
+          <h1 class="font-display">{{ info.name }}</h1>
+          <div class="sub">
+            <span class="rate">★ {{ info.rating.toFixed(1) }}（{{ info.reviewCount || 0 }} 条评价）</span>
+            <span><Icon name="map-pin" :size="12" /> {{ info.address }}</span>
+            <span>入住 {{ info.checkInTime }} / 离店 {{ info.checkOutTime }}</span>
           </div>
         </div>
-        <CalendarTable v-if="!calFailed" :rows="calendarRows" :loading="calLoading" />
-        <div v-else class="state-note error">
-          房态加载失败，请稍后重试
-          <button type="button" class="retry" @click="loadCalendar">重新加载</button>
-        </div>
       </section>
+
+      <div class="container">
+        <button type="button" class="back-btn" @click="router.push('/hotels')">← 返回民宿列表</button>
+
+        <!-- 摘要卡：叠压头图（§3.0 B.3） -->
+        <section class="summary-card">
+          <p class="intro">{{ info.intro }}</p>
+          <div class="tags">
+            <span v-for="t in info.styleTags || []" :key="`s-${t}`" class="tag">{{ t }}</span>
+            <span v-for="t in info.facilityTags || []" :key="`f-${t}`" class="tag tag-facility">{{ t }}</span>
+          </div>
+          <p class="stay-info">
+            <b>入住信息</b>
+            <span>{{ info.hasBreakfast === 1 ? '含早餐' : '不含早餐' }}</span>
+            <span>宠物：{{ info.petPolicy || '未提供' }}</span>
+          </p>
+        </section>
+
+        <!-- 房型列表：预订 → 弹窗走公共订单；点查看房态 → 日历 -->
+        <section class="sect">
+          <b class="sect-title font-display">房型与房态</b>
+          <div v-if="roomTypes.length" class="room-grid">
+            <RoomCard
+              v-for="rt in roomTypes"
+              :key="rt.id"
+              :room="rt"
+              @book="openBooking(rt)"
+              @viewCalendar="selectRoomType(rt.id)"
+            />
+          </div>
+          <p v-else class="empty-state">该民宿暂无启用房型，敬请期待。</p>
+        </section>
+
+        <!-- 房态日历面板（选中房型后显示） -->
+        <section v-if="selectedRoomType" class="sect">
+          <div class="calendar-toolbar">
+            <b class="cal-room">{{ selectedRoomType.name }}</b>
+            <span class="cal-title">房态日历</span>
+            <div class="chips">
+              <button
+                v-for="n in RANGE_OPTIONS"
+                :key="n"
+                type="button"
+                class="chip"
+                :class="{ on: range === n }"
+                @click="changeRange(n)"
+              >
+                {{ n }} 天
+              </button>
+            </div>
+          </div>
+          <CalendarTable v-if="!calFailed" :rows="calendarRows" :loading="calLoading" />
+          <div v-else class="state-note error">
+            房态加载失败，请稍后重试
+            <button type="button" class="retry" @click="loadCalendar">重新加载</button>
+          </div>
+        </section>
+      </div>
     </template>
 
     <!-- 预订弹窗 -->
@@ -308,56 +315,84 @@ watch(
 .detail {
   padding-bottom: 8px;
 }
-.back-btn {
-  border: 0;
-  background: #fff;
-  box-shadow: var(--shadow);
-  padding: 8px 14px;
-  border-radius: 10px;
-  margin-top: 18px;
-  color: var(--green-700);
-  font-size: 14px;
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px 44px;
 }
+.back-btn {
+  margin: 14px 0 12px;
+  border: 1px solid var(--line);
+  background: transparent;
+  padding: 7px 16px;
+  border-radius: var(--radius);
+  color: var(--text-2);
+  font-size: 13px;
+  cursor: pointer;
+}
+.back-btn:hover {
+  border-color: var(--ind-300);
+  color: var(--ind-700);
+}
+/* 页头（§3.3.1）：全幅 320px 封面 + 宋体纸色标题压图 */
 .detail-hero {
-  margin-top: 18px;
-  border-radius: 18px;
+  position: relative;
+  height: 320px;
   overflow: hidden;
-  background: linear-gradient(135deg, var(--green-300), var(--green-100));
+  background: var(--ind-800);
+}
+.detail-hero.no-cover {
+  background: var(--ind-800) url("../assets/pattern/diamond-dark.svg") center/560px repeat;
 }
 .detail-hero img {
   display: block;
   width: 100%;
-  height: 380px;
+  height: 100%;
   object-fit: cover;
 }
-.detail-head {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-  margin: 20px 0 6px;
+.hero-mask {
+  position: absolute;
+  inset: 0;
+  background: rgba(11, 29, 44, .45);
 }
-.detail-head h1 {
+.hero-inner {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+  color: var(--paper);
+}
+.hero-inner h1 {
   margin: 0;
-  font-size: 26px;
-  color: var(--green-900);
+  font-size: 32px;
+  line-height: 1.25;
+}
+.hero-inner .sub {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  font-size: 12px;
+  color: rgba(251, 247, 238, .85);
+  margin-top: 6px;
 }
 .rate {
-  color: var(--gold-600);
+  color: var(--cinnabar-300);
   font-weight: 600;
-  font-size: 14px;
 }
-.addr-line {
-  color: var(--muted);
-  margin: 0 0 14px;
-  font-size: 14px;
-}
-.intro-box {
-  background: #fff;
+/* 摘要卡叠压头图（§3.0 B.3） */
+.summary-card {
+  margin-top: -24px;
+  position: relative;
+  z-index: 1;
+  background: var(--paper);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 16px 18px;
 }
-.intro-box .intro {
+.summary-card .intro {
   margin: 0 0 10px;
   line-height: 1.7;
   color: var(--ink);
@@ -369,12 +404,12 @@ watch(
   gap: 6px 16px;
   margin: 12px 0 0;
   padding-top: 10px;
-  border-top: 1px dashed var(--line);
+  border-top: 1px solid var(--line-soft);
   color: var(--muted);
   font-size: 13px;
 }
 .stay-info b {
-  color: var(--green-700);
+  color: var(--ind-700);
   font-size: 14px;
 }
 .tags {
@@ -384,16 +419,27 @@ watch(
 }
 .tag {
   font-size: 12px;
-  color: var(--green-700);
-  background: var(--green-100);
-  border: 1px solid #d6e6cf;
+  color: var(--ind-700);
+  background: var(--ind-100);
+  border: 1px solid var(--line);
   padding: 2px 8px;
-  border-radius: 6px;
+  border-radius: var(--radius);
 }
 .tag-facility {
-  background: #fff7ec;
-  color: var(--gold-600);
-  border-color: var(--gold-300);
+  background: #fff;
+  color: var(--text-2);
+}
+/* 正文分节（§3.3.3） */
+.sect {
+  border-top: 1px solid var(--line);
+  margin-top: 20px;
+  padding: 20px 0;
+}
+.sect-title {
+  display: block;
+  font-size: 15px;
+  margin-bottom: 12px;
+  color: var(--ind-800);
 }
 .room-grid {
   display: grid;
@@ -412,14 +458,14 @@ watch(
   border-radius: var(--radius);
 }
 .state-note.error {
-  border-color: #e6b4ad;
-  color: var(--gold-600);
+  border-color: var(--cinnabar-300);
+  color: var(--cinnabar-700);
 }
 .retry {
   margin-left: 6px;
   border: 0;
   background: none;
-  color: var(--green-500);
+  color: var(--ind-700);
   cursor: pointer;
   text-decoration: underline;
   font-size: 13px;
@@ -434,7 +480,7 @@ watch(
   color: var(--muted);
 }
 .cal-room {
-  color: var(--green-900);
+  color: var(--ind-800);
   font-size: 14px;
 }
 .cal-title {
@@ -448,21 +494,21 @@ watch(
 .chip {
   border: 1px solid var(--line);
   background: #fff;
-  border-radius: 999px;
+  border-radius: var(--radius);
   padding: 4px 12px;
   font-size: 13px;
-  color: var(--green-700);
+  color: var(--text-2);
 }
 .chip.on {
-  background: var(--green-700);
-  color: #fff;
-  border-color: var(--green-700);
+  background: var(--ind-700);
+  color: var(--paper);
+  border-color: var(--ind-700);
 }
 
 .bk-mask {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(11, 29, 44, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -475,7 +521,7 @@ watch(
 }
 .bk h3 {
   margin: 0 0 12px;
-  color: var(--green-900);
+  color: var(--ind-800);
 }
 .bk-f {
   display: flex;
@@ -491,7 +537,7 @@ watch(
 .bk-f input {
   flex: 1;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius);
   padding: 7px 10px;
 }
 .bk-est {
@@ -499,7 +545,9 @@ watch(
   color: var(--text-2);
 }
 .bk-est b {
-  color: var(--gold-600);
+  color: var(--cinnabar);
+  font-family: var(--font-display);
+  font-size: 16px;
 }
 .bk-tip {
   color: var(--muted);
@@ -514,21 +562,21 @@ watch(
 .bk-cancel {
   border: 1px solid var(--line);
   background: #fff;
-  border-radius: 10px;
+  border-radius: var(--radius);
   padding: 7px 16px;
   cursor: pointer;
 }
 .bk-ok {
-  background: var(--gold-500);
-  color: #fff;
+  background: var(--cinnabar);
+  color: var(--paper);
   border: 0;
-  border-radius: 10px;
+  border-radius: var(--radius);
   padding: 7px 18px;
   font-weight: 600;
   cursor: pointer;
 }
 .bk-ok:disabled {
-  background: #d8c4ac;
+  background: var(--ind-100);
   cursor: not-allowed;
 }
 </style>

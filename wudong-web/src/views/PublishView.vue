@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { communityApi } from '../api/community'
+import Icon from '../components/Icon.vue'
 
 const router = useRouter()
 const title = ref('')
@@ -61,7 +62,7 @@ async function submit(): Promise<void> {
 <template>
   <div class="container page">
     <div class="card form">
-      <h2>✏️ 发布游记</h2>
+      <h2><Icon name="edit" :size="16" /> 发布游记</h2>
       <input v-model="title" class="title" placeholder="标题（必填）" />
       <textarea v-model="content" rows="8" placeholder="正文 ≤ 5000 字" />
       <div class="label">添加图片（{{ pickedImages.length }}/9）</div>
@@ -91,7 +92,7 @@ input.title, textarea { width: 100%; border: 1px solid var(--line); border-radiu
 .opt { width: 72px; height: 54px; justify-content: center; align-items: center; cursor: pointer; opacity: .55; }
 .opt.picked { opacity: 1; outline: 2px solid var(--green-600); }
 .topics { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
-.tp { background: #f2f2f2; cursor: pointer; }
+.tp { background: var(--ind-50); cursor: pointer; }
 .tp.on { background: var(--green-600); color: #fff; }
 .submit { width: 100%; }
 .toast { background: var(--amber-bg); color: var(--amber-text); border-radius: 8px; padding: 8px 12px; font-size: 12px; margin-top: 10px; }

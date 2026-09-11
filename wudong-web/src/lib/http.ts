@@ -64,7 +64,9 @@ async function request<T = any>(
   });
   const body = await res.json().catch(() => ({}));
   if (body.code !== 1000) {
-    if (body.code === 1001) {
+    // 仅真正的鉴权失效才触发登出；后端对未知路由也返回 1001（"... Not Found"），
+    // 一律清会话会把普通接口错误放大成"账号登出"（购物车地址接口事故，2026-09-11）
+    if (body.code === 1001 && /登录|失效|token|expir/i.test(body.message || '')) {
       for (const fn of unauthorizedListeners) fn();
     }
     throw new ApiError(body.code ?? 1001, body.message || '请求失败');

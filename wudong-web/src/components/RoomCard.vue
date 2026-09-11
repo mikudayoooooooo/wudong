@@ -58,7 +58,7 @@ const emit = defineEmits<{
   gap: 6px 14px;
 }
 .facts .price {
-  color: var(--gold-600);
+  color: var(--cinnabar);
   font-weight: 700;
 }
 .room-actions {
@@ -68,25 +68,24 @@ const emit = defineEmits<{
   flex-wrap: wrap;
 }
 .btn-primary {
-  background: var(--gold-500);
+  background: var(--cinnabar);
   color: #fff;
   border: 0;
   padding: 9px 18px;
-  border-radius: 10px;
+  border-radius: var(--radius);
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 6px 16px rgba(232, 150, 62, 0.35);
 }
 .btn-primary:disabled {
-  background: #d8c4ac;
-  box-shadow: none;
+  background: var(--ind-100);
+  color: var(--text-3);
   cursor: not-allowed;
 }
 .btn-ghost {
   border: 1px solid var(--line);
   background: #fff;
   padding: 9px 16px;
-  border-radius: 10px;
+  border-radius: var(--radius);
   color: var(--green-700);
   cursor: pointer;
 }

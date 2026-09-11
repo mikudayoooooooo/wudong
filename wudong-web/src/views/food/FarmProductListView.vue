@@ -3,6 +3,7 @@
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { searchFarmProducts, getFarmProductCategories } from '@/api/food';
+import { FARM_COVERS } from '@/data/photos';
 import type { FarmProduct } from '@/api/types';
 
 const route = useRoute();
@@ -74,7 +75,10 @@ onMounted(async () => {
 
 <template>
   <main class="container">
-    <h1 class="page-title">新鲜农产品</h1>
+    <header class="page-head">
+      <h1 class="font-display">新鲜农产品</h1>
+      <p class="page-sub">当季山货 · 农户直供</p>
+    </header>
 
     <!-- 搜索栏 -->
     <section class="search-bar">
@@ -134,7 +138,8 @@ onMounted(async () => {
           class="product-card"
           @click="router.push({ name: 'farm-product-detail', params: { id: p.id } })"
         >
-          <img :src="p.coverImage" :alt="p.name" class="product-img" />
+          <img v-if="FARM_COVERS[p.id]" :src="FARM_COVERS[p.id]" :alt="p.name" class="product-img" />
+          <div v-else class="product-img ph" :class="'ph-' + (p.id % 6)" />
           <div class="product-info">
             <h3 class="product-name">{{ p.name }}</h3>
             <div v-if="p.origin" class="origin">产地：{{ p.origin }}</div>
@@ -160,30 +165,24 @@ onMounted(async () => {
   padding: 20px;
 }
 
-.page-title {
-  font-size: 28px;
-  color: var(--green-900);
-  margin-bottom: 20px;
-}
-
 .search-bar {
   display: flex;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-top: 16px;
 }
 
 .search-input {
   flex: 1;
   padding: 10px 15px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--line);
   border-radius: 4px;
   font-size: 14px;
 }
 
 .btn-search {
   padding: 10px 30px;
-  background: var(--green-600);
-  color: white;
+  background: var(--ind-700);
+  color: var(--paper);
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -191,16 +190,16 @@ onMounted(async () => {
 }
 
 .btn-search:hover {
-  background: var(--green-700);
+  background: var(--ind-800);
 }
 
 .filter-bar {
   display: flex;
   gap: 30px;
-  margin-bottom: 30px;
-  padding: 15px;
-  background: #f8f8f8;
-  border-radius: 4px;
+  padding: 12px 0;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
 }
 
 .filter-group {
@@ -211,12 +210,12 @@ onMounted(async () => {
 
 .filter-group label {
   font-weight: 500;
-  color: #666;
+  color: var(--text-2);
 }
 
 .filter-group button {
   padding: 6px 15px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--line);
   background: white;
   border-radius: 4px;
   cursor: pointer;
@@ -224,14 +223,14 @@ onMounted(async () => {
 }
 
 .filter-group button.active {
-  background: var(--green-600);
-  color: white;
-  border-color: var(--green-600);
+  background: var(--ind-700);
+  color: var(--paper);
+  border-color: var(--ind-700);
 }
 
 .filter-group select {
   padding: 6px 12px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--line);
   border-radius: 4px;
   font-size: 13px;
 }
@@ -239,25 +238,24 @@ onMounted(async () => {
 .product-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  gap: 16px;
+  padding-bottom: 44px;
 }
 
 .product-card {
-  border: 1px solid #eee;
-  border-radius: 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
   overflow: hidden;
-  transition: transform 0.2s, box-shadow 0.2s;
   cursor: pointer;
 }
 
 .product-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: var(--ind-300);
 }
 
 .product-img {
   width: 100%;
-  height: 200px;
+  aspect-ratio: 16 / 10;
   object-fit: cover;
 }
 
@@ -275,9 +273,9 @@ onMounted(async () => {
 
 .origin {
   font-size: 12px;
-  color: var(--green-700);
+  color: var(--ind-700);
   margin-bottom: 10px;
-  background: #f0f9f0;
+  background: var(--ind-100);
   padding: 4px 8px;
   border-radius: 3px;
   display: inline-block;
@@ -292,8 +290,9 @@ onMounted(async () => {
 
 .price {
   font-size: 18px;
-  color: #e74c3c;
-  font-weight: bold;
+  color: var(--cinnabar);
+  font-family: var(--font-display);
+  font-weight: 700;
 }
 
 .price span {
@@ -303,14 +302,14 @@ onMounted(async () => {
 
 .sales {
   font-size: 12px;
-  color: #999;
+  color: var(--text-3);
 }
 
 .btn-buy {
   width: 100%;
   padding: 8px;
-  background: var(--green-600);
-  color: white;
+  background: var(--ind-700);
+  color: var(--paper);
   border: none;
   border-radius: 4px;
   font-size: 14px;
@@ -321,18 +320,18 @@ onMounted(async () => {
 .state-note {
   text-align: center;
   padding: 40px;
-  color: #666;
+  color: var(--text-2);
 }
 
 .state-note.error {
-  color: #e74c3c;
+  color: var(--cinnabar);
 }
 
 .retry {
   margin-left: 10px;
   padding: 5px 15px;
-  background: var(--green-600);
-  color: white;
+  background: var(--ind-700);
+  color: var(--paper);
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -341,7 +340,7 @@ onMounted(async () => {
 .empty-state {
   text-align: center;
   padding: 60px;
-  color: #999;
+  color: var(--text-3);
 }
 
 @media (max-width: 768px) {

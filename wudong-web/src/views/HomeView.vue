@@ -1,29 +1,36 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import HeroCarousel from '../components/HeroCarousel.vue'
 import FootprintMap from '../components/FootprintMap.vue'
 import SectionHeader from '../components/SectionHeader.vue'
 import Waterfall from '../components/Waterfall.vue'
 import CountUp from '../components/CountUp.vue'
+import Icon from '../components/Icon.vue'
 import { travelApi, type StopView } from '../api/travel'
 import { communityApi } from '../api/community'
 import { operateApi } from '../api/operate'
+import { HL_COVERS } from '../data/photos'
+import { useSession } from '../stores/session'
 
 const router = useRouter()
+const session = useSession()
 const bookDate = ref('2026-09-13')
 const bookPeople = ref(2)
 
 const kingkong = [
-  { icon: '🎫', label: '景区门票', to: '/scenic', disabled: false },
-  { icon: '🗺️', label: '路线套餐', to: '/route', disabled: false },
-  { icon: '🏨', label: '住宿民宿', to: '/hotels', disabled: false },
-  { icon: '🛍️', label: '非遗好物', to: '/products', disabled: false },
-  { icon: '🍜', label: '特色餐厅', to: '/restaurants', disabled: false },
-  { icon: '🌾', label: '新鲜农产品', to: '/farm-products', disabled: false },
-  { icon: '📷', label: '社区游记', to: '/community', disabled: false },
-  { icon: '🧭', label: '交通攻略', to: '/guide', disabled: false },
+  { icon: 'ticket', label: '景区门票', to: '/scenic', disabled: false },
+  { icon: 'map-pins', label: '路线套餐', to: '/route', disabled: false },
+  { icon: 'bed', label: '住宿民宿', to: '/hotels', disabled: false },
+  { icon: 'gift', label: '非遗好物', to: '/products', disabled: false },
+  { icon: 'tools-kitchen-2', label: '特色餐厅', to: '/restaurants', disabled: false },
+  { icon: 'basket', label: '新鲜农产品', to: '/farm-products', disabled: false },
+  { icon: 'camera', label: '社区游记', to: '/community', disabled: false },
+  { icon: 'compass', label: '交通攻略', to: '/guide', disabled: false },
 ]
+
+// 真实足迹精选封面（本地苗寨实景，来源见 CREDITS.md）
+const hlImgs = HL_COVERS
 
 // —— 异步数据 ——
 const overviewStops = ref<StopView[]>([])
@@ -36,9 +43,34 @@ const guides = ref<any[]>([])
 const announcements = ref<any[]>([])
 const routeTitleMap = ref(new Map<number, string>())
 
+// —— 个人足迹语义（规范 §3.7C，已拍板）：登录后地图切「你的点亮 vs 未解锁」 ——
+const myLitIds = ref<Set<number>>(new Set())
+const syncMyFootprint = async () => {
+  if (!session.isLogged || !session.user) {
+    myLitIds.value = new Set()
+    return
+  }
+  try {
+    const prof = await communityApi.userProfile(session.user.id)
+    myLitIds.value = new Set<number>(prof?.litSpotIds || [])
+  } catch {
+    myLitIds.value = new Set()
+  }
+}
+watch(() => session.isLogged, syncMyFootprint, { immediate: true })
+
+/** 登录用户：lit = 我核销过；匿名：全局点亮态 */
+const mapStops = computed<StopView[]>(() =>
+  session.isLogged
+    ? overviewStops.value.map((s) => {
+        const mine = myLitIds.value.has(s.spotId)
+        return { ...s, lit: mine, locked: !mine }
+      })
+    : overviewStops.value
+)
+const myLitCount = computed(() => overviewStops.value.filter((s) => myLitIds.value.has(s.spotId)).length)
+
 const KIND: Record<string, string> = { spot: '景区', dining: '餐饮 · 食', stay: '住宿 · 住', experience: '体验' }
-const gradOf = (i: number): string =>
-  ['linear-gradient(120deg,#7fae8e,#33523e)', 'linear-gradient(120deg,#c9a06b,#8a5f2e)', 'linear-gradient(120deg,#8e7fae,#4a3a6a)'][i % 3]
 
 onMounted(async () => {
   // 第一波：全部独立请求并行
@@ -110,44 +142,54 @@ const barWidth = (i: number): string =>
 </script>
 
 <template>
-  <div class="container">
-    <!-- 区块1：轮播 + 快捷订票 -->
-    <section class="hero-row">
-      <HeroCarousel class="hero" @open="(t, id) => router.push(t === 'route' ? `/route/${id}` : `/scenic/${id}`)" />
-      <aside class="quick card">
-        <b>🎫 快捷订票</b>
-        <div class="field"><input v-model="bookDate" type="date" /></div>
-        <div class="field steppers">
-          <span>出行人数</span>
-          <button @click="bookPeople = Math.max(1, bookPeople - 1)">−</button>
-          <b>{{ bookPeople }}</b>
-          <button @click="bookPeople++">＋</button>
-        </div>
-        <button class="btn-primary go" @click="router.push('/route')">查询路线</button>
-      </aside>
-    </section>
+  <!-- 区块1：全幅 Hero 色带 + 悬浮快捷订票 -->
+  <section class="hero-band">
+    <HeroCarousel class="hero" @open="(t, id) => router.push(t === 'route' ? `/route/${id}` : `/scenic/${id}`)" />
+    <aside class="quick">
+      <b class="quick-title"><Icon name="ticket" :size="16" /> 快捷订票</b>
+      <div class="field"><input v-model="bookDate" type="date" /></div>
+      <div class="field steppers">
+        <span>出行人数</span>
+        <button @click="bookPeople = Math.max(1, bookPeople - 1)">−</button>
+        <b>{{ bookPeople }}</b>
+        <button @click="bookPeople++">＋</button>
+      </div>
+      <button class="btn-primary go" @click="router.push('/route')">查询路线</button>
+    </aside>
+  </section>
 
-    <!-- 区块2：金刚区 -->
+  <!-- 区块2：金刚区（发丝线长条，无卡片） -->
+  <div class="container">
     <section class="kingkong">
       <div
-        v-for="k in kingkong" :key="k.label" class="kk card"
+        v-for="k in kingkong" :key="k.label" class="kk"
         :class="{ disabled: k.disabled }"
         @click="!k.disabled && router.push(k.to)"
       >
-        <b>{{ k.icon }}</b>
+        <b class="kk-ic"><Icon :name="k.icon" :size="20" /></b>
         <span>{{ k.label }}</span>
         <i v-if="k.disabled">即将上线</i>
       </div>
     </section>
+  </div>
 
-    <!-- 区块3：手绘地图总览 -->
-    <SectionHeader icon="🗺️" title="乌东村手绘地图" sub="站点大小 = 被点亮次数 · 点击直达" />
-    <FootprintMap :stops="overviewStops" variant="overview" @select="(id) => router.push(`/scenic/${id}`)" />
+  <!-- 区块3：手绘地图（全幅浅靛色带，明度翻转） -->
+  <section class="band band-map" v-reveal>
+    <div class="container">
+      <SectionHeader
+        icon="map-pins"
+        title="乌东村手绘地图"
+        :sub="session.isLogged ? `你的足迹 · 已点亮 ${myLitCount}/${overviewStops.length} 站 · 点击直达` : '站点大小 = 被点亮次数 · 点击直达'"
+      />
+      <FootprintMap :stops="mapStops" variant="overview" @select="(id) => router.push(`/scenic/${id}`)" />
+    </div>
+  </section>
 
+  <div class="container">
     <!-- 区块4：足迹榜 + 节庆倒计时 -->
     <section class="board-row">
-      <div class="board card">
-        <SectionHeader icon="🏆" title="本周足迹榜" sub="被点亮最多的站与线" />
+      <div class="board">
+        <SectionHeader icon="flag" title="本周足迹榜" sub="被点亮最多的站与线" />
         <table>
           <tr v-for="(b, i) in board" :key="b.spotId">
             <td><span class="no" :class="'no-' + i">{{ i + 1 }}</span><b>{{ b.name }}</b><span class="kind"> {{ b.kind }}</span></td>
@@ -156,14 +198,15 @@ const barWidth = (i: number): string =>
           </tr>
         </table>
       </div>
-      <aside class="festival card">
-        <b>⏳ 节庆倒计时</b>
+      <aside class="festival">
+        <span class="seal" aria-hidden="true">节</span>
+        <b class="fest-title"><Icon name="clock" :size="15" /> 节庆倒计时</b>
         <div class="fest">
-          <b class="name">苗年 · 芦笙节</b>
-          <div><span class="days">23</span> 天后开幕</div>
+          <b class="name font-display">苗年 · 芦笙节</b>
+          <div><span class="days font-display">23</span> 天后开幕</div>
           <a class="link" @click="router.push('/route')">节庆主题路线已上线 ›</a>
         </div>
-        <b>📢 公告</b>
+        <b class="fest-title"><Icon name="info-circle" :size="15" /> 公告</b>
         <div class="notice">
           <template v-if="announcements.length">
             <div v-for="a in announcements" :key="a.id">· {{ a.title }}</div>
@@ -174,14 +217,17 @@ const barWidth = (i: number): string =>
     </section>
 
     <!-- 区块5：真实足迹精选 -->
-    <SectionHeader icon="🧭" title="真实足迹" sub="本周点亮最完整的游记" more="进入社区" @more="router.push('/community')" />
+    <SectionHeader icon="compass" title="真实足迹" sub="本周点亮最完整的游记" more="进入社区" @more="router.push('/community')" />
     <section class="hl-row">
       <div v-for="(p, i) in highlightPosts" :key="p.id" class="card hl" @click="router.push(`/post/${p.id}`)">
-        <div class="ph hl-img" :style="{ background: gradOf(i) }">{{ p.title }}</div>
+        <div class="hl-img img-frame">
+          <img :src="hlImgs[i % hlImgs.length]" :alt="p.title" />
+          <b class="hl-title">{{ p.title }}</b>
+        </div>
         <div class="hl-body">
           <b>@{{ p.author?.nickname }}</b>
           <span class="sub">· {{ routeTitleMap.get(p.linkedRouteId) }}</span>
-          <div class="chain-line">🧭 足迹快照 {{ p.footprintLit }}/{{ p.footprintTotal || p.footprintLit }} 站点亮 · 赞 {{ p.likeCount }}</div>
+          <div class="chain-line">足迹快照 {{ p.footprintLit }}/{{ p.footprintTotal || p.footprintLit }} 站点亮 · 赞 {{ p.likeCount }}</div>
         </div>
       </div>
     </section>
@@ -197,13 +243,13 @@ const barWidth = (i: number): string =>
       </div>
       <aside class="side">
         <div class="card side-card">
-          <b>🔥 话题榜</b>
+          <b class="side-title"><Icon name="message-circle" :size="15" /> 话题榜</b>
           <div class="side-list">
             <span v-for="t in topicRank" :key="t.id">{{ t.name }} {{ Number(t.viewCount).toLocaleString() }}浏览</span>
           </div>
         </div>
         <div class="card side-card">
-          <b>🌟 活跃旅人</b>
+          <b class="side-title"><Icon name="users" :size="15" /> 活跃旅人</b>
           <div class="side-list">
             <span v-for="u in activeUsers" :key="u.id" @click="router.push(`/user/${u.id}`)">
               {{ u.avatar }} {{ u.nickname }} · 足迹 {{ u.litCount }}/6 站
@@ -211,16 +257,18 @@ const barWidth = (i: number): string =>
           </div>
         </div>
         <div class="card side-card">
-          <b>🎫 顺手买一票</b>
+          <b class="side-title"><Icon name="ticket" :size="15" /> 顺手买一票</b>
           <div class="side-list"><span @click="router.push('/route/1')" style="cursor:pointer">苗寨深度两日游 ¥899 ›</span></div>
         </div>
       </aside>
     </section>
+  </div>
 
-    <!-- 区块7：交通攻略 + 平台数据 -->
-    <section class="serv-row">
-      <div class="card guides">
-        <b>🚄 怎么来乌东？</b>
+  <!-- 区块7：交通攻略 + 平台数据（全幅深靛色带收底） -->
+  <section class="band band-end" v-reveal>
+    <div class="container serv-row">
+      <div class="guides">
+        <b class="side-title"><Icon name="bus" :size="15" /> 怎么来乌东？</b>
         <div class="guide-cards">
           <div v-for="g in guides" :key="g.id" class="g-card">
             <b>{{ g.departure }}出发</b><br />{{ g.transportType }} {{ g.duration }}<br />
@@ -233,62 +281,106 @@ const barWidth = (i: number): string =>
         <div class="stat"><CountUp :value="186542" /><span>次足迹点亮</span></div>
         <div class="stat"><CountUp :value="98" suffix="%" /><span>行程完成率</span></div>
       </div>
-    </section>
-  </div>
+    </div>
+  </section>
 </template>
 
 <style scoped>
-.hero-row { display: flex; gap: 12px; margin-top: 16px; }
-.hero { flex: 1; }
-.quick { width: 240px; padding: 12px; background: var(--paper); }
-.field { margin: 8px 0; }
-.field input { width: 100%; border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; }
+/* ── 区块1：全幅 Hero + 悬浮订票 ── */
+.hero-band { position: relative; }
+.quick { position: absolute; top: 50%; transform: translateY(-50%); right: max(16px, calc((100vw - 1200px) / 2)); width: 260px; padding: 18px; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); z-index: 3; }
+.quick-title, .fest-title, .side-title { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ind-800); }
+.field { margin: 10px 0; }
+.field input { width: 100%; border: 1px solid var(--line); border-radius: var(--radius); padding: 7px 8px; background: #fff; }
 .steppers { display: flex; align-items: center; gap: 8px; }
-.steppers button { width: 24px; height: 24px; border-radius: 6px; border: 1px solid var(--line); background: #fff; }
-.go { width: 100%; margin-top: 6px; }
-.kingkong { display: flex; gap: 10px; margin: 16px 0; }
-.kk { flex: 1; text-align: center; padding: 10px 0 8px; cursor: pointer; background: #f7f9f6; border-color: #e8efe9; }
-.kk b { font-size: 20px; display: block; }
+.steppers button { width: 24px; height: 24px; border-radius: var(--radius); border: 1px solid var(--line); background: #fff; }
+.go { width: 100%; margin-top: 8px; }
+
+/* ── 区块2：金刚区长条 ── */
+.kingkong { display: flex; margin: 0; border-bottom: 1px solid var(--line); }
+.kk { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 20px 0 16px; cursor: pointer; border-right: 1px solid var(--line); transition: background .15s; }
+.kk:last-child { border-right: none; }
+.kk:hover { background: var(--ind-50); }
+.kk-ic { color: var(--ind-700); }
 .kk span { font-size: 12px; }
-.kk i { display: block; font-style: normal; font-size: 10px; color: #bbb; }
+.kk i { font-style: normal; font-size: 10px; color: var(--text-3); }
 .kk.disabled { opacity: .55; cursor: not-allowed; }
-.board-row { display: flex; gap: 12px; margin: 16px 0; }
-.board { flex: 1.6; padding: 12px 16px; }
+
+/* ── 全幅色带 ── */
+.band { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 40px 0 44px; margin-top: 44px; }
+.band-map { background: var(--ind-50); }
+.band-end { background: var(--ind-950) url("../assets/pattern/meander-dark.svg") center/720px repeat; color: var(--paper); margin-bottom: 0; }
+.band .sec-head { margin-top: 0; }
+
+/* ── 区块4：足迹榜 + 节庆 ── */
+.board-row { display: flex; gap: 40px; margin: 44px 0 8px; }
+.board { flex: 1.6; }
 .board table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.board td { padding: 5px 0; }
+.board tr { border-bottom: 1px solid var(--line-soft); }
+.board tr:last-child { border-bottom: none; }
+.board td { padding: 9px 0; }
 .board .bar-cell { width: 40%; }
-.board .bar { height: 8px; background: linear-gradient(90deg, var(--orange-500), var(--orange-300)); border-radius: 4px; }
+.board .bar { height: 6px; background: var(--ind-500); border-radius: 3px; }
 .board .cnt { color: var(--text-3); font-size: 12px; text-align: right; }
-.no { display: inline-block; width: 18px; height: 18px; line-height: 18px; text-align: center; border-radius: 6px; background: #eee; margin-right: 8px; font-size: 11px; }
-.no-0 { background: var(--orange-500); color: #fff; }
-.no-1 { background: var(--orange-300); color: #fff; }
-.no-2 { background: var(--green-600); color: #fff; }
+.no { display: inline-block; width: 18px; height: 18px; line-height: 18px; text-align: center; border-radius: 2px; background: var(--ind-100); color: var(--ind-700); margin-right: 8px; font-size: 11px; }
+.no-0 { background: var(--cinnabar); color: var(--paper); }
+.no-1 { background: var(--ind-700); color: var(--paper); }
+.no-2 { background: var(--ind-500); color: var(--paper); }
 .kind { color: var(--text-3); font-size: 11px; }
-.festival { flex: 1; padding: 12px 16px; }
-.fest { margin: 8px 0 14px; }
-.days { font-size: 26px; font-weight: 800; color: var(--orange-500); }
-.link { color: var(--amber-text); font-size: 12px; cursor: pointer; }
-.notice { font-size: 12px; color: var(--text-2); line-height: 1.8; }
-.hl-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.festival { position: relative; flex: 1; padding: 20px; background: var(--ind-800) url("../assets/pattern/spiral-dark.svg") center/560px repeat; border-radius: var(--radius); }
+/* 印章母题（规范 §3.0 D.3：全站仅此一处） */
+.seal { position: absolute; top: 14px; right: 14px; width: 28px; height: 28px; display: grid; place-items: center; background: var(--cinnabar); color: var(--paper); font-family: var(--font-accent); font-size: 15px; border-radius: 2px; transform: rotate(-4deg); }
+.festival .fest-title { color: var(--ind-100); }
+.fest { margin: 12px 0 20px; }
+.fest .name { color: var(--paper); font-size: 17px; font-family: var(--font-accent); letter-spacing: .02em; }
+.fest div { color: var(--ind-100); font-size: 12px; margin-top: 4px; }
+.days { font-size: 32px; font-weight: 700; color: var(--paper); }
+.link { color: var(--cinnabar-300); font-size: 12px; cursor: pointer; }
+.notice { font-size: 12px; color: var(--ind-100); line-height: 1.9; opacity: .85; }
+
+/* ── 区块5：真实足迹（1 大 2 小不对称栅格，规范 §3.0 B.2） ── */
+.hl-row { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; }
 .hl { overflow: hidden; cursor: pointer; }
-.hl-img { height: 110px; display: flex; align-items: flex-end; padding: 10px; color: #fff; font-weight: 700; font-size: 14px; }
-.hl-body { padding: 10px 12px; font-size: 12px; }
+.hl:first-child { grid-row: span 2; display: flex; flex-direction: column; }
+.hl:first-child .hl-img { height: 316px; }  /* 150*2 + 16 gap */
+.hl:first-child .hl-body { flex: 1; }
+.hl-img { height: 150px; }
+.hl-title { position: absolute; left: 12px; bottom: 10px; z-index: 1; color: var(--paper); font-size: 14px; }
+.hl-body { padding: 12px 14px; font-size: 12px; }
 .chain-line { color: var(--text-3); margin-top: 4px; font-size: 11px; }
-.feed-row { display: flex; gap: 12px; margin-top: 16px; }
+
+/* ── 区块6：信息流 ── */
+.feed-row { display: flex; gap: 24px; margin-top: 20px; }
 .feed-main { flex: 1; }
-.tabs { display: flex; gap: 8px; margin-bottom: 10px; }
-.tab { background: #f2f2f2; }
-.tab.on { background: var(--green-600); color: #fff; }
-.side { width: 240px; display: flex; flex-direction: column; gap: 12px; }
-.side-card { padding: 12px 14px; }
-.side-card b { font-size: 13px; }
-.side-list { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--text-2); margin-top: 8px; }
+.tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+.tab { background: #fff; border: 1px solid var(--line); cursor: pointer; }
+.tab.on { background: var(--ind-700); border-color: var(--ind-700); color: var(--paper); }
+.side { width: 250px; display: flex; flex-direction: column; gap: 14px; }
+.side-card { padding: 14px 16px; }
+.side-list { display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: var(--text-2); margin-top: 10px; }
 .side-list span { cursor: pointer; }
-.serv-row { display: flex; gap: 12px; margin: 16px 0 30px; }
-.guides { flex: 1.4; padding: 12px 16px; }
-.guide-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; font-size: 12px; }
-.g-card { background: #f7f9f6; border-radius: 8px; padding: 8px 10px; line-height: 1.7; }
-.cost { color: var(--orange-700); }
-.stats { flex: 1; display: flex; gap: 10px; }
-.stat { flex: 1; background: var(--green-900); color: #fff; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; font-size: 12px; }
+
+/* ── 区块7：攻略 + 数据 ── */
+.serv-row { display: flex; gap: 40px; align-items: stretch; }
+.guides { flex: 1.4; }
+.band-end .side-title { color: var(--ind-100); }
+.guide-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 14px; font-size: 12px; }
+.g-card { border: 1px solid rgba(251, 247, 238, .18); border-radius: var(--radius); padding: 10px 12px; line-height: 1.8; color: var(--paper); }
+.cost { color: var(--cinnabar-300); }
+.stats { flex: 1; display: flex; gap: 24px; }
+.stat { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; font-size: 12px; color: var(--ind-100); border-left: 1px solid rgba(251, 247, 238, .18); }
+.stat:first-child { border-left: none; }
+.stat :deep(.num), .stat b { font-family: var(--font-display); font-size: 30px; letter-spacing: -0.02em; color: var(--paper); }
+
+@media (max-width: 900px) {
+  .quick { position: static; transform: none; width: auto; margin: 12px 16px 0; }
+  .kingkong { flex-wrap: wrap; }
+  .kk { flex: 1 1 25%; }
+  .board-row, .serv-row, .feed-row { flex-direction: column; gap: 20px; }
+  .side { width: auto; }
+  .stats { gap: 12px; }
+  .hl-row { grid-template-columns: 1fr; }
+  .hl:first-child { grid-row: auto; }
+  .hl:first-child .hl-img { height: 150px; }
+}
 </style>

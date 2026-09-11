@@ -118,15 +118,14 @@ watch(
   flex-wrap: wrap;
   gap: 10px;
   align-items: center;
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 14px 16px;
+  padding: 12px 0;
+  margin-top: 16px;
+  border-bottom: 1px solid var(--line);
 }
 .filters input,
 .filters select {
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius);
   padding: 8px 12px;
   font-size: 13px;
   background: #fff;
@@ -144,27 +143,29 @@ watch(
 .chip {
   border: 1px solid var(--line);
   background: #fff;
-  border-radius: 999px;
+  border-radius: var(--radius);
   padding: 6px 13px;
   font-size: 13px;
   color: var(--ink);
   cursor: pointer;
 }
 .chip.on {
-  background: var(--green-700);
-  color: #fff;
-  border-color: var(--green-700);
+  background: var(--ind-700);
+  color: var(--paper);
+  border-color: var(--ind-700);
 }
 .btn-primary {
   margin-left: auto;
-  background: var(--gold-500);
-  color: #fff;
+  background: var(--ind-700);
+  color: var(--paper);
   border: 0;
   padding: 9px 20px;
-  border-radius: 10px;
+  border-radius: var(--radius);
   font-weight: 600;
   font-size: 13px;
   cursor: pointer;
-  box-shadow: 0 6px 16px rgba(232, 150, 62, 0.35);
+}
+.btn-primary:hover {
+  background: var(--ind-800);
 }
 </style>

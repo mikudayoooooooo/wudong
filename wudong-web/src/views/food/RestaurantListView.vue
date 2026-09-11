@@ -3,6 +3,8 @@
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { searchRestaurants } from '@/api/food';
+import Icon from '@/components/Icon.vue';
+import { RESTAURANT_COVERS } from '@/data/photos';
 import type { Restaurant } from '@/api/types';
 
 const route = useRoute();
@@ -64,7 +66,10 @@ onMounted(async () => {
 
 <template>
   <main class="container">
-    <h1 class="page-title">特色餐厅</h1>
+    <header class="page-head">
+      <h1 class="font-display">特色餐厅</h1>
+      <p class="page-sub">长桌宴与苗家家常菜 · 支持订座</p>
+    </header>
 
     <!-- 搜索栏 -->
     <section class="search-bar">
@@ -104,17 +109,18 @@ onMounted(async () => {
           class="restaurant-card"
           @click="goDetail(r.id)"
         >
-          <img :src="r.coverImage" :alt="r.name" class="restaurant-img" />
+          <img v-if="RESTAURANT_COVERS[r.id]" :src="RESTAURANT_COVERS[r.id]" :alt="r.name" class="restaurant-img" />
+          <div v-else class="restaurant-img ph" :class="'ph-' + (r.id % 6)" />
           <div class="restaurant-info">
             <h3 class="restaurant-name">{{ r.name }}</h3>
             <p v-if="r.specialty" class="specialty">{{ r.specialty }}</p>
             <div class="meta-row">
-              <span class="rating">⭐ {{ r.rating.toFixed(1) }}</span>
+              <span class="rating">★ {{ r.rating.toFixed(1) }}</span>
               <span class="avg-price">人均 ¥{{ r.avgPrice }}</span>
               <span v-if="r.distance" class="distance">{{ r.distance }}km</span>
             </div>
-            <p class="address">📍 {{ r.address }}</p>
-            <p v-if="r.businessHours" class="hours">🕐 {{ r.businessHours }}</p>
+            <p class="address"><Icon name="map-pin" :size="12" /> {{ r.address }}</p>
+            <p v-if="r.businessHours" class="hours"><Icon name="clock" :size="12" /> {{ r.businessHours }}</p>
           </div>
         </article>
       </div>
@@ -130,30 +136,24 @@ onMounted(async () => {
   padding: 20px;
 }
 
-.page-title {
-  font-size: 28px;
-  color: var(--green-900);
-  margin-bottom: 20px;
-}
-
 .search-bar {
   display: flex;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-top: 16px;
 }
 
 .search-input {
   flex: 1;
   padding: 10px 15px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--line);
   border-radius: 4px;
   font-size: 14px;
 }
 
 .btn-search {
   padding: 10px 30px;
-  background: var(--green-600);
-  color: white;
+  background: var(--ind-700);
+  color: var(--paper);
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -161,16 +161,16 @@ onMounted(async () => {
 }
 
 .btn-search:hover {
-  background: var(--green-700);
+  background: var(--ind-800);
 }
 
 .filter-bar {
   display: flex;
   gap: 30px;
-  margin-bottom: 30px;
-  padding: 15px;
-  background: #f8f8f8;
-  border-radius: 4px;
+  padding: 12px 0;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
 }
 
 .filter-group {
@@ -181,12 +181,12 @@ onMounted(async () => {
 
 .filter-group label {
   font-weight: 500;
-  color: #666;
+  color: var(--text-2);
 }
 
 .filter-group select {
   padding: 6px 12px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--line);
   border-radius: 4px;
   font-size: 13px;
 }
@@ -201,22 +201,20 @@ onMounted(async () => {
   display: flex;
   gap: 20px;
   padding: 20px;
-  border: 1px solid #eee;
-  border-radius: 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .restaurant-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: var(--ind-300);
 }
 
 .restaurant-img {
   width: 250px;
-  height: 180px;
+  aspect-ratio: 16 / 10;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: var(--radius);
   flex-shrink: 0;
 }
 
@@ -230,12 +228,12 @@ onMounted(async () => {
 .restaurant-name {
   font-size: 20px;
   margin: 0;
-  color: #333;
+  color: var(--ink);
 }
 
 .specialty {
   margin: 0;
-  color: var(--green-700);
+  color: var(--ind-700);
   font-size: 14px;
 }
 
@@ -247,41 +245,41 @@ onMounted(async () => {
 }
 
 .rating {
-  color: #f39c12;
+  color: var(--cinnabar);
   font-weight: 500;
 }
 
 .avg-price {
-  color: #e74c3c;
+  color: var(--cinnabar);
   font-weight: 500;
 }
 
 .distance {
-  color: #666;
+  color: var(--text-2);
 }
 
 .address,
 .hours {
   margin: 0;
   font-size: 13px;
-  color: #666;
+  color: var(--text-2);
 }
 
 .state-note {
   text-align: center;
   padding: 40px;
-  color: #666;
+  color: var(--text-2);
 }
 
 .state-note.error {
-  color: #e74c3c;
+  color: var(--cinnabar);
 }
 
 .retry {
   margin-left: 10px;
   padding: 5px 15px;
-  background: var(--green-600);
-  color: white;
+  background: var(--ind-700);
+  color: var(--paper);
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -290,7 +288,7 @@ onMounted(async () => {
 .empty-state {
   text-align: center;
   padding: 60px;
-  color: #999;
+  color: var(--text-3);
 }
 
 @media (max-width: 768px) {

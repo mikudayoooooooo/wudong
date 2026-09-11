@@ -13,7 +13,7 @@ onMounted(async () => {
 
 <template>
   <div class="container">
-    <h2>🧭 交通攻略 · 怎么来乌东</h2>
+    <h2 class="font-display"><Icon name="compass" :size="20" /> 交通攻略 · 怎么来乌东</h2>
     <div class="cards">
       <div v-for="g in guides" :key="g.id" class="card g">
         <b>{{ g.title }}</b>
@@ -31,8 +31,8 @@ h2 { margin: 18px 0 12px; }
 .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 30px; }
 .g { padding: 14px 16px; }
 .way { font-size: 12px; color: var(--text-2); margin: 6px 0; }
-.bar { height: 8px; background: #eee; border-radius: 4px; margin: 8px 0 4px; }
-.fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--orange-500), var(--orange-300)); }
+.bar { height: 8px; background: var(--line); border-radius: 4px; margin: 8px 0 4px; }
+.fill { height: 100%; border-radius: 4px; background: var(--ind-500); }
 .cost { color: var(--orange-700); font-weight: 800; font-size: 15px; }
 p { font-size: 12px; color: var(--text-2); }
 </style>

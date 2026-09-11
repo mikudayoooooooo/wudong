@@ -5,6 +5,8 @@ import { communityApi } from '../api/community'
 import { travelApi } from '../api/travel'
 import FootprintMap from '../components/FootprintMap.vue'
 import RouteQuickView from '../components/RouteQuickView.vue'
+import { postPhoto } from '../data/photos'
+import Icon from '../components/Icon.vue'
 
 const routeParam = useRouteParam()
 const router = useRouter()
@@ -57,7 +59,10 @@ function onChip(spotId: number): void {
       </header>
       <h1>{{ post.title }}</h1>
       <div class="imgs">
-        <div v-for="(img, i) in post.images" :key="i" class="ph" :class="`ph-${img}`" />
+        <template v-for="(img, i) in post.images" :key="i">
+          <div v-if="postPhoto(img)" class="img-frame post-img"><img :src="postPhoto(img)" :alt="post.title" loading="lazy" /></div>
+          <div v-else class="ph" :class="`ph-${img}`" />
+        </template>
       </div>
       <p class="content">{{ post.content }}</p>
       <div class="topics">
@@ -66,8 +71,8 @@ function onChip(spotId: number): void {
         </span>
       </div>
       <div class="actions">
-        <span>👍 {{ post.likeCount }}</span><span>💬 {{ post.commentCount }}</span>
-        <span>⭐ {{ post.favoriteCount }}</span><span class="spacer" /><span>↗ 分享</span>
+        <span><Icon name="heart" :size="13" /> {{ post.likeCount }}</span><span><Icon name="message-circle" :size="13" /> {{ post.commentCount }}</span>
+        <span><Icon name="star-filled" :size="13" /> {{ post.favoriteCount }}</span><span class="spacer" /><span><Icon name="share" :size="13" /> 分享</span>
       </div>
     </article>
 
@@ -75,12 +80,12 @@ function onChip(spotId: number): void {
     <section v-if="view.stops.length" class="card foot-block">
       <div class="teaser" :class="view.mode" @click="expanded = !expanded">
         <template v-if="view.mode === 'route' && route">
-          <b>🧭 {{ route.title }} · 足迹 {{ litCount }}/{{ view.stops.length }} 站</b>
+          <b><Icon name="compass" :size="13" /> {{ route.title }} · 足迹 {{ litCount }}/{{ view.stops.length }} 站</b>
           <span class="pill trust">✓ 核销背书</span>
-          <span v-if="lockedCount" class="locked-tip">还有 {{ lockedCount }} 站未解锁 🔒</span>
+          <span v-if="lockedCount" class="locked-tip">还有 {{ lockedCount }} 站未解锁</span>
         </template>
         <template v-else>
-          <b>🧭 TA 最近去过 {{ view.stops.length }} 个地方</b>
+          <b><Icon name="compass" :size="13" /> TA 最近去过 {{ view.stops.length }} 个地方</b>
           <span class="pill trust ok">✓ 来自核销记录</span>
         </template>
         <span class="spacer" />
@@ -91,7 +96,7 @@ function onChip(spotId: number): void {
         <template v-if="view.mode === 'route'">
           <FootprintMap :stops="view.stops" variant="chain" :show-counts="false" @select="onChip" />
           <div v-if="route" class="cta">
-            <span>📍 关联路线</span>
+            <span><Icon name="map-pin" :size="13" /> 关联路线</span>
             <a class="go-link" @click="router.push(`/route/${route.id}`)">¥{{ route.price }} 起 · 去走同款 ›</a>
           </div>
         </template>
@@ -117,14 +122,15 @@ function onChip(spotId: number): void {
 .date { font-size: 11px; color: var(--text-3); }
 h1 { font-size: 20px; margin: 12px 0; }
 .imgs { display: flex; gap: 8px; }
-.imgs .ph { flex: 1; height: 150px; border-radius: 8px; }
-.content { font-size: 14px; color: #444; line-height: 1.8; }
-.topic-chip { color: var(--green-600); background: #f0f5f0; cursor: pointer; margin-right: 6px; }
+.imgs .ph { flex: 1; height: 150px; border-radius: var(--radius); }
+.imgs .post-img { flex: 1; height: 180px; border-radius: var(--radius); }
+.content { font-size: 14px; color: var(--ink); line-height: 1.8; }
+.topic-chip { color: var(--green-600); background: var(--ind-100); cursor: pointer; margin-right: 6px; }
 .actions { display: flex; gap: 20px; padding: 10px 0 0; border-top: 1px solid var(--line-soft); color: var(--text-2); font-size: 13px; margin-top: 12px; }
 .spacer { flex: 1; }
 .foot-block { margin-top: 14px; overflow: hidden; }
 .teaser { display: flex; align-items: center; gap: 8px; padding: 11px 14px; cursor: pointer; font-size: 12px; }
-.teaser.auto { background: #f8faf7; }
+.teaser.auto { background: var(--ind-100); }
 .teaser.route { background: var(--amber-bg); }
 .trust { background: var(--ok-bg); color: var(--ok-text); }
 .trust.ok { background: var(--ok-bg); }

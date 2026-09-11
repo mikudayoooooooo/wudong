@@ -70,6 +70,15 @@ async function main() {
   for (const r of urows) uid[r.phone] = r.id;
   const U = (n) => uid[`1380000000${n}`];
 
+  // ---- 收货地址（购物车结算演示用：默认地址挂在用户1名下）----
+  await ins('user_address',
+    ['userId', 'contact', 'phone', 'province', 'city', 'district', 'address', 'isDefault', 'createTime', 'updateTime'],
+    [
+      [U(1), '山野小鱼', '13800000001', '贵州省', '黔东南苗族侗族自治州', '雷山县', '乌东村一组吊脚楼', 1, now, now],
+      [U(1), '山野小鱼', '13800000001', '贵州省', '贵阳市', '观山湖区', '贵阳北站东广场', 0, now, now],
+    ]
+  );
+
   // ---- 景区 ----
   await ins('travel_scenic_spot',
     ['id', 'name', 'type', 'address', 'openTime', 'intro', 'mainImage', 'status', 'createTime', 'updateTime'],
@@ -102,6 +111,10 @@ async function main() {
       [2, '晨雾梯田摄影一日游', 1, '摄影', 299,
        JSON.stringify(['门票', '跟拍摄影点']), '凯里南站', '乌东村',
        '无住宿', '苗家午餐', '含早出发，请自备保暖', 'ph2', 487, 1, now, now],
+      // 路线3（wudong-web 规范 §3.7B）：仅蜡染坊、无人核销 → 首页地图演示灰站
+      [3, '蜡染体验半日游', 1, '体验', 199,
+       JSON.stringify(['门票', '蜡染手作材料', '匠人指导']), '乌东村口', '蜡染坊',
+       '无住宿', '不含餐', '上新路线，成团即行；成品当日带走', 'ph3', 0, 1, now, now],
     ]);
 
   // ---- 行程 ----
@@ -115,6 +128,7 @@ async function main() {
       [105, 1, 2, 2, '芦笙舞广场', 6, now, now],
       [106, 2, 1, 1, '晨雾拍摄', 1, now, now],
       [107, 2, 1, 2, '工坊人文扫街', 2, now, now],
+      [108, 3, 1, 1, '蜡染手作体验', 5, now, now],
     ]);
 
   // ---- 库存（含紧张/售罄日）----
@@ -126,6 +140,8 @@ async function main() {
       ['route', 1, '2026-09-14', 30, 30, now, now],
       ['route', 2, '2026-09-12', 20, 3, now, now],
       ['route', 2, '2026-09-13', 20, 12, now, now],
+      ['route', 3, '2026-09-12', 12, 0, now, now],
+      ['route', 3, '2026-09-13', 12, 1, now, now],
       ['ticket', 11, '2026-09-12', 200, 45, now, now],
       ['ticket', 13, '2026-09-12', 300, 120, now, now],
       ['route', 2, '2026-10-01', 20, 3, now, now],

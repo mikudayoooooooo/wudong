@@ -1,14 +1,19 @@
 <script setup lang="ts">
 // 餐厅详情页：展示餐厅信息、菜品列表、餐位预订
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { restaurantDetail, getAvailableTimeSlots, createReservation } from '@/api/food';
+import Icon from '@/components/Icon.vue';
+import { RESTAURANT_COVERS } from '@/data/photos';
 import type { RestaurantDetail } from '@/api/types';
 
 const route = useRoute();
 const router = useRouter();
 
 const detail = ref<RestaurantDetail | null>(null);
+const heroImg = computed(() =>
+  detail.value ? RESTAURANT_COVERS[detail.value.info.id] || detail.value.info.coverImage : ''
+);
 const loading = ref(false);
 const failed = ref(false);
 
@@ -102,77 +107,75 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="container">
-    <button type="button" class="btn-back" @click="goBack">← 返回餐厅列表</button>
-
+  <main>
     <div v-if="loading" class="state-note">正在加载餐厅详情...</div>
     <div v-else-if="failed" class="state-note error">
       餐厅加载失败，请稍后重试
       <button type="button" class="retry" @click="loadRestaurant">重新加载</button>
     </div>
 
-    <article v-else-if="detail" class="restaurant-detail">
-      <!-- 餐厅基本信息 -->
-      <section class="info-section">
-        <img :src="detail.info.coverImage" :alt="detail.info.name" class="cover-image" />
+    <template v-else-if="detail">
+      <!-- 页头：全幅 320px 封面，宋体纸色标题压图（规范 §3.3.1） -->
+      <section class="detail-hero img-frame" :class="{ 'no-cover': !heroImg }">
+        <img v-if="heroImg" :src="heroImg" :alt="detail.info.name" />
+        <div class="hero-mask" aria-hidden="true" />
+        <div class="hero-inner">
+          <h1 class="font-display">{{ detail.info.name }}</h1>
+          <div v-if="detail.info.specialty" class="sub">特色：{{ detail.info.specialty }}</div>
+        </div>
+      </section>
 
-        <div class="info-content">
-          <h1 class="restaurant-name">{{ detail.info.name }}</h1>
+      <div class="container">
+        <button type="button" class="btn-back" @click="goBack">← 返回餐厅列表</button>
 
-          <div v-if="detail.info.specialty" class="specialty">
-            <strong>特色：</strong>{{ detail.info.specialty }}
-          </div>
-
+        <!-- 摘要卡：叠压头图（§3.0 B.3） -->
+        <section class="summary-card">
           <div class="meta-grid">
             <div class="meta-item">
               <span class="label">评分</span>
-              <span class="value">⭐ {{ detail.info.rating.toFixed(1) }}</span>
+              <span class="value">★ {{ detail.info.rating.toFixed(1) }}</span>
             </div>
             <div class="meta-item">
               <span class="label">人均</span>
-              <span class="value">¥{{ detail.info.avgPrice }}</span>
+              <span class="value price font-display">¥{{ detail.info.avgPrice }}</span>
             </div>
             <div v-if="detail.info.businessHours" class="meta-item">
               <span class="label">营业时间</span>
               <span class="value">{{ detail.info.businessHours }}</span>
             </div>
           </div>
-
           <div class="contact-info">
-            <p class="address">📍 {{ detail.info.address }}</p>
-            <p v-if="detail.info.phone" class="phone">📞 {{ detail.info.phone }}</p>
+            <p class="address"><Icon name="map-pin" :size="12" /> {{ detail.info.address }}</p>
+            <p v-if="detail.info.phone" class="phone"><Icon name="phone" :size="12" /> {{ detail.info.phone }}</p>
           </div>
+          <button type="button" class="btn-reserve" @click="openBooking">立即预订</button>
+        </section>
 
-          <button type="button" class="btn-reserve" @click="openBooking">
-            立即预订
-          </button>
-        </div>
-      </section>
-
-      <!-- 菜品列表 -->
-      <section class="dishes-section">
-        <h2>推荐菜品</h2>
-        <div v-if="detail.dishes && detail.dishes.length" class="dish-grid">
-          <article v-for="dish in detail.dishes" :key="dish.id" class="dish-card">
-            <img
-              v-if="dish.image"
-              :src="dish.image"
-              :alt="dish.name"
-              class="dish-img"
-            />
-            <div class="dish-info">
-              <h3 class="dish-name">{{ dish.name }}</h3>
-              <p v-if="dish.description" class="dish-desc">{{ dish.description }}</p>
-              <div class="dish-meta">
-                <span class="dish-price">¥{{ dish.price }}</span>
-                <span v-if="dish.isRecommend" class="badge">推荐</span>
+        <!-- 菜品列表 -->
+        <section class="sect">
+          <b class="sect-title font-display">推荐菜品</b>
+          <div v-if="detail.dishes && detail.dishes.length" class="dish-grid">
+            <article v-for="dish in detail.dishes" :key="dish.id" class="dish-card">
+              <img
+                v-if="dish.image"
+                :src="dish.image"
+                :alt="dish.name"
+                class="dish-img"
+              />
+              <div class="dish-info">
+                <h3 class="dish-name">{{ dish.name }}</h3>
+                <p v-if="dish.description" class="dish-desc">{{ dish.description }}</p>
+                <div class="dish-meta">
+                  <span class="dish-price font-display">¥{{ dish.price }}</span>
+                  <span v-if="dish.isRecommend" class="badge">推荐</span>
+                </div>
               </div>
-            </div>
-          </article>
-        </div>
-        <p v-else class="no-content">暂无菜品信息</p>
-      </section>
-    </article>
+            </article>
+          </div>
+          <p v-else class="no-content">暂无菜品信息</p>
+        </section>
+      </div>
+    </template>
 
     <!-- 预订弹窗 -->
     <div v-if="booking.open" class="booking-mask" @click.self="booking.open = false">
@@ -218,66 +221,79 @@ onMounted(() => {
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 0 16px 44px;
 }
 
 .btn-back {
-  margin-bottom: 20px;
-  padding: 8px 20px;
-  background: #f0f0f0;
-  border: none;
-  border-radius: 4px;
+  margin: 14px 0 12px;
+  padding: 7px 16px;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
+  color: var(--text-2);
 }
 
 .btn-back:hover {
-  background: #e0e0e0;
+  border-color: var(--ind-300);
+  color: var(--ind-700);
 }
 
-.info-section {
-  display: grid;
-  grid-template-columns: 500px 1fr;
-  gap: 30px;
-  margin-bottom: 40px;
-  padding: 30px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+/* 页头（§3.3.1）：全幅封面 + 宋体纸色标题压图 */
+.detail-hero {
+  position: relative;
+  height: 320px;
+  background: var(--ind-800) url("../assets/pattern/diamond-dark.svg") center/560px repeat;
 }
 
-.cover-image {
-  width: 100%;
-  height: 350px;
-  object-fit: cover;
-  border-radius: 8px;
+.hero-mask {
+  position: absolute;
+  inset: 0;
+  background: rgba(11, 29, 44, .45);
 }
 
-.info-content {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+.hero-inner {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+  color: var(--paper);
 }
 
-.restaurant-name {
-  font-size: 28px;
+.hero-inner h1 {
   margin: 0;
-  color: #333;
+  font-size: 32px;
+  line-height: 1.25;
 }
 
-.specialty {
-  padding: 10px 15px;
-  background: #f0f9f0;
-  border-left: 3px solid var(--green-600);
-  border-radius: 4px;
-  color: #555;
-  font-size: 14px;
+.hero-inner .sub {
+  font-size: 12px;
+  color: rgba(251, 247, 238, .85);
+  margin-top: 6px;
+}
+
+/* 摘要卡叠压头图（§3.0 B.3） */
+.summary-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-top: -24px;
+  position: relative;
+  z-index: 1;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px 18px;
 }
 
 .meta-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  display: flex;
+  gap: 32px;
 }
 
 .meta-item {
@@ -287,67 +303,75 @@ onMounted(() => {
 }
 
 .meta-item .label {
-  font-size: 13px;
-  color: #999;
+  font-size: 12px;
+  color: var(--text-3);
 }
 
 .meta-item .value {
   font-size: 16px;
   font-weight: 500;
-  color: #333;
+  color: var(--ink);
+}
+
+.meta-item .price {
+  color: var(--cinnabar);
 }
 
 .contact-info {
-  padding: 15px;
-  background: #f8f8f8;
-  border-radius: 4px;
+  font-size: 13px;
+  color: var(--text-2);
 }
 
 .address,
 .phone {
-  margin: 5px 0;
-  font-size: 14px;
-  color: #555;
+  margin: 3px 0;
+  font-size: 13px;
+  color: var(--text-1);
 }
 
 .btn-reserve {
-  padding: 15px;
-  background: var(--green-600);
-  color: white;
+  padding: 11px 26px;
+  background: var(--cinnabar);
+  color: var(--paper);
   border: none;
-  border-radius: 4px;
-  font-size: 16px;
-  cursor: not-allowed;
-  opacity: 0.6;
-  margin-top: 10px;
+  border-radius: var(--radius);
+  font-size: 14px;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
-.dishes-section {
-  margin-top: 40px;
+.btn-reserve:hover {
+  background: var(--cinnabar-700);
 }
 
-.dishes-section h2 {
-  font-size: 22px;
-  margin-bottom: 20px;
-  color: #333;
+/* 正文分节（§3.3.3） */
+.sect {
+  border-top: 1px solid var(--line);
+  margin-top: 20px;
+  padding: 20px 0;
+}
+
+.sect-title {
+  display: block;
+  font-size: 15px;
+  margin-bottom: 12px;
+  color: var(--ind-800);
 }
 
 .dish-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  gap: 16px;
 }
 
 .dish-card {
-  border: 1px solid #eee;
-  border-radius: 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
   overflow: hidden;
-  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .dish-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: var(--ind-300);
 }
 
 .dish-img {
@@ -363,13 +387,13 @@ onMounted(() => {
 .dish-name {
   font-size: 16px;
   margin: 0 0 8px;
-  color: #333;
+  color: var(--ink);
 }
 
 .dish-desc {
   margin: 0 0 10px;
   font-size: 13px;
-  color: #666;
+  color: var(--text-2);
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -385,14 +409,14 @@ onMounted(() => {
 
 .dish-price {
   font-size: 18px;
-  color: #e74c3c;
+  color: var(--cinnabar);
   font-weight: bold;
 }
 
 .badge {
   padding: 3px 8px;
-  background: var(--green-600);
-  color: white;
+  background: var(--ind-700);
+  color: var(--paper);
   font-size: 11px;
   border-radius: 3px;
 }
@@ -400,32 +424,33 @@ onMounted(() => {
 .no-content {
   text-align: center;
   padding: 40px;
-  color: #999;
+  color: var(--text-3);
 }
 
 .state-note {
   text-align: center;
   padding: 60px;
-  color: #666;
+  color: var(--text-2);
 }
 
 .state-note.error {
-  color: #e74c3c;
+  color: var(--cinnabar);
 }
 
 .retry {
   margin-left: 10px;
   padding: 8px 20px;
-  background: var(--green-600);
-  color: white;
+  background: var(--ind-700);
+  color: var(--paper);
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius);
   cursor: pointer;
 }
 
 @media (max-width: 768px) {
-  .info-section {
-    grid-template-columns: 1fr;
+  .summary-card {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .dish-grid {
@@ -436,7 +461,7 @@ onMounted(() => {
 .booking-mask {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(11, 29, 44, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -483,8 +508,8 @@ onMounted(() => {
   font-size: 13px;
 }
 .mini.primary {
-  background: var(--green-600);
-  color: #fff;
-  border-color: var(--green-600);
+  background: var(--ind-700);
+  color: var(--paper);
+  border-color: var(--ind-700);
 }
 </style>

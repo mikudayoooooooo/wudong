@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSession } from '../../stores/session'
 import { favoritePage, favoriteToggle, type FavoriteType } from '../../api/personal'
+import Icon from '../../components/Icon.vue'
 
 const router = useRouter()
 const session = useSession()
@@ -85,7 +86,7 @@ onMounted(async () => {
 
 <template>
   <div class="container page">
-    <h2>⭐ 我的收藏</h2>
+    <h2 class="font-display"><Icon name="star" :size="20" /> 我的收藏</h2>
 
     <div class="tabs">
       <button
@@ -99,11 +100,11 @@ onMounted(async () => {
       </button>
     </div>
 
-    <div v-if="!session.isLogged" class="card empty">请先在右上角登录后查看收藏</div>
+    <div v-if="!session.isLogged" class="card empty"><Icon name="heart" :size="16" /> 请先在右上角登录后查看收藏</div>
     <div v-else-if="loading" class="card empty">加载中…</div>
-    <div v-else-if="!items.length" class="card empty">暂无收藏，逛逛喜欢的点亮 ⭐</div>
+    <div v-else-if="!items.length" class="card empty"><Icon name="heart" :size="16" /> 暂无收藏，去逛逛喜欢的站点与路线</div>
     <div v-else class="favs">
-      <div v-for="f in items" :key="f.id" class="fav card" @click="go(f)">
+      <div v-for="f in items" :key="f.id" class="fav" @click="go(f)">
         <span class="tag">{{ f.label }}</span>
         <span class="name">{{ f.targetName || `#${f.targetId}` }}</span>
         <span class="spacer" />
@@ -115,13 +116,13 @@ onMounted(async () => {
 
 <style scoped>
 .tabs { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
-.tab { border: 1px solid var(--line-soft); background: #fff; border-radius: 14px; padding: 4px 14px; cursor: pointer; color: var(--text-2); }
-.tab.active { background: var(--orange-500); border-color: var(--orange-500); color: #fff; font-weight: 700; }
-.favs { display: flex; flex-direction: column; gap: 8px; }
-.fav { display: flex; align-items: center; gap: 10px; padding: 10px 16px; cursor: pointer; }
-.fav:hover { border-color: var(--orange-500); }
-.tag { background: var(--orange-500); color: #fff; border-radius: 10px; font-size: 12px; padding: 1px 8px; }
+.tab { border: 1px solid var(--line-soft); background: #fff; border-radius: var(--radius); padding: 4px 14px; cursor: pointer; color: var(--text-2); }
+.tab.active { background: var(--ind-700); border-color: var(--ind-700); color: var(--paper); font-weight: 700; }
+.favs { display: flex; flex-direction: column; }
+.fav { display: flex; align-items: center; gap: 10px; padding: 10px 4px; cursor: pointer; border-bottom: 1px solid var(--line-soft); }
+.fav:hover { border-color: var(--ind-300); }
+.tag { background: var(--ind-100); color: var(--ind-700); border-radius: 2px; font-size: 12px; padding: 1px 8px; }
 .name { color: var(--text-2); font-size: 13px; }
 .spacer { flex: 1; }
-.mini { border: 1px solid var(--line-soft); background: #fff; border-radius: 12px; padding: 3px 12px; cursor: pointer; font-size: 12px; }
+.mini { border: 1px solid var(--line-soft); background: #fff; border-radius: var(--radius); padding: 3px 12px; cursor: pointer; font-size: 12px; }
 </style>

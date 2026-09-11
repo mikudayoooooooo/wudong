@@ -1,10 +1,5 @@
 <template>
   <div class="farm-product-detail">
-    <!-- 顶部导航 -->
-    <div class="detail-header">
-      <button @click="goBack" class="back-btn">← 返回农产品列表</button>
-    </div>
-
     <!-- 加载状态 -->
     <div v-if="loading" class="loading">
       <div class="spinner"></div>
@@ -18,49 +13,36 @@
     </div>
 
     <!-- 商品详情 -->
-    <div v-else-if="product" class="detail-content">
-      <!-- 商品信息卡片 -->
-      <div class="product-card">
-        <!-- 商品图片 -->
-        <div class="product-image-section">
-          <img :src="currentImage" :alt="product.name" class="main-image" />
-          <div v-if="product.images && product.images.length > 0" class="image-thumbnails">
-            <img
-              v-for="(img, idx) in product.images"
-              :key="idx"
-              :src="img"
-              :alt="`${product.name} ${idx + 1}`"
-              @click="selectImage(img)"
-              :class="{ active: currentImage === img }"
-              class="thumbnail"
-            />
+    <template v-else-if="product">
+      <!-- 页头：全幅 320px 主图，宋体纸色标题压图（规范 §3.3.1） -->
+      <section class="detail-hero img-frame" :class="{ 'no-cover': !heroCover }">
+        <img v-if="heroCover" :src="heroCover" :alt="product.name" />
+        <div class="hero-mask" aria-hidden="true" />
+        <div class="hero-inner">
+          <h1 class="font-display">{{ product.name }}</h1>
+          <div class="sub">
+            <span v-if="product.origin">产地：{{ product.origin }}</span>
+            <span>单位：{{ product.unit }}</span>
           </div>
         </div>
+      </section>
 
-        <!-- 商品信息 -->
-        <div class="product-info-section">
-          <h1 class="product-name">{{ product.name }}</h1>
+      <div class="container">
+        <div class="detail-header">
+          <button @click="goBack" class="back-btn">← 返回农产品列表</button>
+        </div>
 
-          <div class="product-meta">
-            <span class="origin" v-if="product.origin">产地：{{ product.origin }}</span>
-            <span class="unit">单位：{{ product.unit }}</span>
-          </div>
-
-          <div class="price-section">
-            <span class="price">¥{{ product.price }}</span>
+        <!-- 摘要卡：叠压头图（§3.0 B.3） -->
+        <div class="summary-card">
+          <div class="price-block">
+            <span class="price font-display">¥{{ product.price }}</span>
             <span class="unit-label">/ {{ product.unit }}</span>
-          </div>
-
-          <div class="stock-info">
-            <span v-if="product.stock > 0" class="in-stock">
-              库存：{{ product.stock }} {{ product.unit }}
-            </span>
+            <span v-if="product.stock > 0" class="in-stock">库存：{{ product.stock }} {{ product.unit }}</span>
             <span v-else class="out-of-stock">暂无库存</span>
           </div>
 
-          <!-- 数量选择 -->
-          <div class="quantity-section">
-            <label>购买数量：</label>
+          <!-- 数量 + 操作 -->
+          <div class="buy-block">
             <div class="quantity-control">
               <button @click="decreaseQuantity" :disabled="quantity <= 1" class="qty-btn">-</button>
               <input
@@ -78,42 +60,53 @@
                 +
               </button>
             </div>
-          </div>
-
-          <!-- 操作按钮 -->
-          <div class="action-buttons">
-            <button
-              @click="handleAddToCart"
-              :disabled="product.stock <= 0 || purchasing"
-              class="add-to-cart-btn"
-            >
-              {{ purchasing ? '加入中...' : '加入购物车' }}
-            </button>
-            <button
-              @click="handleBuyNow"
-              :disabled="product.stock <= 0 || purchasing"
-              class="buy-now-btn"
-            >
-              立即购买
-            </button>
+            <div class="action-buttons">
+              <button
+                @click="handleAddToCart"
+                :disabled="product.stock <= 0 || purchasing"
+                class="add-to-cart-btn"
+              >
+                {{ purchasing ? '加入中...' : '加入购物车' }}
+              </button>
+              <button
+                @click="handleBuyNow"
+                :disabled="product.stock <= 0 || purchasing"
+                class="buy-now-btn"
+              >
+                立即购买
+              </button>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- 商品详情描述 -->
-      <div v-if="product.description" class="product-description">
-        <h2>产品详情</h2>
-        <div class="description-content">{{ product.description }}</div>
+        <div v-if="product.images && product.images.length > 1" class="image-thumbnails">
+          <img
+            v-for="(img, idx) in product.images"
+            :key="idx"
+            :src="img"
+            :alt="`${product.name} ${idx + 1}`"
+            @click="selectImage(img)"
+            :class="{ active: currentImage === img }"
+            class="thumbnail"
+          />
+        </div>
+
+        <!-- 商品详情描述 -->
+        <section v-if="product.description" class="sect">
+          <b class="sect-title font-display">产品详情</b>
+          <div class="description-content">{{ product.description }}</div>
+        </section>
       </div>
-    </div>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { farmProductDetail } from '@/api/food';
 import { addToCart } from '@/api/order';
+import { FARM_COVERS } from '@/data/photos';
 import type { FarmProduct } from '@/api/types';
 
 const route = useRoute();
@@ -125,6 +118,7 @@ const failed = ref(false);
 const currentImage = ref('');
 const purchasing = ref(false);
 const quantity = ref(1);
+const heroCover = computed(() => (product.value ? FARM_COVERS[product.value.id] : ''));
 
 /** 加载农产品详情 */
 const loadProduct = async () => {
@@ -157,9 +151,9 @@ const increaseQuantity = () => {
   }
 };
 
-/** 加入购物车 */
-const handleAddToCart = async () => {
-  if (!product.value) return;
+/** 加入购物车，返回是否成功 */
+const handleAddToCart = async (): Promise<boolean> => {
+  if (!product.value) return false;
 
   purchasing.value = true;
   try {
@@ -169,22 +163,20 @@ const handleAddToCart = async () => {
 
     // 触发购物车更新事件
     window.dispatchEvent(new Event('cart-updated'));
+    return true;
   } catch (e: any) {
-    if (e.message?.includes('登录')) {
-      alert('请先登录后再购买');
-      router.push('/login');
-    } else {
-      alert('加入购物车失败：' + (e.message || '请稍后重试'));
-    }
+    // /login 路由不存在，保持当前页仅提示；登录走顶栏入口
+    alert(e.message?.includes('登录') ? '请先登录后再购买' : '加入购物车失败：' + (e.message || '请稍后重试'));
+    return false;
   } finally {
     purchasing.value = false;
   }
 };
 
-/** 立即购买（跳转到购物车结算） */
+/** 立即购买（加购成功后跳转到购物车结算） */
 const handleBuyNow = async () => {
-  await handleAddToCart();
-  if (!purchasing.value) {
+  const ok = await handleAddToCart();
+  if (ok) {
     router.push('/cart');
   }
 };
@@ -206,28 +198,99 @@ onMounted(() => {
 
 <style scoped>
 .farm-product-detail {
+  min-height: 100vh;
+  background: var(--paper);
+}
+
+.container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
-  min-height: 100vh;
-  background: #f5f5f5;
+  padding: 0 16px 44px;
 }
 
 .detail-header {
-  margin-bottom: 20px;
+  margin: 14px 0 12px;
 }
 
 .back-btn {
-  padding: 10px 20px;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: 7px 16px;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
+  color: var(--text-2);
 }
 
 .back-btn:hover {
-  background: #f5f5f5;
+  border-color: var(--ind-300);
+  color: var(--ind-700);
+}
+
+/* 页头（§3.3.1）：全幅主图 + 宋体纸色标题压图 */
+.detail-hero {
+  position: relative;
+  height: 320px;
+  background: var(--ind-800) url("../assets/pattern/diamond-dark.svg") center/560px repeat;
+}
+
+.hero-mask {
+  position: absolute;
+  inset: 0;
+  background: rgba(11, 29, 44, .45);
+}
+
+.hero-inner {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+  color: var(--paper);
+}
+
+.hero-inner h1 {
+  margin: 0;
+  font-size: 32px;
+  line-height: 1.25;
+}
+
+.hero-inner .sub {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: rgba(251, 247, 238, .85);
+  margin-top: 6px;
+}
+
+/* 摘要卡叠压头图（§3.0 B.3） */
+.summary-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: -24px;
+  position: relative;
+  z-index: 1;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+}
+
+.price-block {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.buy-block {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 /* 加载状态 */
@@ -239,8 +302,8 @@ onMounted(() => {
 .spinner {
   width: 40px;
   height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #4CAF50;
+  border: 4px solid var(--ind-50);
+  border-top: 4px solid var(--cinnabar);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 20px;
@@ -261,7 +324,7 @@ onMounted(() => {
 .retry-btn {
   margin-top: 20px;
   padding: 10px 30px;
-  background: #4CAF50;
+  background: var(--cinnabar);
   color: white;
   border: none;
   border-radius: 4px;
@@ -269,107 +332,46 @@ onMounted(() => {
 }
 
 /* 商品卡片 */
-.product-card {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 40px;
-  background: white;
-  padding: 40px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
-}
-
-.product-image-section {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.main-image {
-  width: 100%;
-  height: 500px;
-  object-fit: cover;
-  border-radius: 8px;
-  border: 1px solid #eee;
-}
-
 .image-thumbnails {
   display: flex;
   gap: 10px;
   overflow-x: auto;
+  margin-top: 12px;
 }
 
 .thumbnail {
   width: 80px;
-  height: 80px;
+  height: 60px;
   object-fit: cover;
-  border-radius: 4px;
-  border: 2px solid transparent;
+  border-radius: var(--radius);
+  border: 2px solid var(--line);
   cursor: pointer;
-  transition: all 0.2s;
 }
 
-.thumbnail:hover {
-  border-color: #4CAF50;
-}
-
+.thumbnail:hover,
 .thumbnail.active {
-  border-color: #4CAF50;
+  border-color: var(--ind-700);
 }
 
-.product-info-section {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.product-name {
-  font-size: 28px;
-  font-weight: bold;
-  margin: 0;
-  color: #333;
-}
-
-.product-meta {
-  display: flex;
-  gap: 20px;
-  font-size: 14px;
-  color: #666;
-}
-
-.origin {
-  color: #4CAF50;
-  font-weight: 500;
-}
-
-.price-section {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-}
-
-.price {
-  font-size: 36px;
-  font-weight: bold;
-  color: #e74c3c;
+.price-block .price {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--cinnabar);
 }
 
 .unit-label {
-  font-size: 16px;
-  color: #999;
-}
-
-.stock-info {
   font-size: 14px;
+  color: var(--text-3);
 }
 
 .in-stock {
-  color: #4CAF50;
+  font-size: 13px;
+  color: var(--text-2);
 }
 
 .out-of-stock {
-  color: #e74c3c;
+  font-size: 13px;
+  color: var(--cinnabar);
   font-weight: bold;
 }
 
@@ -390,13 +392,13 @@ onMounted(() => {
 }
 
 .qty-btn {
-  width: 36px;
-  height: 36px;
-  border: 1px solid #ddd;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--line);
   background: white;
-  border-radius: 4px;
+  border-radius: var(--radius);
   cursor: pointer;
-  font-size: 18px;
+  font-size: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -408,53 +410,50 @@ onMounted(() => {
 }
 
 .qty-btn:hover:not(:disabled) {
-  background: #f5f5f5;
+  background: var(--ind-50);
 }
 
 .qty-input {
-  width: 80px;
-  height: 36px;
+  width: 64px;
+  height: 32px;
   text-align: center;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-size: 15px;
 }
 
 .action-buttons {
   display: flex;
-  gap: 15px;
-  margin-top: 20px;
+  gap: 12px;
 }
 
 .add-to-cart-btn,
 .buy-now-btn {
-  flex: 1;
-  padding: 15px 30px;
-  border: none;
-  border-radius: 8px;
-  font-size: 18px;
-  font-weight: 500;
+  padding: 10px 24px;
+  border: 1px solid var(--ind-700);
+  border-radius: var(--radius);
+  font-size: 14px;
   cursor: pointer;
-  transition: all 0.2s;
 }
 
 .add-to-cart-btn {
   background: #fff;
-  color: #4CAF50;
-  border: 2px solid #4CAF50;
+  color: var(--ind-700);
 }
 
 .add-to-cart-btn:hover:not(:disabled) {
-  background: #f0f9f0;
+  background: var(--ind-50);
+  border-color: var(--ind-300);
 }
 
 .buy-now-btn {
-  background: #4CAF50;
-  color: white;
+  background: var(--cinnabar);
+  color: var(--paper);
+  border-color: var(--cinnabar);
 }
 
 .buy-now-btn:hover:not(:disabled) {
-  background: #45a049;
+  background: var(--cinnabar-700);
 }
 
 .add-to-cart-btn:disabled,
@@ -463,49 +462,50 @@ onMounted(() => {
   cursor: not-allowed;
 }
 
-/* 商品描述 */
-.product-description {
-  background: white;
-  padding: 40px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+/* 正文分节（§3.3.3） */
+.sect {
+  border-top: 1px solid var(--line);
+  margin-top: 20px;
+  padding: 20px 0;
 }
 
-.product-description h2 {
-  font-size: 24px;
-  margin: 0 0 20px 0;
-  padding-bottom: 15px;
-  border-bottom: 2px solid #f0f0f0;
+.sect-title {
+  display: block;
+  font-size: 15px;
+  margin-bottom: 12px;
+  color: var(--ind-800);
 }
 
 .description-content {
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.8;
-  color: #666;
+  color: var(--text-2);
   white-space: pre-wrap;
 }
 
 /* 响应式 */
 @media (max-width: 768px) {
-  .product-card {
-    grid-template-columns: 1fr;
-    padding: 20px;
+  .hero-inner h1 {
+    font-size: 24px;
   }
 
-  .main-image {
-    height: 300px;
-  }
-
-  .product-name {
-    font-size: 22px;
+  .summary-card {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .price {
     font-size: 28px;
   }
 
+  .buy-block {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
   .action-buttons {
     flex-direction: column;
+    width: 100%;
   }
 }
 </style>

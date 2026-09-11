@@ -26,6 +26,8 @@ const inventories: InventoryDay[] = [
   { itemType: 'route', itemId: 1, useDate: '2026-09-14', total: 30, sold: 30 },
   { itemType: 'route', itemId: 2, useDate: '2026-09-12', total: 20, sold: 3 },
   { itemType: 'route', itemId: 2, useDate: '2026-09-13', total: 20, sold: 12 },
+  { itemType: 'route', itemId: 3, useDate: '2026-09-12', total: 12, sold: 0 },
+  { itemType: 'route', itemId: 3, useDate: '2026-09-13', total: 12, sold: 1 },
   { itemType: 'ticket', itemId: 11, useDate: '2026-09-12', total: 200, sold: 45 },
   { itemType: 'ticket', itemId: 13, useDate: '2026-09-12', total: 300, sold: 120 },
 ]
@@ -42,6 +44,11 @@ const routes: RoutePackage[] = [
     includes: ['门票', '跟拍摄影点'], departure: '凯里南站', destination: '乌东村',
     hotelStandard: '无住宿', mealStandard: '苗家午餐', notice: '含早出发，请自备保暖', sales: 487,
   },
+  {
+    id: 3, title: '蜡染体验半日游', days: 1, theme: '体验', price: 199,
+    includes: ['门票', '蜡染手作材料', '匠人指导'], departure: '乌东村口', destination: '蜡染坊',
+    hotelStandard: '无住宿', mealStandard: '不含餐', notice: '上新路线，成团即行；成品当日带走', sales: 0,
+  },
 ]
 
 const itineraries: ItineraryStop[] = [
@@ -52,6 +59,7 @@ const itineraries: ItineraryStop[] = [
   { id: 105, routeId: 1, dayNo: 2, sort: 2, spotId: 6, desc: '芦笙舞广场' },
   { id: 106, routeId: 2, dayNo: 1, sort: 1, spotId: 1, desc: '晨雾拍摄' },
   { id: 107, routeId: 2, dayNo: 1, sort: 2, spotId: 2, desc: '工坊人文扫街' },
+  { id: 108, routeId: 3, dayNo: 1, sort: 1, spotId: 5, desc: '蜡染手作体验' },
 ]
 
 const users: UserBrief[] = [
@@ -134,9 +142,9 @@ const postFootprints: PostFootprint[] = [
 ]
 
 const recommendSlots: RecommendSlot[] = [
-  { id: 701, title: '苗寨深度两日游 · 邂逅梯田日出', subtitle: '¥899 起 · 已售 1,284 · 平均点亮 4/5 站', badge: '🔥 运营置顶 · 本周精选', itemType: 'route', itemId: 1, sort: 1, rotationGroup: 1, intervalSeconds: 5 },
-  { id: 702, title: '晨雾梯田摄影一日游', subtitle: '¥299 起 · 本周 +89 人成行', badge: '📷 摄影主题 · 热度上升', itemType: 'route', itemId: 2, sort: 2, rotationGroup: 1, intervalSeconds: 5 },
-  { id: 703, title: '芦笙广场 · 节庆进行时', subtitle: '成人票 ¥40 · 家庭套票 ¥100', badge: '👪 亲子优选 · 好评率 98%', itemType: 'scenic', itemId: 6, sort: 3, rotationGroup: 1, intervalSeconds: 5 },
+  { id: 701, title: '苗寨深度两日游 · 邂逅梯田日出', subtitle: '¥899 起 · 已售 1,284 · 平均点亮 4/5 站', badge: '运营置顶 · 本周精选', itemType: 'route', itemId: 1, sort: 1, rotationGroup: 1, intervalSeconds: 5 },
+  { id: 702, title: '晨雾梯田摄影一日游', subtitle: '¥299 起 · 本周 +89 人成行', badge: '摄影主题 · 热度上升', itemType: 'route', itemId: 2, sort: 2, rotationGroup: 1, intervalSeconds: 5 },
+  { id: 703, title: '芦笙广场 · 节庆进行时', subtitle: '成人票 ¥40 · 家庭套票 ¥100', badge: '亲子优选 · 好评率 98%', itemType: 'scenic', itemId: 6, sort: 3, rotationGroup: 1, intervalSeconds: 5 },
 ]
 
 // ---- 导出只读函数（组件禁止直接 import 数组本体） ----

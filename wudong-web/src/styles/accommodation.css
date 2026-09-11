@@ -1,28 +1,29 @@
 /*
- * 住宿模块（组员移植）视觉作用域
- * 他们的设计 token 与全局主题存在同名异值（--green-900/--line/--radius），
- * 统一挂在 .acc-scope 下，仅在住宿页面子树生效，避免污染既有页面。
+ * 住宿模块视觉作用域（原组员独立 token 已并轨全局蜡染靛蓝色板）。
+ * 保留 .acc-scope 结构与旧变量名，值全部映射到新 token，
+ * 住宿页与全站视觉统一，不再存在绿/橙双轨。
+ * 注意：--ink/--line/--radius 在作用域内需写字面值，避免 var() 自引用。
  */
 .acc-scope {
-  --green-900: #24412f;
-  --green-700: #33523e;
-  --green-500: #4a7a5c;
-  --green-300: #7ba384;
-  --green-100: #eef5ea;
-  --green-50: #f6faf3;
-  --gold-600: #d97f22;
-  --gold-500: #e8963e;
-  --gold-300: #f6c26b;
-  --ink: #24301f;
-  --muted: #6b7a66;
-  --line: #dfe8d8;
-  --shadow: 0 10px 30px rgba(51, 82, 62, 0.1);
-  --radius: 14px;
-  background: var(--green-50);
+  --green-900: var(--ind-800);
+  --green-700: var(--ind-700);
+  --green-500: var(--ind-500);
+  --green-300: var(--ind-300);
+  --green-100: var(--ind-100);
+  --green-50: var(--ind-50);
+  --gold-600: var(--cinnabar-700);
+  --gold-500: var(--cinnabar);
+  --gold-300: var(--cinnabar-300);
+  --ink: #16232d;
+  --muted: #4a5b66;
+  --line: rgba(27, 66, 95, .14);
+  --shadow: none;
+  --radius: 4px;
+  background: var(--paper);
 }
 
 .acc-scope .section { margin-top: 30px; }
 .acc-scope .section-title { display: flex; align-items: baseline; gap: 10px; margin: 0 0 16px; }
-.acc-scope .section-title h2 { margin: 0; font-size: 22px; color: var(--green-900); }
+.acc-scope .section-title h2 { margin: 0; font-size: 22px; font-family: var(--font-display); letter-spacing: -0.02em; color: var(--green-900); }
 .acc-scope .section-title .more { margin-left: auto; font-size: 13px; color: var(--muted); }
 .acc-scope button { font-family: inherit; cursor: pointer; }

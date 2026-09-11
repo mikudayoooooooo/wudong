@@ -14,6 +14,7 @@ import {
 } from './script'
 import RelayPanel from './RelayPanel.vue'
 import PlanCard from './PlanCard.vue'
+import Icon from '../Icon.vue'
 
 const props = withDefaults(defineProps<{ pacing?: number }>(), { pacing: 1 })
 const session = useSession()
@@ -198,11 +199,11 @@ function goto(key: 'hotel' | 'meal' | 'ticket' | 'all'): void {
 <template>
   <div v-if="showFab" class="ai-wrap">
     <button class="fab" :class="{ open }" @click="open = !open" @dblclick="onFabDblClick" :title="open ? '收起' : 'AI 管家'">
-      <span v-if="!open">🤖</span><span v-else>✕</span>
+      <span v-if="!open"><Icon name="robot" :size="26" /></span><span v-else><Icon name="x" :size="20" /></span>
     </button>
 
     <div v-if="open" class="drawer card" :class="{ booking: bookingBusy }">
-      <div class="hd"><b>🤖 AI 管家</b><span>衣食住行，一句话</span></div>
+      <div class="hd"><b class="font-display"><Icon name="robot" :size="16" /> AI 管家</b><span>衣食住行，一句话</span></div>
       <RelayPanel :lit="lit" :busy="busy" />
 
       <div ref="bodyEl" class="body">
@@ -240,9 +241,9 @@ function goto(key: 'hotel' | 'meal' | 'ticket' | 'all'): void {
       </div>
 
       <div class="bookbar" v-if="booked.hotel || booked.meal || booked.ticket">
-        <button class="mini" :class="{ on: !!booked.hotel, demo: booked.hotel === 'demo' }" @click="goto('hotel')">🏠 住宿</button>
-        <button class="mini" :class="{ on: !!booked.meal, demo: booked.meal === 'demo' }" @click="goto('meal')">🍜 长桌宴</button>
-        <button class="mini" :class="{ on: !!booked.ticket, demo: booked.ticket === 'demo' }" @click="goto('ticket')">🎫 路线票</button>
+        <button class="mini" :class="{ on: !!booked.hotel, demo: booked.hotel === 'demo' }" @click="goto('hotel')"><Icon name="home" :size="12" /> 住宿</button>
+        <button class="mini" :class="{ on: !!booked.meal, demo: booked.meal === 'demo' }" @click="goto('meal')"><Icon name="tools-kitchen-2" :size="12" /> 长桌宴</button>
+        <button class="mini" :class="{ on: !!booked.ticket, demo: booked.ticket === 'demo' }" @click="goto('ticket')"><Icon name="ticket" :size="12" /> 路线票</button>
         <a class="all" @click="goto('all')">全部订单 →</a>
       </div>
 
@@ -258,13 +259,13 @@ function goto(key: 'hotel' | 'meal' | 'ticket' | 'all'): void {
 
 <style scoped>
 .ai-wrap { position: fixed; right: 22px; bottom: 22px; z-index: 60; }
-.fab { width: 56px; height: 56px; border-radius: 50%; border: none; background: var(--green-600); color: #fff; font-size: 26px; cursor: pointer; box-shadow: 0 4px 16px rgba(46,125,50,.4); position: relative; }
+.fab { width: 56px; height: 56px; border-radius: 50%; border: none; background: var(--green-600); color: #fff; font-size: 26px; cursor: pointer; position: relative; }
 .fab:not(.open)::after { content: ''; position: absolute; inset: -6px; border-radius: 50%; border: 2px solid var(--green-600); opacity: .5; animation: ring 1.8s ease-out infinite; }
 @keyframes ring { 0% { transform: scale(.85); opacity: .6; } 100% { transform: scale(1.25); opacity: 0; } }
 .drawer { position: absolute; bottom: 66px; right: 0; width: 400px; height: 560px; display: flex; flex-direction: column; overflow: hidden; }
 .hd { padding: 10px 14px; border-bottom: 1px solid var(--line); display: flex; gap: 8px; align-items: baseline; }
 .hd span { font-size: 11px; color: var(--text-3); }
-.body { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; background: #fafaf8; }
+.body { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; background: var(--paper); }
 .hello { text-align: center; color: var(--text-3); font-size: 13px; padding: 30px 0; }
 .msg { display: flex; } .msg.user { justify-content: flex-end; }
 .bubble { max-width: 82%; background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 7px 11px; font-size: 13px; }

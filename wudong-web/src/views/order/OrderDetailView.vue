@@ -14,11 +14,11 @@
       <!-- 订单状态 -->
       <div class="order-status">
         <div class="status-icon">
-          <span v-if="order.status === 1">⏰</span>
-          <span v-else-if="order.status === 2">✅</span>
-          <span v-else-if="order.status === 3">📦</span>
-          <span v-else-if="order.status === 4">❌</span>
-          <span v-else-if="order.status === 5">💰</span>
+          <span v-if="order.status === 1"><Icon name="clock" :size="16" /></span>
+          <span v-else-if="order.status === 2"><Icon name="check" :size="16" /></span>
+          <span v-else-if="order.status === 3"><Icon name="basket" :size="16" /></span>
+          <span v-else-if="order.status === 4"><Icon name="x" :size="16" /></span>
+          <span v-else-if="order.status === 5"><Icon name="credit-card" :size="16" /></span>
         </div>
         <div class="status-text">
           <h2>{{ getStatusText(order.status) }}</h2>
@@ -46,7 +46,8 @@
       <div class="items-section">
         <h3>商品清单</h3>
         <div v-for="item in order.items" :key="item.id" class="order-item">
-          <img :src="item.productImage" :alt="item.productName" class="item-image" />
+          <img v-if="PRODUCT_COVERS[item.productId]" :src="PRODUCT_COVERS[item.productId]" :alt="item.productName" class="item-image" />
+          <div v-else class="item-image ph" :class="'ph-' + ((item.productId || 0) % 6)" />
           <div class="item-info">
             <div class="item-name">{{ item.productName }}</div>
             <div class="item-price">¥{{ item.price }} × {{ item.quantity }}</div>
@@ -74,6 +75,8 @@
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { http } from '@/lib/http';
+import Icon from '@/components/Icon.vue';
+import { PRODUCT_COVERS } from '@/data/photos';
 
 const route = useRoute();
 
@@ -151,7 +154,7 @@ onMounted(loadOrder);
   margin: 0 auto;
   padding: 20px;
   min-height: 100vh;
-  background: #f5f5f5;
+  background: var(--ind-50);
 }
 
 .order-header {
@@ -161,7 +164,7 @@ onMounted(loadOrder);
   background: white;
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
 }
 
 .back-btn {
@@ -169,7 +172,7 @@ onMounted(loadOrder);
   border: none;
   font-size: 16px;
   cursor: pointer;
-  color: #666;
+  color: var(--text-2);
   margin-right: 20px;
 }
 
@@ -186,8 +189,8 @@ onMounted(loadOrder);
 .spinner {
   width: 40px;
   height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #4CAF50;
+  border: 4px solid var(--ind-50);
+  border-top: 4px solid var(--cinnabar);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 20px;
@@ -219,21 +222,30 @@ onMounted(loadOrder);
 
 .status-text p {
   margin: 0;
-  color: #666;
+  color: var(--text-2);
 }
 
 .order-info-card {
-  background: white;
+  background: var(--ind-800);
+  color: var(--paper);
   padding: 20px;
-  border-radius: 8px;
+  border-radius: var(--radius);
   margin-bottom: 20px;
+}
+
+.order-info-card .label {
+  color: var(--ind-100);
+}
+
+.order-info-card .value {
+  color: var(--paper);
 }
 
 .info-row {
   display: flex;
   justify-content: space-between;
   padding: 12px 0;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--ind-50);
 }
 
 .info-row:last-child {
@@ -241,7 +253,7 @@ onMounted(loadOrder);
 }
 
 .label {
-  color: #666;
+  color: var(--text-2);
 }
 
 .value {
@@ -249,7 +261,8 @@ onMounted(loadOrder);
 }
 
 .value.amount {
-  color: #e74c3c;
+  color: var(--cinnabar-300);
+  font-family: var(--font-display);
   font-size: 20px;
   font-weight: bold;
 }
@@ -271,7 +284,7 @@ onMounted(loadOrder);
   align-items: center;
   gap: 15px;
   padding: 15px 0;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--ind-50);
 }
 
 .order-item:last-child {
@@ -295,13 +308,13 @@ onMounted(loadOrder);
 }
 
 .item-price {
-  color: #666;
+  color: var(--text-2);
   font-size: 14px;
 }
 
 .item-total {
   font-weight: bold;
-  color: #e74c3c;
+  color: var(--cinnabar);
 }
 
 .actions {
@@ -321,26 +334,26 @@ onMounted(loadOrder);
 }
 
 .pay-btn {
-  background: #4CAF50;
+  background: var(--cinnabar);
   color: white;
 }
 
 .pay-btn:hover {
-  background: #45a049;
+  background: var(--cinnabar-700);
 }
 
 .pay-btn:disabled {
-  background: #ccc;
+  background: var(--ind-100);
   cursor: not-allowed;
 }
 
 .cancel-btn {
-  background: #f5f5f5;
-  color: #666;
+  background: var(--ind-50);
+  color: var(--text-2);
 }
 
 .cancel-btn:hover {
-  background: #e0e0e0;
+  background: var(--ind-100);
 }
 
 .error {

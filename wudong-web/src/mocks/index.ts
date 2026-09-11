@@ -1,8 +1,16 @@
 // 民宿/房型 mock 数据集（从原型 mock.js 迁移，TS 化；与后端返回结构同构）。
 // mockHotels 每条 minPrice 已为 number（对应 api 层归一后的 Hotel.minPrice: number|null）。
 import type { Hotel, RoomType } from '../api/types';
+import imgH1 from '../assets/img/hotel/h1.jpg';
+import imgH1b from '../assets/img/hotel/h1b.jpg';
+import imgH2 from '../assets/img/hotel/h2.jpg';
+import imgH3 from '../assets/img/hotel/h3.jpg';
+import imgR1 from '../assets/img/hotel/r1.jpg';
+import imgR2 from '../assets/img/hotel/r2.jpg';
 
-const IMG = (seed: string): string => `https://picsum.photos/seed/${seed}/900/600`;
+// 本地实景图（Unsplash License，见 CREDITS.md）；原 picsum 远程种子已全部本地化替换
+const LOCAL_IMGS: Record<string, string> = { h1: imgH1, h1b: imgH1b, h2: imgH2, h3: imgH3, r1: imgR1, r2: imgR2 };
+const IMG = (seed: string): string => LOCAL_IMGS[seed] ?? seed;
 
 export const mockHotels: Hotel[] = [
   {

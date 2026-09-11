@@ -63,6 +63,10 @@ async function clearFilter(): Promise<void> {
 
 <template>
   <div class="container page">
+    <header class="page-head">
+      <h1 class="font-display">社区游记</h1>
+      <p class="page-sub">旅人的乌东足迹与故事</p>
+    </header>
     <div class="main">
       <div class="tabs">
         <span class="pill tab" :class="{ on: tab === 'recommend' }" @click="onTab('recommend')">推荐</span>
@@ -75,7 +79,7 @@ async function clearFilter(): Promise<void> {
         >{{ t.name }}</span>
       </div>
       <div v-if="filteredRoute" class="filter-bar">
-        正在看路线相关游记 <a @click="clearFilter">清除过滤 ✕</a>
+        正在看路线相关游记 <a @click="clearFilter">清除过滤 <Icon name="x" :size="12" /></a>
       </div>
       <Waterfall :posts="shown" @open="(id) => router.push(`/post/${id}`)" @tag="onTag" />
       <div v-if="!shown.length" class="empty card">暂无内容</div>
@@ -93,12 +97,12 @@ async function clearFilter(): Promise<void> {
 <style scoped>
 .page { display: flex; gap: 16px; margin-top: 16px; }
 .main { flex: 1; }
-.tabs { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
-.tab { background: #f2f2f2; cursor: pointer; }
-.tab.on { background: var(--green-600); color: #fff; }
+.tabs { display: flex; gap: 8px; align-items: center; margin: 16px 0 12px; flex-wrap: wrap; }
+.tab { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); cursor: pointer; color: var(--text-2); }
+.tab.on { background: var(--ind-700); border-color: var(--ind-700); color: var(--paper); }
 .sep { flex: 1; }
 .topic { background: var(--paper); border: 1px solid var(--line-soft); cursor: pointer; }
-.filter-bar { background: var(--amber-bg); color: var(--amber-text); border-radius: 8px; padding: 6px 12px; font-size: 12px; margin-bottom: 10px; }
+.filter-bar { background: var(--ind-100); color: var(--ind-700); border-radius: var(--radius); padding: 6px 12px; font-size: 12px; margin-bottom: 10px; }
 .filter-bar a { cursor: pointer; margin-left: 8px; }
 .quick { position: sticky; top: 64px; align-self: flex-start; }
 .empty { padding: 30px; text-align: center; color: var(--text-3); }

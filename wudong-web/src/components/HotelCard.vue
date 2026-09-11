@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { fmtPrice } from '@/utils/format';
+import Icon from '@/components/Icon.vue';
 import type { Hotel } from '@/api/types';
 
 const props = defineProps<{ hotel: Hotel }>();
@@ -20,7 +21,7 @@ function onImgError(e: Event): void {
     <div v-else class="cover placeholder" aria-hidden="true"></div>
     <div class="body">
       <p class="name">{{ hotel.name }}</p>
-      <p class="addr">📍 {{ hotel.address }}</p>
+      <p class="addr"><Icon name="map-pin" :size="12" /> {{ hotel.address }}</p>
       <div class="tags">
         <span v-for="t in hotel.styleTags.slice(0, 4)" :key="t" class="tag">{{ t }}</span>
       </div>
@@ -38,30 +39,26 @@ function onImgError(e: Event): void {
   border-radius: var(--radius);
   overflow: hidden;
   border: 1px solid var(--line);
-  transition:
-    transform 0.18s ease,
-    box-shadow 0.18s ease;
   cursor: pointer;
 }
 .hotel-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow);
+  border-color: var(--ind-300);
 }
 .cover {
-  height: 170px;
   width: 100%;
+  aspect-ratio: 16 / 10;
   object-fit: cover;
 }
 .cover.placeholder {
-  background: linear-gradient(135deg, var(--green-300), var(--green-500));
+  background: var(--ind-100);
 }
 .body {
   padding: 14px 16px 16px;
 }
 .name {
   margin: 0 0 6px;
-  font-size: 17px;
-  color: var(--green-900);
+  font-size: 15px;
+  color: var(--ink);
 }
 .addr {
   font-size: 12px;
@@ -76,11 +73,11 @@ function onImgError(e: Event): void {
 }
 .tag {
   font-size: 12px;
-  color: var(--green-700);
-  background: var(--green-100);
-  border: 1px solid #d6e6cf;
+  color: var(--ind-700);
+  background: var(--ind-100);
+  border: 1px solid var(--line);
   padding: 2px 8px;
-  border-radius: 6px;
+  border-radius: var(--radius);
 }
 .meta {
   display: flex;
@@ -88,7 +85,7 @@ function onImgError(e: Event): void {
   justify-content: space-between;
 }
 .rate {
-  color: var(--gold-600);
+  color: var(--cinnabar-700);
   font-weight: 600;
 }
 .price {
@@ -97,7 +94,8 @@ function onImgError(e: Event): void {
 }
 .price em {
   font-style: normal;
-  color: var(--gold-600);
+  color: var(--cinnabar);
+  font-family: var(--font-display);
   font-size: 20px;
   font-weight: 700;
 }
