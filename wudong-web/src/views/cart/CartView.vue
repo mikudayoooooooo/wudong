@@ -790,26 +790,33 @@ onMounted(() => {
   resize: vertical;
 }
 
+/* 结算金额区（§3.4）：ind-800 深色块 + 纸色字 */
 .total-section {
+  background: var(--ind-800);
+  color: var(--paper);
+  border-radius: var(--radius);
+  padding: 12px 16px;
   margin-bottom: 20px;
 }
 
 .total-row {
   display: flex;
   justify-content: space-between;
-  padding: 10px 0;
+  padding: 6px 0;
   font-size: 14px;
+  color: var(--ind-100);
 }
 
 .total-row.total-amount {
-  font-size: 18px;
+  font-size: 15px;
   font-weight: bold;
-  border-top: 2px solid var(--line);
-  padding-top: 15px;
+  border-top: 1px solid rgba(251, 247, 238, .18);
+  padding-top: 12px;
 }
 
 .total-row .amount {
-  color: var(--cinnabar);
+  color: var(--cinnabar-300);
+  font-family: var(--font-display);
   font-size: 24px;
 }
 

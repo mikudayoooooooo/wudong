@@ -14,7 +14,7 @@
       <!-- 订单状态 -->
       <div class="order-status">
         <div class="status-icon">
-          <span v-if="order.status === 1">⏰</span>
+          <span v-if="order.status === 1"><Icon name="clock" :size="16" /></span>
           <span v-else-if="order.status === 2"><Icon name="check" :size="16" /></span>
           <span v-else-if="order.status === 3"><Icon name="basket" :size="16" /></span>
           <span v-else-if="order.status === 4"><Icon name="x" :size="16" /></span>
@@ -226,10 +226,19 @@ onMounted(loadOrder);
 }
 
 .order-info-card {
-  background: white;
+  background: var(--ind-800);
+  color: var(--paper);
   padding: 20px;
-  border-radius: 8px;
+  border-radius: var(--radius);
   margin-bottom: 20px;
+}
+
+.order-info-card .label {
+  color: var(--ind-100);
+}
+
+.order-info-card .value {
+  color: var(--paper);
 }
 
 .info-row {
@@ -252,7 +261,8 @@ onMounted(loadOrder);
 }
 
 .value.amount {
-  color: var(--cinnabar);
+  color: var(--cinnabar-300);
+  font-family: var(--font-display);
   font-size: 20px;
   font-weight: bold;
 }

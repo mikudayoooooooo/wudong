@@ -26,7 +26,7 @@ const videoCls = computed(() => (props.post.video ? 'ph-4' : `ph-${props.post.im
       <img :src="cover" :alt="post.title" loading="lazy" />
     </div>
     <div v-else class="ph cover" :class="videoCls">
-      <span v-if="post.video" class="video-mark">▶ 视频</span>
+      <span v-if="post.video" class="video-mark"><Icon name="photo" :size="11" /> 视频</span>
     </div>
     <div class="body">
       <b class="title">{{ post.title }}</b>

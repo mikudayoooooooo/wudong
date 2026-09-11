@@ -136,11 +136,11 @@ onMounted(async () => {
       </button>
     </div>
 
-    <div v-if="!session.isLogged" class="card empty">请先在右上角登录后查看订单</div>
+    <div v-if="!session.isLogged" class="card empty"><Icon name="ticket" :size="16" /> 请先在右上角登录后查看订单</div>
     <div v-else-if="loading" class="card empty">加载中…</div>
-    <div v-else-if="!list.length" class="card empty">暂无订单</div>
+    <div v-else-if="!list.length" class="card empty"><Icon name="ticket" :size="16" /> 暂无订单</div>
     <div v-else class="orders">
-      <div v-for="o in list" :key="o.id" class="order card">
+      <div v-for="o in list" :key="o.id" class="order">
         <div class="row1">
           <b>{{ MODULE_DICT[o.module] || o.module }}</b>
           <span :class="STATUS_DICT[o.status]?.cls">{{ STATUS_DICT[o.status]?.label || o.status }}</span>
@@ -193,25 +193,26 @@ onMounted(async () => {
 <style scoped>
 .tabs { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
 .tab { border: 1px solid var(--line-soft); background: #fff; border-radius: 14px; padding: 4px 14px; cursor: pointer; color: var(--text-2); }
-.tab.active { background: var(--orange-500); border-color: var(--orange-500); color: #fff; font-weight: 700; }
-.orders { display: flex; flex-direction: column; gap: 10px; }
-.order { padding: 12px 16px; }
+.tab.active { background: var(--ind-700); border-color: var(--ind-700); color: var(--paper); font-weight: 700; }
+.orders { display: flex; flex-direction: column; }
+.order { padding: 12px 4px; border-bottom: 1px solid var(--line-soft); }
 .row1 { display: flex; justify-content: space-between; align-items: center; }
+.row1 .st-warn, .row1 .st-ok, .row1 .st-off { font-size: 12px; padding: 2px 8px; border-radius: 2px; }
 .row2 { display: flex; justify-content: space-between; margin: 6px 0; }
 .row2 .no { color: var(--text-3); font-size: 12px; }
 .row3 { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; color: var(--text-2); }
 .row3 .time { color: var(--text-3); font-size: 12px; white-space: nowrap; }
-.st-warn { color: var(--amber-text); font-weight: 700; }
-.st-ok { color: var(--green-600); font-weight: 700; }
+.st-warn { color: var(--cinnabar-700); background: var(--cinnabar-100); font-weight: 700; }
+.st-ok { color: var(--ind-700); background: var(--ind-100); font-weight: 700; }
 .st-off { color: var(--text-3); }
 .acts { display: flex; gap: 8px; justify-content: flex-end; margin-top: 8px; }
-.mini { border: 1px solid var(--line-soft); background: #fff; border-radius: 12px; padding: 3px 12px; cursor: pointer; font-size: 12px; }
-.mini.primary { background: var(--green-600); color: #fff; border-color: var(--green-600); }
+.mini { border: 1px solid var(--line-soft); background: #fff; border-radius: var(--radius); padding: 3px 12px; cursor: pointer; font-size: 12px; }
+.mini.primary { background: var(--ind-700); color: var(--paper); border-color: var(--ind-700); }
 .mask { position: fixed; inset: 0; background: rgba(11, 29, 44, .35); display: flex; align-items: center; justify-content: center; z-index: 50; }
 .dialog { width: 420px; padding: 18px; }
 .stars { margin: 10px 0; font-size: 22px; }
 .star { cursor: pointer; color: var(--line); }
-.star.on { color: var(--orange-500); }
+.star.on { color: var(--cinnabar); }
 textarea { width: 100%; box-sizing: border-box; border: 1px solid var(--line-soft); border-radius: 8px; padding: 8px; }
 .d-acts { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
 .pager { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 8px 0; }

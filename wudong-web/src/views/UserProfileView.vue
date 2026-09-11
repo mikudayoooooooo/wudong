@@ -6,6 +6,12 @@ import { travelApi, type StopView } from '../api/travel'
 import FootprintMap from '../components/FootprintMap.vue'
 import Waterfall from '../components/Waterfall.vue'
 import Icon from '../components/Icon.vue'
+import avatarShan from '../assets/avatar/avatar-shan.svg'
+import avatarShui from '../assets/avatar/avatar-shui.svg'
+import avatarMiao from '../assets/avatar/avatar-miao.svg'
+import avatarXiu from '../assets/avatar/avatar-xiu.svg'
+import avatarYin from '../assets/avatar/avatar-yin.svg'
+import avatarA from '../assets/avatar/avatar-a.svg'
 
 const routeParam = useRoute()
 const router = useRouter()
@@ -39,12 +45,19 @@ const archiveStops = computed<StopView[]>(() =>
     spotId: id, lit: true, locked: false,
   }))
 )
+/* 首字头像（规范 §3.4）：昵称首字匹配本地 SVG，未命中按字符码散列取一，无远程图 */
+const AVATAR_MAP: Record<string, string> = { 山: avatarShan, 水: avatarShui, 苗: avatarMiao, 绣: avatarXiu, 银: avatarYin, 阿: avatarA }
+const avatarSvg = computed(() => {
+  const name = profile.value?.nickname || ''
+  if (!name) return avatarShan
+  return AVATAR_MAP[name.charAt(0)] || Object.values(AVATAR_MAP)[name.charCodeAt(0) % 6]
+})
 </script>
 
 <template>
   <div v-if="profile" class="container page">
     <section class="card head">
-      <span class="avatar">{{ profile.avatar }}</span>
+      <img class="avatar-img" :src="avatarSvg" :alt="profile.nickname" />
       <div class="who">
         <b>@{{ profile.nickname }}</b>
         <div class="bio">{{ profile.bio }}</div>
@@ -62,9 +75,9 @@ const archiveStops = computed<StopView[]>(() =>
 <style scoped>
 .page { margin-top: 16px; }
 .head { display: flex; gap: 14px; align-items: center; padding: 16px 18px; margin-bottom: 14px; }
-.avatar { font-size: 40px; }
+.avatar-img { width: 56px; height: 56px; border-radius: var(--radius); flex-shrink: 0; }
 .bio { font-size: 12px; color: var(--text-3); }
 .stats { font-size: 12px; color: var(--text-2); margin-top: 4px; }
-.badge-chip { background: var(--amber-bg); color: var(--amber-text); }
+.badge-chip { background: var(--cinnabar-100); color: var(--cinnabar-700); }
 .feed { margin-top: 14px; }
 </style>

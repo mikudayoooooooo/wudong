@@ -48,11 +48,11 @@ onMounted(async () => {
   <div class="container page">
     <h2><Icon name="tools-kitchen-2" :size="16" /> 我的餐位预订</h2>
 
-    <div v-if="!session.isLogged" class="card empty">请先在右上角登录后查看预订</div>
+    <div v-if="!session.isLogged" class="card empty"><Icon name="tools-kitchen-2" :size="16" /> 请先在右上角登录后查看预订</div>
     <div v-else-if="loading" class="card empty">加载中…</div>
-    <div v-else-if="!list.length" class="card empty">暂无预订，去「特色餐厅」挑一家试试</div>
+    <div v-else-if="!list.length" class="card empty"><Icon name="tools-kitchen-2" :size="16" /> 暂无预订，去「特色餐厅」挑一家试试</div>
     <div v-else class="reservations">
-      <div v-for="r in list" :key="r.id" class="res card">
+      <div v-for="r in list" :key="r.id" class="res">
         <div class="row1">
           <b>{{ r.restaurantName || `餐厅 #${r.restaurantId}` }}</b>
           <span :class="STATUS_DICT[r.status]?.cls">{{ STATUS_DICT[r.status]?.label ?? r.status }}</span>
@@ -77,14 +77,14 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.reservations { display: flex; flex-direction: column; gap: 10px; }
-.res { padding: 12px 16px; }
+.reservations { display: flex; flex-direction: column; }
+.res { padding: 12px 4px; border-bottom: 1px solid var(--line-soft); }
 .row1 { display: flex; justify-content: space-between; align-items: center; }
 .row2 { display: flex; gap: 16px; margin: 6px 0; font-size: 13px; color: var(--text-2); }
 .row3 { display: flex; justify-content: space-between; align-items: center; }
 .row3 .no { color: var(--text-3); font-size: 12px; }
-.st-warn { color: var(--amber-text); font-weight: 700; }
-.st-ok { color: var(--green-600); font-weight: 700; }
-.st-off { color: var(--text-3); }
-.mini { border: 1px solid var(--line-soft); background: #fff; border-radius: 12px; padding: 3px 12px; cursor: pointer; font-size: 12px; }
+.st-warn { color: var(--cinnabar-700); background: var(--cinnabar-100); font-weight: 700; font-size: 12px; padding: 2px 8px; border-radius: 2px; }
+.st-ok { color: var(--ind-700); background: var(--ind-100); font-weight: 700; font-size: 12px; padding: 2px 8px; border-radius: 2px; }
+.st-off { color: var(--text-3); font-size: 12px; padding: 2px 8px; border-radius: 2px; }
+.mini { border: 1px solid var(--line-soft); background: #fff; border-radius: var(--radius); padding: 3px 12px; cursor: pointer; font-size: 12px; }
 </style>
