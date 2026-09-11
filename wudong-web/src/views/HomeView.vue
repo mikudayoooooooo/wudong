@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import HeroCarousel from '../components/HeroCarousel.vue'
 import FootprintMap from '../components/FootprintMap.vue'
 import SectionHeader from '../components/SectionHeader.vue'
@@ -11,8 +11,10 @@ import { travelApi, type StopView } from '../api/travel'
 import { communityApi } from '../api/community'
 import { operateApi } from '../api/operate'
 import { HL_COVERS } from '../data/photos'
+import { useSession } from '../stores/session'
 
 const router = useRouter()
+const session = useSession()
 const bookDate = ref('2026-09-13')
 const bookPeople = ref(2)
 
@@ -40,6 +42,33 @@ const activeUsers = ref<any[]>([])
 const guides = ref<any[]>([])
 const announcements = ref<any[]>([])
 const routeTitleMap = ref(new Map<number, string>())
+
+// —— 个人足迹语义（规范 §3.7C，已拍板）：登录后地图切「你的点亮 vs 未解锁」 ——
+const myLitIds = ref<Set<number>>(new Set())
+const syncMyFootprint = async () => {
+  if (!session.isLogged || !session.user) {
+    myLitIds.value = new Set()
+    return
+  }
+  try {
+    const prof = await communityApi.userProfile(session.user.id)
+    myLitIds.value = new Set<number>(prof?.litSpotIds || [])
+  } catch {
+    myLitIds.value = new Set()
+  }
+}
+watch(() => session.isLogged, syncMyFootprint, { immediate: true })
+
+/** 登录用户：lit = 我核销过；匿名：全局点亮态 */
+const mapStops = computed<StopView[]>(() =>
+  session.isLogged
+    ? overviewStops.value.map((s) => {
+        const mine = myLitIds.value.has(s.spotId)
+        return { ...s, lit: mine, locked: !mine }
+      })
+    : overviewStops.value
+)
+const myLitCount = computed(() => overviewStops.value.filter((s) => myLitIds.value.has(s.spotId)).length)
 
 const KIND: Record<string, string> = { spot: '景区', dining: '餐饮 · 食', stay: '住宿 · 住', experience: '体验' }
 
@@ -147,8 +176,12 @@ const barWidth = (i: number): string =>
   <!-- 区块3：手绘地图（全幅浅靛色带，明度翻转） -->
   <section class="band band-map" v-reveal>
     <div class="container">
-      <SectionHeader icon="map-pins" title="乌东村手绘地图" sub="站点大小 = 被点亮次数 · 点击直达" />
-      <FootprintMap :stops="overviewStops" variant="overview" @select="(id) => router.push(`/scenic/${id}`)" />
+      <SectionHeader
+        icon="map-pins"
+        title="乌东村手绘地图"
+        :sub="session.isLogged ? `你的足迹 · 已点亮 ${myLitCount}/${overviewStops.length} 站 · 点击直达` : '站点大小 = 被点亮次数 · 点击直达'"
+      />
+      <FootprintMap :stops="mapStops" variant="overview" @select="(id) => router.push(`/scenic/${id}`)" />
     </div>
   </section>
 
