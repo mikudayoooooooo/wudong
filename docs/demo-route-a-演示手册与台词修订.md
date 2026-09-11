@@ -94,3 +94,17 @@ docker exec -i wudong-mysql mysql -uroot -p123456 wudong_platform \
 ## 4. 彩排后复位
 
 重跑第 1 节两条命令即可：彩排产生的订单/票/游记/日历价/演示房型全部清空，商家与权限保留，回到"演出开始前"。
+
+## 5. 备份与恢复（测试数据保全）
+
+演示就绪态整库备份：`docs/database/backups/wudong_platform-demo-ready-20260911.sql`
+（2026-09-11 彩排通过后 dumps：wangapo 商家/账号/角色授权、阿婆民宿改名、0 订单干净态，96 表全量）。
+
+恢复（整库覆盖，回到演示前初始态）：
+
+```bash
+docker exec -i wudong-mysql mysql -uroot -p123456 --default-character-set=utf8mb4 \
+  < docs/database/backups/wudong_platform-demo-ready-20260911.sql
+```
+
+恢复后管理后台需重新登录（权限缓存）。日常彩排复位仍用第 1 节的 reset + demo SQL；此备份用于"换机器/库被搞乱"时一步还原。
