@@ -70,6 +70,15 @@ async function main() {
   for (const r of urows) uid[r.phone] = r.id;
   const U = (n) => uid[`1380000000${n}`];
 
+  // ---- 收货地址（购物车结算演示用：默认地址挂在用户1名下）----
+  await ins('user_address',
+    ['userId', 'contact', 'phone', 'province', 'city', 'district', 'address', 'isDefault', 'createTime', 'updateTime'],
+    [
+      [U(1), '山野小鱼', '13800000001', '贵州省', '黔东南苗族侗族自治州', '雷山县', '乌东村一组吊脚楼', 1, now, now],
+      [U(1), '山野小鱼', '13800000001', '贵州省', '贵阳市', '观山湖区', '贵阳北站东广场', 0, now, now],
+    ]
+  );
+
   // ---- 景区 ----
   await ins('travel_scenic_spot',
     ['id', 'name', 'type', 'address', 'openTime', 'intro', 'mainImage', 'status', 'createTime', 'updateTime'],
