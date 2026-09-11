@@ -6,24 +6,31 @@ import FootprintMap from '../components/FootprintMap.vue'
 import SectionHeader from '../components/SectionHeader.vue'
 import Waterfall from '../components/Waterfall.vue'
 import CountUp from '../components/CountUp.vue'
+import Icon from '../components/Icon.vue'
 import { travelApi, type StopView } from '../api/travel'
 import { communityApi } from '../api/community'
 import { operateApi } from '../api/operate'
+import imgWaterfall from '../assets/img/scenic/waterfall.jpg'
+import imgLakeCabin from '../assets/img/scenic/lake-cabin.jpg'
+import imgForest from '../assets/img/scenic/forest.jpg'
 
 const router = useRouter()
 const bookDate = ref('2026-09-13')
 const bookPeople = ref(2)
 
 const kingkong = [
-  { icon: '🎫', label: '景区门票', to: '/scenic', disabled: false },
-  { icon: '🗺️', label: '路线套餐', to: '/route', disabled: false },
-  { icon: '🏨', label: '住宿民宿', to: '/hotels', disabled: false },
-  { icon: '🛍️', label: '非遗好物', to: '/products', disabled: false },
-  { icon: '🍜', label: '特色餐厅', to: '/restaurants', disabled: false },
-  { icon: '🌾', label: '新鲜农产品', to: '/farm-products', disabled: false },
-  { icon: '📷', label: '社区游记', to: '/community', disabled: false },
-  { icon: '🧭', label: '交通攻略', to: '/guide', disabled: false },
+  { icon: 'ticket', label: '景区门票', to: '/scenic', disabled: false },
+  { icon: 'map-pins', label: '路线套餐', to: '/route', disabled: false },
+  { icon: 'bed', label: '住宿民宿', to: '/hotels', disabled: false },
+  { icon: 'gift', label: '非遗好物', to: '/products', disabled: false },
+  { icon: 'tools-kitchen-2', label: '特色餐厅', to: '/restaurants', disabled: false },
+  { icon: 'basket', label: '新鲜农产品', to: '/farm-products', disabled: false },
+  { icon: 'camera', label: '社区游记', to: '/community', disabled: false },
+  { icon: 'compass', label: '交通攻略', to: '/guide', disabled: false },
 ]
+
+// 真实足迹精选封面（本地实景，Unsplash License，见 CREDITS.md）
+const hlImgs = [imgWaterfall, imgLakeCabin, imgForest]
 
 // —— 异步数据 ——
 const overviewStops = ref<StopView[]>([])
@@ -174,14 +181,17 @@ const barWidth = (i: number): string =>
     </section>
 
     <!-- 区块5：真实足迹精选 -->
-    <SectionHeader icon="🧭" title="真实足迹" sub="本周点亮最完整的游记" more="进入社区" @more="router.push('/community')" />
+    <SectionHeader icon="compass" title="真实足迹" sub="本周点亮最完整的游记" more="进入社区" @more="router.push('/community')" />
     <section class="hl-row">
       <div v-for="(p, i) in highlightPosts" :key="p.id" class="card hl" @click="router.push(`/post/${p.id}`)">
-        <div class="ph hl-img" :style="{ background: gradOf(i) }">{{ p.title }}</div>
+        <div class="hl-img img-frame">
+          <img :src="hlImgs[i % hlImgs.length]" :alt="p.title" />
+          <b class="hl-title">{{ p.title }}</b>
+        </div>
         <div class="hl-body">
           <b>@{{ p.author?.nickname }}</b>
           <span class="sub">· {{ routeTitleMap.get(p.linkedRouteId) }}</span>
-          <div class="chain-line">🧭 足迹快照 {{ p.footprintLit }}/{{ p.footprintTotal || p.footprintLit }} 站点亮 · 赞 {{ p.likeCount }}</div>
+          <div class="chain-line">足迹快照 {{ p.footprintLit }}/{{ p.footprintTotal || p.footprintLit }} 站点亮 · 赞 {{ p.likeCount }}</div>
         </div>
       </div>
     </section>
@@ -220,7 +230,7 @@ const barWidth = (i: number): string =>
     <!-- 区块7：交通攻略 + 平台数据 -->
     <section class="serv-row">
       <div class="card guides">
-        <b>🚄 怎么来乌东？</b>
+        <b class="side-title"><Icon name="bus" :size="15" /> 怎么来乌东？</b>
         <div class="guide-cards">
           <div v-for="g in guides" :key="g.id" class="g-card">
             <b>{{ g.departure }}出发</b><br />{{ g.transportType }} {{ g.duration }}<br />

@@ -5,6 +5,7 @@ import { useSession } from '../stores/session'
 import { communityApi } from '../api/community'
 import CartBadge from './CartBadge.vue'
 import LoginModal from './LoginModal.vue'
+import Icon from './Icon.vue'
 
 const router = useRouter()
 const session = useSession()
@@ -60,23 +61,26 @@ function goMenu(m: { label: string; path: () => string }) {
 <template>
   <nav class="nav">
     <div class="container nav-inner">
-      <b class="logo">🏞 乌东文旅</b>
+      <b class="logo"><span class="seal font-display">乌</span><span class="brand font-display">乌东文旅</span></b>
       <RouterLink v-for="it in items" :key="it.path" :to="it.path" class="item">
         {{ it.label }}
       </RouterLink>
       <span class="spacer" />
-      <input
-        v-model="searchKw"
-        class="search"
-        placeholder="🔍 搜索路线 / 景区 / 游记 / 话题"
-        @keyup.enter="onSearch"
-      />
-      <button class="publish" @click="router.push('/publish')">＋ 发布</button>
+      <span class="search-wrap">
+        <Icon name="search" :size="14" class="search-icon" />
+        <input
+          v-model="searchKw"
+          class="search"
+          placeholder="搜索路线 / 景区 / 游记 / 话题"
+          @keyup.enter="onSearch"
+        />
+      </span>
+      <button class="publish" @click="router.push('/publish')"><Icon name="plus" :size="14" /> 发布</button>
       <CartBadge v-if="session.isLogged" />
       <span class="user" data-testid="nav-user" @click="onUserClick">
         {{ session.isLogged ? `${session.user!.avatar} ${session.user!.nickname}` : '登录' }}
       </span>
-      <span v-if="session.isLogged" class="user" @click="userMenuOpen = !userMenuOpen">▾</span>
+      <span v-if="session.isLogged" class="user" @click="userMenuOpen = !userMenuOpen"><Icon name="chevron-down" :size="14" /></span>
       <div v-if="session.isLogged && userMenuOpen" class="user-menu card" @mouseleave="userMenuOpen = false">
         <a v-for="m in userMenu" :key="m.label" @click="goMenu(m)">{{ m.label }}</a>
         <a class="logout" @click="userMenuOpen = false; session.logout()">退出</a>
@@ -99,7 +103,7 @@ function goMenu(m: { label: string; path: () => string }) {
         <a v-for="u in searchResult.users" :key="u.id" @click="goUser(u.id)">{{ u.avatar }} {{ u.nickname }}</a>
         <span v-if="!searchResult.users.length" class="empty">无结果</span>
       </div>
-      <span class="close-s" @click="searchOpen = false">✕</span>
+      <span class="close-s" @click="searchOpen = false"><Icon name="x" :size="14" /></span>
     </div>
   </nav>
   <LoginModal :open="loginOpen" @close="loginOpen = false" />
